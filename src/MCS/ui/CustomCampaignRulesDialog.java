@@ -87,7 +87,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 slider(t, "@rules.unitbuildspeedmultiplier", customRule.team(team).unitBuildSpeedMultiplier, value -> {
                     customRule.team(team).unitBuildSpeedMultiplier = value;
                 });
-            }).width(500f).left().fillX().row();
+            }).width(600f).left().fillX().row();
 
             current.table(Tex.button, t -> {
                 slider(t, "@rules.wavetimemultiplier", customRule.waveTimeMultiplier, value -> {
@@ -96,7 +96,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 slider(t, "@rules.unitfactoryactivation", customRule.unitFactoryActivationDelay, value -> {
                     customRule.unitFactoryActivationDelay = value * 60f;
                 }, 0, 60, 0.5f, StatUnit.minutes.localized());
-            }).width(500f).left().fillX().row();
+            }).width(600f).left().fillX().row();
 
             if(planet.allowSectorInvasion){
                 check("@rules.invasions", b -> customRule.sectorInvasion = b, () -> customRule.sectorInvasion);
@@ -146,16 +146,19 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     }
 
     void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, boolean percent){
-        t.add(text).left();
+        Table row = new Table();
 
-        Slider slider = new Slider(min, max, step,false);
+        Label label = new Label(text);
+        row.add(label).left().fillX().expandX();
+
+        Slider slider = new Slider(min, max, step, false);
         slider.setValue(def);
 
         TextField field = Elem.newField(def + "", s -> {
             try {
                 float parsedValue = Strings.parseFloat(s);
                 slider.setValue(parsedValue);
-            }catch(NumberFormatException ignored){};
+            } catch (NumberFormatException ignored) {}
         });
 
         slider.moved(listener);
@@ -163,23 +166,30 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
             field.setText(String.format("%.1f", slider.getValue()));
         });
 
-        t.add(slider).growX().padLeft(10f).left();
-        t.add(field);
-        if(percent) t.add("%");
-        t.row();
+        row.add(slider).growX().padLeft(10f);
+        row.add(field).right();
+
+        if (percent) {
+            row.add("%").right();
+        }
+
+        t.add(row).growX().row();
     }
 
     void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, String tail){
-        t.add(text).left();
+        Table row = new Table();
 
-        Slider slider = new Slider(min, max, step,false);
+        Label label = new Label(text);
+        row.add(label).left().fillX().expandX();
+
+        Slider slider = new Slider(min, max, step, false);
         slider.setValue(def);
 
         TextField field = Elem.newField(def + "", s -> {
             try {
                 float parsedValue = Strings.parseFloat(s);
                 slider.setValue(parsedValue);
-            }catch(NumberFormatException ignored){};
+            } catch (NumberFormatException ignored) {}
         });
 
         slider.moved(listener);
@@ -187,9 +197,10 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
             field.setText(String.format("%.1f", slider.getValue()));
         });
 
-        t.add(slider).growX().padLeft(10f).left();
-        t.add(field);
-        t.add(tail);
-        t.row();
+        row.add(slider).growX().padLeft(10f);
+        row.add(field).right();
+        row.add(tail).right();
+
+        t.add(row).growX().row();
     }
 }
