@@ -1,0 +1,9 @@
+name: "MCS"
+displayName: "More Custom Settings"
+author: "Space"
+description: A mod which allows players to custom campaign difficulty(TODO: music and etc.)
+version: 1.0
+minGameVersion: 154
+
+java: true
+main: "MCS.main"
