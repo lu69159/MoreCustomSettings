@@ -2,6 +2,7 @@ name: "MCS"
 displayName: "More Custom Settings"
 author: "Space"
 description: A mod which allows players to custom campaign difficulty(TODO: music and etc.)
+repo: lu69159/MoreCustomSettings
 version: 1.0
 minGameVersion: 154
 
