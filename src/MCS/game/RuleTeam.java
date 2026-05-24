@@ -3,8 +3,9 @@ package MCS.game;
 import arc.Core;
 
 public enum RuleTeam{
-    player,
-    enemy;
+    enemy,
+    player;
+
 
     public static final RuleTeam[] all = values();
 

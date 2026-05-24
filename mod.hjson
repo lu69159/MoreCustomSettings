@@ -3,7 +3,7 @@ displayName: "More Custom Settings"
 author: "Space"
 description: A mod which allows players to custom campaign difficulty(TODO: music and etc.)
 repo: lu69159/MoreCustomSettings
-version: 1.1
+version: 1.2
 minGameVersion: 154
 
 java: true

@@ -1,6 +1,8 @@
 package MCS.game;
 
 import arc.*;
+import mindustry.game.Difficulty;
+
 import static mindustry.Vars.content;
 import static mindustry.game.EventType.*;
 import static MCS.main.*;
@@ -26,8 +28,17 @@ public class MCSsaves{
         Core.settings.put(name + "PUH", r.player.unitHealthMultiplier);
         Core.settings.put(name + "PUC", r.player.unitCostMultiplier);
         Core.settings.put(name + "PUBS", r.player.unitBuildSpeedMultiplier);
+
+        Core.settings.put(name + "ES", r.enemySpawnMultiplier);
         Core.settings.put(name + "WT", r.waveTimeMultiplier);
+        Core.settings.put(name + "EW", r.extendWaves);
         Core.settings.put(name + "UFA", r.unitFactoryActivationDelay);
+
+        for(int i = 0; i < Difficulty.all.length; i++){
+            if(r.customDiff== CustomDifficulty.all[i]){
+                Core.settings.put(name + "D", i);
+            }
+        }
 
         Core.settings.put(name + "SI", r.sectorInvasion);
         Core.settings.put(name + "fog", r.fog);
@@ -50,8 +61,13 @@ public class MCSsaves{
             r.player.unitHealthMultiplier = Core.settings.getFloat(name + "PUH", 1f);
             r.player.unitCostMultiplier =  Core.settings.getFloat(name + "PUC", 1f);
             r.player.unitBuildSpeedMultiplier = Core.settings.getFloat(name + "PUBS", 1f);
+
+            r.enemySpawnMultiplier = Core.settings.getFloat(name + "ES", 1f);
             r.waveTimeMultiplier = Core.settings.getFloat(name + "WT", 100f);
+            r.extendWaves = Core.settings.getInt(name + "EW", 0);
             r.unitFactoryActivationDelay = Core.settings.getFloat(name + "UFA", 0f);
+
+            r.customDiff = CustomDifficulty.all[Core.settings.getInt(name + "D", 2)];
 
             r.sectorInvasion = Core.settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
             r.fog = Core.settings.getBool(name + "fog", p.campaignRules.fog);

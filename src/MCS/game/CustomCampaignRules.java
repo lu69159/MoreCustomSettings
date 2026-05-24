@@ -1,21 +1,27 @@
 package MCS.game;
 
 import mindustry.Vars;
-import mindustry.game.CampaignRules;
-import mindustry.game.Rules;
+import mindustry.game.*;
 import mindustry.gen.Groups;
 import mindustry.type.Planet;
 
 public class CustomCampaignRules extends CampaignRules {
     public CustomTeamRules enemy;
     public CustomTeamRules player;
-    public float waveTimeMultiplier;
+    public CustomDifficulty customDiff;
+    public float enemySpawnMultiplier; //percent%
+    public float waveTimeMultiplier; //percent%
+    public int extendWaves;
     public float unitFactoryActivationDelay;
 
     public CustomCampaignRules(Planet planet){
         enemy = new CustomTeamRules();
         player = new CustomTeamRules();
-        waveTimeMultiplier = 1f;
+        customDiff = CustomDifficulty.normal;
+
+        enemySpawnMultiplier = 100f;
+        waveTimeMultiplier = 100f;
+        extendWaves = 0;
         unitFactoryActivationDelay = 0f;
 
         fog = planet.campaignRuleDefaults.fog;
@@ -53,6 +59,9 @@ public class CustomCampaignRules extends CampaignRules {
         planet.campaignRules.clearSectorOnLose = clearSectorOnLose;
 
         rules.objectiveTimerMultiplier = waveTimeMultiplier / 100.0f;
+        if(Vars.state.hasSector() && Vars.state.getSector().info.winWave > 0){
+            rules.winWave = Vars.state.getSector().info.winWave + extendWaves;
+        }
 
         rules.teams.get(rules.waveTeam).unitFactoryActivationDelay = unitFactoryActivationDelay;
 

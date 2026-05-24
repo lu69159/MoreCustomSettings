@@ -26,7 +26,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     RuleTeam team;
 
     public CustomCampaignRulesDialog(){
-        super();
+        new BaseDialog("@campaign.difficulty");
 
         Events.on(SaveLoadEvent.class, e -> {
             if(state.isCampaign()){
@@ -51,9 +51,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
             }
         });
 
-        onResize(() -> {
-            rebuild();
-        });
+        onResize(this::rebuild);
     }
 
     void rebuild(){
@@ -70,14 +68,44 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
 
                 t.defaults().size(140f, 50f);
 
+                for(CustomDifficulty diff : CustomDifficulty.all){
+                    t.button(diff.localized(), style, () -> {
+                        if(!diff.isCustom){
+                            customRule.waveTimeMultiplier = diff.waveTimeMultiplier / 100f;
+                            customRule.enemySpawnMultiplier = diff.enemySpawnMultiplier / 100f;
+                            customRule.team(RuleTeam.enemy).unitCostMultiplier = 100f / diff.enemySpawnMultiplier;
+                            customRule.team(RuleTeam.enemy).unitBuildSpeedMultiplier = diff.enemySpawnMultiplier / 100f;
+                            customRule.team(RuleTeam.enemy).blockHealthMultiplier = diff.enemyHealthMultiplier;
+                            customRule.team(RuleTeam.enemy).unitHealthMultiplier = diff.enemyHealthMultiplier;
+                            customRule.extendWaves = 0;
+                            customRule.customDiff = diff;
+                            rebuild();
+                        }
+                        else {
+                            customRule.customDiff = CustomDifficulty.custom;
+                            rebuild();
+                        }
+                    }).group(group).checked(b -> customRule.customDiff == diff).tooltip(diff.info());
+                    if(Core.graphics.isPortrait() && diff.ordinal() % 2 == 1){
+                        t.row();
+                    }
+                }
+            }).left().fill(false).expand(false, false).row();
+            current.add(new Label("@ruleteam")).left().expandX().row();
+            current.table(Tex.button, t -> {
+                t.margin(10f);
+                var group = new ButtonGroup<>();
+                var style = Styles.flatTogglet;
+
+                t.defaults().size(140f, 50f);
+
                 for(var rt : RuleTeam.all){
                     t.button(rt.localized(), style, () -> {
                         team = rt;
                         rebuild();
                     }).group(group).checked(b -> team == rt);
                 }
-            }).center().fill(false).expand(false, false).row();
-
+            }).growX().padLeft(10f).fill(false).row();
             current.table(Tex.button, t -> {
                 slider(t, "@rules.blockhealthmultiplier", customRule.team(team).blockHealthMultiplier, value -> {
                     customRule.team(team).blockHealthMultiplier = value;
@@ -93,10 +121,17 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 });
             }).width(600f).left().fillX().row();
 
+            current.add(new Label("@other")).left().row();
             current.table(Tex.button, t -> {
+                slider(t, "@rules.enemySpawnMultiplier", customRule.enemySpawnMultiplier, value -> {
+                    customRule.enemySpawnMultiplier = value;
+                }, 10f, 1000f, 1.0f, true);
                 slider(t, "@rules.wavetimemultiplier", customRule.waveTimeMultiplier, value -> {
                     customRule.waveTimeMultiplier = value;
                 }, 10f, 1000f, 1.0f, true);
+                slider(t, "@rules.extendWaves", customRule.extendWaves, value -> {
+                    customRule.extendWaves = (int)value;
+                }, 0, 50, 1, false);
                 slider(t, "@rules.unitfactoryactivation", customRule.unitFactoryActivationDelay, value -> {
                     customRule.unitFactoryActivationDelay = value * 60f;
                 }, 0, 60, 0.5f, StatUnit.minutes.localized());
@@ -124,7 +159,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     @Override
     public void show(Planet planet){
         this.planet = planet;
-        team = RuleTeam.player;
+        team = RuleTeam.enemy;
         customRule = rulesMaps.get(planet);
 
         rebuild();
@@ -150,34 +185,12 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     }
 
     void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, boolean percent){
-        Table row = new Table();
-
-        Label label = new Label(text);
-        row.add(label).left().fillX().expandX();
-
-        Slider slider = new Slider(min, max, step, false);
-        slider.setValue(def);
-
-        TextField field = Elem.newField(def + "", s -> {
-            try {
-                float parsedValue = Strings.parseFloat(s);
-                slider.setValue(parsedValue);
-            } catch (NumberFormatException ignored) {}
-        });
-
-        slider.moved(listener);
-        slider.changed(() -> {
-            field.setText(String.format("%.1f", slider.getValue()));
-        });
-
-        row.add(slider).growX().padLeft(10f);
-        row.add(field).right();
-
-        if (percent) {
-            row.add("%").right();
+        if(percent) {
+            slider(t, text, def, listener, min, max, step, "%");
         }
-
-        t.add(row).growX().row();
+        else{
+            slider(t, text, def, listener, min, max, step, "");
+        }
     }
 
     void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, String tail){
@@ -198,6 +211,9 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
 
         slider.moved(listener);
         slider.changed(() -> {
+            if(customRule.customDiff != CustomDifficulty.custom){
+                customRule.customDiff = CustomDifficulty.custom;
+            }
             field.setText(String.format("%.1f", slider.getValue()));
         });
 
