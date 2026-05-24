@@ -81,8 +81,8 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 slider(t, "@rules.unithealthmultiplier", customRule.team(team).unitHealthMultiplier, value -> {
                     customRule.team(team).unitHealthMultiplier = value;
                 });
-                slider(t, "@rules.unithealthmultiplier", customRule.team(team).unitCostMultiplier, value -> {
-                    customRule.team(team).unitHealthMultiplier = value;
+                slider(t, "@rules.unitcostmultiplier", customRule.team(team).unitCostMultiplier, value -> {
+                    customRule.team(team).unitCostMultiplier = value;
                 });
                 slider(t, "@rules.unitbuildspeedmultiplier", customRule.team(team).unitBuildSpeedMultiplier, value -> {
                     customRule.team(team).unitBuildSpeedMultiplier = value;
