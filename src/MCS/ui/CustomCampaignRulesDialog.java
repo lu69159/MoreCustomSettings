@@ -6,6 +6,7 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.scene.utils.*;
 import arc.util.*;
+import mindustry.Vars;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.type.*;
@@ -30,11 +31,13 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
         Events.on(SaveLoadEvent.class, e -> {
             if(state.isCampaign()){
                 rulesMaps.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
+                Call.setRules(Vars.state.rules);
             }
         });
         Events.on(SectorLaunchEvent.class, e -> {
             if(state.isCampaign()){
                 rulesMaps.get(e.sector.planet).apply(e.sector.planet, state.rules);
+                Call.setRules(Vars.state.rules);
             }
         });
 
@@ -43,6 +46,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 rulesMaps.save(planet, customRule);
                 if(state.isGame() && state.isCampaign() && state.getPlanet() == planet){
                     customRule.apply(planet, state.rules);
+                    Call.setRules(Vars.state.rules);
                 }
             }
         });

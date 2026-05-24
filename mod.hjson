@@ -8,3 +8,4 @@ minGameVersion: 154
 
 java: true
 main: "MCS.main"
+hidden: true

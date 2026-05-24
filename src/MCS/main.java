@@ -22,9 +22,4 @@ public class main extends Mod{
         rulesMaps = new PlanetCustomRulesMaps();
         saves = new MCSsaves();
     }
-
-    @Override
-    public void loadContent(){
-
-    }
 }
