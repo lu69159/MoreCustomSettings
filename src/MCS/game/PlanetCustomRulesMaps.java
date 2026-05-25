@@ -2,6 +2,7 @@ package MCS.game;
 
 import arc.*;
 import arc.struct.*;
+import arc.util.serialization.Json.*;
 import mindustry.type.Planet;
 
 import static MCS.main.*;

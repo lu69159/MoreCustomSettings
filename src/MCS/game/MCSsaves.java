@@ -20,6 +20,7 @@ public class MCSsaves{
         CustomCampaignRules r = customrules.rules;
         String name = customrules.planet.name + "MCS";
 
+
         Core.settings.put(name + "EBH", r.enemy.blockHealthMultiplier);
         Core.settings.put(name + "EUH", r.enemy.unitHealthMultiplier);
         Core.settings.put(name + "EUC", r.enemy.unitCostMultiplier);
