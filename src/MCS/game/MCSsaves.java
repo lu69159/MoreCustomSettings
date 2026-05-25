@@ -34,7 +34,7 @@ public class MCSsaves{
         Core.settings.put(name + "EW", r.extendWaves);
         Core.settings.put(name + "UFA", r.unitFactoryActivationDelay);
 
-        for(int i = 0; i < Difficulty.all.length; i++){
+        for(int i = 0; i < CustomDifficulty.all.length; i++){
             if(r.customDiff== CustomDifficulty.all[i]){
                 Core.settings.put(name + "D", i);
             }

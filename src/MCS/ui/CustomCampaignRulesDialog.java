@@ -50,8 +50,16 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 }
             }
         });
+    }
 
-        onResize(this::rebuild);
+    @Override
+    protected void onResize(Runnable run){
+        Events.on(ResizeEvent.class, event -> {
+            if(isShown() && Core.scene.getDialog() == this && !Core.input.isShowingTextInput()){
+                rebuild();
+                updateScrollFocus();
+            }
+        });
     }
 
     void rebuild(){
@@ -71,14 +79,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 for(CustomDifficulty diff : CustomDifficulty.all){
                     t.button(diff.localized(), style, () -> {
                         if(!diff.isCustom){
-                            customRule.waveTimeMultiplier = diff.waveTimeMultiplier / 100f;
-                            customRule.enemySpawnMultiplier = diff.enemySpawnMultiplier / 100f;
-                            customRule.team(RuleTeam.enemy).unitCostMultiplier = 100f / diff.enemySpawnMultiplier;
-                            customRule.team(RuleTeam.enemy).unitBuildSpeedMultiplier = diff.enemySpawnMultiplier / 100f;
-                            customRule.team(RuleTeam.enemy).blockHealthMultiplier = diff.enemyHealthMultiplier;
-                            customRule.team(RuleTeam.enemy).unitHealthMultiplier = diff.enemyHealthMultiplier;
-                            customRule.extendWaves = 0;
-                            customRule.customDiff = diff;
+                            customRule.set(diff);
                             rebuild();
                         }
                         else {

@@ -76,6 +76,25 @@ public class CustomCampaignRules extends CampaignRules {
         rules.teams.get(Vars.player.team()).unitBuildSpeedMultiplier = player.unitBuildSpeedMultiplier;
     }
 
+    public void set(CustomDifficulty diff){
+        waveTimeMultiplier = diff.waveTimeMultiplier * 100f;
+        enemySpawnMultiplier = diff.enemySpawnMultiplier * 100f;
+
+        enemy.unitCostMultiplier = diff.enemySpawnMultiplier;
+        enemy.unitBuildSpeedMultiplier = diff.enemySpawnMultiplier;
+        enemy.blockHealthMultiplier = diff.enemyHealthMultiplier;
+        enemy.unitHealthMultiplier = diff.enemyHealthMultiplier;
+
+        player.unitCostMultiplier = 1f;
+        player.unitBuildSpeedMultiplier = 1f;
+        player.blockHealthMultiplier = 1f;
+        player.unitHealthMultiplier = 1f;
+
+        extendWaves = 0;
+        unitFactoryActivationDelay = 0f;
+        customDiff = diff;
+    }
+
     public CustomTeamRules team(RuleTeam t){
         if(t == RuleTeam.enemy){
             return enemy;

@@ -2,6 +2,8 @@ package MCS.ui;
 
 import arc.*;
 import arc.func.*;
+import arc.scene.ui.*;
+import arc.struct.*;
 import mindustry.ai.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
