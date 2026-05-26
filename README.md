@@ -1,9 +1,12 @@
 # More Custom Settings
-- Currently offering customization options including campaign difficulty
-- TODO : customize music, etc.
+- Custom campaign difficulty
+- Custom music
+- More features on future...
 
 # 更多自定义设置
-- 目前提供了自定义战役难度设置
-- TODO: 自定义音乐...
+- 自定义战役难度设置
+- 自定义音乐
+- 未来会添加更多功能...
 
 ![preview1](./assets/preview/preview1.png)
+![preview2](./assets/preview/preview2.png)
