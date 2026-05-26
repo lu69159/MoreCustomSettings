@@ -5,7 +5,7 @@ import arc.func.*;
 import arc.scene.style.Drawable;
 import arc.scene.ui.*;
 import arc.struct.*;
-import arc.util.Nullable;
+import arc.util.*;
 import mindustry.ai.*;
 import mindustry.game.EventType.*;
 import mindustry.gen.*;
@@ -41,10 +41,12 @@ public class MCSsettingMenuDialog {
             }
         });
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> musicImportDialog.show()));
-        t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
-            if(musicLoader.musicFolder == null || !musicLoader.musicFolder.exists()) musicLoader.loadFolder();
-            Core.app.openFolder(musicLoader.musicFolder.absolutePath());
-        }));
+        if(!mobile){
+            t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
+                if(musicLoader.musicFolder == null || !musicLoader.musicFolder.exists()) musicLoader.loadFolder();
+                Core.app.openFolder(musicLoader.musicFolder.absolutePath());
+            }));
+        }
         t.pref(new ButtonSetting("@clearMusic", Icon.trash,
                 () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> musicLoader.delete())
         ));

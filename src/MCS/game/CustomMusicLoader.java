@@ -108,6 +108,7 @@ public class CustomMusicLoader{
         if(musicFolder.exists()){
             musicFolder.deleteDirectory();
         }
+        ui.showInfo("@clearMusic.clear");
     }
 
     public Runnable importMusic(String musicFi){
