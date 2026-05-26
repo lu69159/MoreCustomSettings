@@ -8,5 +8,5 @@
 - 自定义音乐
 - 未来会添加更多功能...
 
-![preview1](./assets/preview/preview1.png)
-![preview2](./assets/preview/preview2.png)
+![preview1](./preview/preview1.png)
+![preview2](./preview/preview2.png)
