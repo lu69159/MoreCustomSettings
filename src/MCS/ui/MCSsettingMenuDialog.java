@@ -19,7 +19,7 @@ import static mindustry.Vars.*;
 import static MCS.main.*;
 
 public class MCSsettingMenuDialog {
-    private BaseDialog musicImportDialog;
+    private BaseDialog musicImportDialog, musicInGameDialog;
 
     public Cons<SettingsTable> settingBuilder = t -> {
         t.checkPref("enablecustomcampaigndifficulty", true, b -> {
@@ -42,16 +42,19 @@ public class MCSsettingMenuDialog {
         });
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> musicImportDialog.show()));
         t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
-            if(musicLoader.musicFolder == null || musicLoader.musicFolder.exists()) musicLoader.loadFolder();
+            if(musicLoader.musicFolder == null || !musicLoader.musicFolder.exists()) musicLoader.loadFolder();
             Core.app.openFolder(musicLoader.musicFolder.absolutePath());
         }));
+        t.pref(new ButtonSetting("@clearMusic", Icon.trash,
+                () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> musicLoader.delete())
+        ));
     };
 
     public MCSsettingMenuDialog(){
         Events.on(ClientLoadEvent.class, e -> {
-            musicImportDialog = new BaseDialog("@importMusic");
-            musicImportDialog.addCloseButton();
-            musicImportDialog.cont.table(Tex.button, t -> {
+            musicInGameDialog = new BaseDialog("@importMusic");
+            musicInGameDialog.addCloseButton();
+            musicInGameDialog.cont.table(Tex.button, t -> {
                 t.defaults().size(200f, 60f).left();
 
                 t.button("@importMusic.ambient", Styles.flatt, musicLoader.importMusic("a"));
@@ -59,6 +62,19 @@ public class MCSsettingMenuDialog {
                 t.button("@importMusic.dark", Styles.flatt, musicLoader.importMusic("d"));
                 t.row();
                 t.button("@importMusic.boss", Styles.flatt, musicLoader.importMusic("b"));
+                t.row();
+            });
+
+            musicImportDialog = new BaseDialog("@importMusic");
+            musicImportDialog.addCloseButton();
+            musicImportDialog.cont.table(Tex.button, t -> {
+                t.defaults().size(200f, 60f).left();
+
+                t.button("@importMusic.inGame", Styles.flatt, () -> musicInGameDialog.show());
+                t.row();
+                t.button("@importMusic.editor", Styles.flatt, musicLoader.importMenuMusic("editor"));
+                t.row();
+                t.button("@importMusic.menu", Styles.flatt, musicLoader.importMenuMusic("menu"));
                 t.row();
             });
 
@@ -71,6 +87,9 @@ public class MCSsettingMenuDialog {
                 ui.campaignRules = new CustomCampaignRulesDialog();
                 spawner = new CustomWaveSpawner();
             }
+
+        });
+        Events.on(ContentInitEvent.class, e -> {
             if(settings.getBool("enableCustomMusic")){
                 musicLoader.load();
             }
