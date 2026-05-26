@@ -117,8 +117,8 @@ public class CustomMusicLoader{
                 if(!folder.exists()) folder.mkdirs();
 
                 fi.copyTo(folder);
-                Path source = Paths.get(folder.pathWithoutExtension() + "/" + fi.name());
-                Path to = Paths.get(folder.pathWithoutExtension() + "/" + realName(fi));
+                Path source = Paths.get(folder.path() + "/" + fi.name());
+                Path to = Paths.get(folder.path() + "/" + realName(fi));
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
@@ -143,8 +143,8 @@ public class CustomMusicLoader{
                 }
 
                 fi.copyTo(folder);
-                Path source = Paths.get(folder.pathWithoutExtension() + "/" + fi.name());
-                Path to = Paths.get(folder.pathWithoutExtension() + "/" + name + "__" + fi.length() + "." + fi.extension());
+                Path source = Paths.get(folder.path() + "/" + fi.name());
+                Path to = Paths.get(folder.path() + "/" + name + "__" + fi.length() + "." + fi.extension());
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
