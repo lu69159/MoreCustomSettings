@@ -1,7 +1,6 @@
 package MCS.game;
 
 import arc.Core;
-import arc.Events;
 import arc.audio.*;
 import arc.files.*;
 import arc.struct.*;
@@ -21,6 +20,12 @@ public class CustomMusicLoader{
     public Seq<Music> bossMusic = new Seq<>();
 
     public void load(){
+        if(settings.getBool("enableCustomMusic", false)){
+            loadCustom();
+        }
+    }
+
+    public void loadCustom(){
         loadFolder();
         loadMusic(ambient, ambientMusic);
         loadMusic(dark, darkMusic);
@@ -30,14 +35,20 @@ public class CustomMusicLoader{
                 String n = f.name().split("__", 2)[0];
                 if(n.equals("menu")){
                     try{
-                        Musics.menu = new Music(f);
+                        Musics.menu = new Music(f){
+                            @Override
+                            public void setLooping(boolean isLooping){}
+                        };
                     }catch (Exception e){
                         ui.showException(e);
                     }
                 }
                 else if(n.equals("editor")){
                     try{
-                        Musics.editor = new Music(f);
+                        Musics.editor = new Music(f){
+                            @Override
+                            public void setLooping(boolean isLooping){}
+                        };
                     }catch (Exception e){
                         ui.showException(e);
                     }
@@ -52,8 +63,6 @@ public class CustomMusicLoader{
         control.sound.ambientMusic.add(ambientMusic);
         control.sound.darkMusic.add(darkMusic);
         control.sound.bossMusic.add(bossMusic);
-
-        Events.fire(new EventType.MusicRegisterEvent());
     }
 
     public void loadFolder(){
@@ -109,6 +118,7 @@ public class CustomMusicLoader{
             musicFolder.deleteDirectory();
         }
         ui.showInfo("@clearMusic.clear");
+        loadFolder();
     }
 
     public Runnable importMusic(String musicFi){
@@ -123,7 +133,7 @@ public class CustomMusicLoader{
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
-                load();
+                loadCustom();
             }catch(Exception e){
                 ui.showException(e);
             }
@@ -149,7 +159,7 @@ public class CustomMusicLoader{
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
-                load();
+                loadCustom();
             }catch(Exception e){
                 ui.showException(e);
             }
