@@ -2,10 +2,9 @@ package MCS.ui.fragments;
 
 import arc.*;
 import arc.graphics.*;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Lines;
+import arc.graphics.g2d.*;
 import arc.math.*;
-import arc.math.geom.Vec2;
+import arc.math.geom.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.scene.*;
@@ -32,6 +31,7 @@ public class BuildAttackFrag{
     float[] buildAttackTime = {0};
     float showTime = 300f;
 
+    private static final Rect rect = new Rect();
     @Nullable private Building attackedBuild;
 
     public BuildAttackFrag(){
@@ -50,6 +50,7 @@ public class BuildAttackFrag{
             Core.app.post(() -> {
                 build(ui.hudGroup);
             });
+
         });
     }
 
@@ -78,26 +79,6 @@ public class BuildAttackFrag{
         settings.put("bannedAttackBlocksMCS", json);
     }
 
-    public void top(Building target){
-        if(!player.dead() && ui.hudfrag.shown){
-            float camX = Core.camera.position.x;
-            float camY = Core.camera.position.y;
-            float halfW = Core.camera.width * 0.45f;   // 0.9 / 2
-            float halfH = Core.camera.height * 0.45f;
-
-            boolean onScreen = target.x >= camX - halfW && target.x <= camX + halfW
-                    && target.y >= camY - halfH && target.y <= camY + halfH;
-
-            if(!onScreen){
-                // 画指示器，和 OverlayRenderer 一样的逻辑
-                Tmp.v1.set(target.x, target.y).sub(player).setLength(14f);
-                Lines.stroke(1f, Pal.accent);
-                Lines.lineAngle(player.x + Tmp.v1.x, player.y + Tmp.v1.y, Tmp.v1.angle(), 4f);
-                Draw.reset();
-            }
-        }
-    }
-
     public void build(Group parent){
         parent.fill(t -> {
             t.collapser(top -> top.background(Styles.black3).add(showString).pad(16f)
@@ -123,26 +104,21 @@ public class BuildAttackFrag{
         });
 
         parent.fill((x, y, w, h) -> {
-            if(buildAttackTime[0] == 0f || attackedBuild == null || !enabled){
-                Draw.reset();
-                return;
-            }
+            if(attackedBuild == null) return;
 
-            float camX = Core.camera.position.x;
-            float camY = Core.camera.position.y;
-            float halfW = Core.camera.width * 0.45f;
-            float halfH = Core.camera.height * 0.45f;
+            if(!rect.setSize(Core.camera.width * 0.9f, Core.camera.height * 0.9f).setCenter(Core.camera.position.x, Core.camera.position.y).contains(attackedBuild.x, attackedBuild.y)){
+                Vec2 pos1 = Core.scene.screenToStageCoordinates(Tmp.v1.set(Core.camera.project(player.x, player.y).x, Core.camera.project(player.x, player.y).y));
+                Vec2 pos2 = Core.scene.screenToStageCoordinates(Tmp.v2.set(Core.camera.project(attackedBuild.x, attackedBuild.y).x, Core.camera.project(attackedBuild.x, attackedBuild.y).y));
 
-            boolean onScreen = attackedBuild.x >= camX - halfW && attackedBuild.x <= camX + halfW
-                    && attackedBuild.y >= camY - halfH && attackedBuild.y <= camY + halfH;
+                float scale = Scl.scl() / renderer.camerascale, size = 5f / scale, len = 25f / scale;
+                float dst = pos1.dst(pos2) / len, dx = (pos2.x - pos1.x) / dst, dy = (pos2.y - pos1.y) / dst;
+                float rx = pos1.x + dx, ry = pos1.y + dy;
+                float angle = Tmp.v1.set(attackedBuild.x, attackedBuild.y).sub(player).angle();
 
-            if(!onScreen){
-                Tmp.v1.set(attackedBuild.x * tilesize, attackedBuild.y * tilesize).sub(player).setLength(14f);
-                Draw.color(Pal.accent);
-                Lines.stroke(8f);
-                Lines.lineAngle(player.x + Tmp.v1.x, player.y + Tmp.v1.y, Tmp.v1.angle(), 16f);
+                Draw.color(Pal.lightOrange);
+                Fill.poly(rx, ry, 3, size, angle);
                 Draw.reset();
             }
-        }).visible(() -> enabled && buildAttackTime[0] > 0);
+        }).visible(() -> enabled && buildAttackTime[0] > 0 && !attackedBuild.dead());
     }
 }
