@@ -1,13 +1,10 @@
-package MCS.ui;
+package MCS.ui.dialogs;
 
 import arc.*;
 import arc.func.*;
 import arc.scene.style.Drawable;
-import arc.scene.ui.*;
-import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
-import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
@@ -22,6 +19,13 @@ public class MCSsettingMenuDialog {
     private BaseDialog musicImportDialog, musicInGameDialog;
 
     public Cons<SettingsTable> settingBuilder = t -> {
+        t.checkPref("enableBuildAttackFrag", false, b -> {
+            attacked.enabled = b;
+        });
+        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> {
+            attacked.whitelist = b;
+        });
+        t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> attacked.bannedAttackBlocksDialog.show(attacked.bannedAttackBlocks)));
         t.checkPref("enablecustomcampaigndifficulty", true, b -> {
             if(b){
                 ui.campaignRules = new CustomCampaignRulesDialog();
@@ -34,7 +38,7 @@ public class MCSsettingMenuDialog {
         });
         t.checkPref("enableCustomMusic", false, b -> {
             if(b){
-                musicLoader.load();
+                musicLoader.loadCustom();
             }
             else{
                 musicLoader.reset();
@@ -52,50 +56,42 @@ public class MCSsettingMenuDialog {
         ));
     };
 
-    public MCSsettingMenuDialog(){
-        Events.on(ClientLoadEvent.class, e -> {
-            musicInGameDialog = new BaseDialog("@importMusic");
-            musicInGameDialog.addCloseButton();
-            musicInGameDialog.cont.table(Tex.button, t -> {
-                t.defaults().size(200f, 60f).left();
+    public void load(){
+        musicInGameDialog = new BaseDialog("@importMusic");
+        musicInGameDialog.addCloseButton();
+        musicInGameDialog.cont.table(Tex.button, t -> {
+            t.defaults().size(200f, 60f).left();
 
-                t.button("@importMusic.ambient", Styles.flatt, musicLoader.importMusic("a"));
-                t.row();
-                t.button("@importMusic.dark", Styles.flatt, musicLoader.importMusic("d"));
-                t.row();
-                t.button("@importMusic.boss", Styles.flatt, musicLoader.importMusic("b"));
-                t.row();
-            });
-
-            musicImportDialog = new BaseDialog("@importMusic");
-            musicImportDialog.addCloseButton();
-            musicImportDialog.cont.table(Tex.button, t -> {
-                t.defaults().size(200f, 60f).left();
-
-                t.button("@importMusic.inGame", Styles.flatt, () -> musicInGameDialog.show());
-                t.row();
-                t.button("@importMusic.editor", Styles.flatt, musicLoader.importMenuMusic("editor"));
-                t.row();
-                t.button("@importMusic.menu", Styles.flatt, musicLoader.importMenuMusic("menu"));
-                t.row();
-            });
-
-            try{
-                ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
-            } catch(Exception ex) {
-                throw new RuntimeException(ex);
-            }
-            if(settings.getBool("enablecustomcampaigndifficulty")){
-                ui.campaignRules = new CustomCampaignRulesDialog();
-                spawner = new CustomWaveSpawner();
-            }
-
+            t.button("@importMusic.ambient", Styles.flatt, musicLoader.importMusic("a"));
+            t.row();
+            t.button("@importMusic.dark", Styles.flatt, musicLoader.importMusic("d"));
+            t.row();
+            t.button("@importMusic.boss", Styles.flatt, musicLoader.importMusic("b"));
+            t.row();
         });
-        Events.on(ContentInitEvent.class, e -> {
-            if(settings.getBool("enableCustomMusic")){
-                musicLoader.load();
-            }
+
+        musicImportDialog = new BaseDialog("@importMusic");
+        musicImportDialog.addCloseButton();
+        musicImportDialog.cont.table(Tex.button, t -> {
+            t.defaults().size(200f, 60f).left();
+
+            t.button("@importMusic.inGame", Styles.flatt, () -> musicInGameDialog.show());
+            t.row();
+            t.button("@importMusic.editor", Styles.flatt, musicLoader.importMenuMusic("editor"));
+            t.row();
+            t.button("@importMusic.menu", Styles.flatt, musicLoader.importMenuMusic("menu"));
+            t.row();
         });
+
+        try{
+            ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+        if(settings.getBool("enablecustomcampaigndifficulty")){
+            ui.campaignRules = new CustomCampaignRulesDialog();
+            spawner = new CustomWaveSpawner();
+        }
     }
 
     public class ButtonSetting extends SettingsTable.Setting{

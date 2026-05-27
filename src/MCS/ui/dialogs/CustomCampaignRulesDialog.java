@@ -1,4 +1,4 @@
-package MCS.ui;
+package MCS.ui.dialogs;
 
 import arc.*;
 import arc.func.*;
@@ -7,7 +7,6 @@ import arc.scene.ui.layout.*;
 import arc.scene.utils.*;
 import arc.util.*;
 import mindustry.Vars;
-import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.world.meta.*;
