@@ -76,6 +76,7 @@ public class MCSsettingMenuDialog {
             }).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
                 attacked.showString = attacked.tmpString;
+                attacked.changed = true;
                 settings.put("showStringMCS", attacked.showString);
                 attackedStringDialog.hide();
             }).size(105f, 64f).padLeft(10f);

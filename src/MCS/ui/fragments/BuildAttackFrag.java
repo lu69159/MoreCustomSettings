@@ -25,6 +25,7 @@ import static mindustry.game.EventType.*;
 public class BuildAttackFrag{
     public Table table;
     public boolean enabled, whitelist;
+    public boolean changed = false, posted = false;
     public String tmpString;
     public String showString;
     public ObjectSet<Block> bannedAttackBlocks = new ObjectSet<>();
@@ -49,10 +50,12 @@ public class BuildAttackFrag{
             }
         });
         Events.on(WorldLoadEvent.class, e -> {
-            Core.app.post(() -> {
-                build(ui.hudGroup);
-            });
-
+            if(!posted){
+                Core.app.post(() -> {
+                    build(ui.hudGroup);
+                });
+                posted = true;
+            }
         });
     }
 
@@ -95,6 +98,10 @@ public class BuildAttackFrag{
             })
             .update(label -> {
                 label.color.set(Color.orange).lerp(Pal.accent.cpy(), Mathf.absin(Time.time, 2f, 1f));
+                if(changed){
+                    label.setText(showString);
+                    changed = false;
+                }
             }), true,
             () -> {
                 if (!enabled || state.isPaused()) return false;
