@@ -25,6 +25,7 @@ import static mindustry.game.EventType.*;
 public class BuildAttackFrag{
     public Table table;
     public boolean enabled, whitelist;
+    public String tmpString;
     public String showString;
     public ObjectSet<Block> bannedAttackBlocks = new ObjectSet<>();
     public BannedContentDialog<Block> bannedAttackBlocksDialog;
@@ -39,9 +40,10 @@ public class BuildAttackFrag{
             if(enabled && b.build.team == player.team() && bannedAttackBlocks.contains(b.build.block) == whitelist){
                 if(buildAttackTime[0] < 60f){
                     buildAttackTime[0] = showTime;
+                    attackedBuild = b.build;
                 }
 
-                if(attackedBuild == null || attackedBuild.dead() || buildAttackTime[0] < 180f){
+                if(attackedBuild == null || attackedBuild.dead()){
                     attackedBuild = b.build;
                 }
             }
@@ -81,6 +83,7 @@ public class BuildAttackFrag{
 
     public void build(Group parent){
         parent.fill(t -> {
+            t.y = Core.graphics.getHeight() / 4f;
             t.collapser(top -> top.background(Styles.black3).add(showString).pad(16f)
             .with(l -> {
                 l.tapped(() -> {
