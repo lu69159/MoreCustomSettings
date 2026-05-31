@@ -19,7 +19,7 @@ import static mindustry.Vars.*;
 import static MCS.main.*;
 
 public class MCSsettingMenuDialog {
-    private BaseDialog attackedStringDialog, musicImportDialog, musicInGameDialog;
+    private BaseDialog attackedStringDialog, musicImportDialog, musicInGameDialog, musicListDialog;
 
     public Cons<SettingsTable> settingBuilder = t -> {
         t.pref(new TitleSetting("@settingtitle.music"));
@@ -42,6 +42,10 @@ public class MCSsettingMenuDialog {
         t.pref(new ButtonSetting("@clearMusic", Icon.trash,
                 () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> musicLoader.delete())
         ));
+        t.pref(new ButtonSetting("@musicList", Icon.list, () -> {
+            rebuildMusicList();
+            musicListDialog.show();
+        }));
 
         t.pref(new TitleSetting("@settingtitle.other"));
 
@@ -110,6 +114,9 @@ public class MCSsettingMenuDialog {
             t.row();
         });
 
+        musicListDialog = new BaseDialog("@musicList");
+        musicListDialog.addCloseButton();
+
         try{
             ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
         } catch(Exception ex) {
@@ -119,6 +126,42 @@ public class MCSsettingMenuDialog {
             ui.campaignRules = new CustomCampaignRulesDialog();
             spawner = new CustomWaveSpawner();
         }
+    }
+
+    private void rebuildMusicList(){
+        musicLoader.loadFolder();
+        musicListDialog.cont.clearChildren();
+        musicListDialog.cont.pane(t -> {
+            t.add("@importMusic.ambient").color(Pal.accent).padTop(10).left().row();
+            boolean found = false;
+            for(var f : musicLoader.ambient.seq()){
+                if(musicLoader.isMusic(f)){
+                    t.add(f.name()).padLeft(10).left().row();
+                    found = true;
+                }
+            }
+            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+
+            t.add("@importMusic.dark").color(Pal.accent).padTop(10).left().row();
+            found = false;
+            for(var f : musicLoader.dark.seq()){
+                if(musicLoader.isMusic(f)){
+                    t.add(f.name()).padLeft(10).left().row();
+                    found = true;
+                }
+            }
+            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+
+            t.add("@importMusic.boss").color(Pal.accent).padTop(10).left().row();
+            found = false;
+            for(var f : musicLoader.boss.seq()){
+                if(musicLoader.isMusic(f)){
+                    t.add(f.name()).padLeft(10).left().row();
+                    found = true;
+                }
+            }
+            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+        }).growX().growY();
     }
 
     public static class TitleSetting extends SettingsTable.Setting {
