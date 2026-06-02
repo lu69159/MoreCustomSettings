@@ -56,7 +56,7 @@ public class PlanetCustomRulesMaps{
             r.player.unitCostMultiplier =  Core.settings.getFloat(name + "PUC", 1f);
             r.player.unitBuildSpeedMultiplier = Core.settings.getFloat(name + "PUBS", 1f);
 
-            r.enemySpawnMultiplier = Core.settings.getFloat(name + "ES", 1f);
+            r.enemySpawnMultiplier = Core.settings.getFloat(name + "ES", 100f);
             r.waveTimeMultiplier = Core.settings.getFloat(name + "WT", 100f);
             r.extendWaves = Core.settings.getInt(name + "EW", 0);
             r.unitFactoryActivationDelay = Core.settings.getFloat(name + "UFA", 0f);
