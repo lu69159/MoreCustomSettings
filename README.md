@@ -19,3 +19,7 @@
 ![preview1](./preview/preview1.png)
 ![preview2](./preview/preview2.png)
 ![preview3](./preview/preview3.png)
+
+
+### - You can submit mod bugs or feature requests via Issues
+### -你可以在Issues提交模组的bug或者希望实现的功能
