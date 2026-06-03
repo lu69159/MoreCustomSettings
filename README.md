@@ -1,4 +1,9 @@
 ![MoreCustomSettings](./assets/icon.png)
+
+![GitHub Stars](https://img.shields.io/github/stars/lu69159/MoreCustomSettings)
+![GitHub Downloads](https://img.shields.io/github/downloads/lu69159/MoreCustomSettings/total)
+![GitHub Release](https://img.shields.io/github/v/release/lu69159/MoreCustomSettings?include_prereleases&sort=date)
+
 # More Custom Settings
 - Custom campaign difficulty
 - Custom music
