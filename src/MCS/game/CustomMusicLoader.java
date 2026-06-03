@@ -170,7 +170,7 @@ public class CustomMusicLoader{
         int dotIndex = file.name().lastIndexOf("__");
         if(dotIndex != -1) return file.name();
 
-        String name = file.nameWithoutExtension().replaceAll("[^a-zA-Z]", "");
+        String name = file.nameWithoutExtension().replaceAll("[^0-9a-zA-Z]", "");
         return name + "__" + file.length() + "." + file.extension();
     }
 
