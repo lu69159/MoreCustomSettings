@@ -8,7 +8,7 @@
 - Custom campaign difficulty
 - Custom music
 - Building Attacked Warning
-- More features on future...
+- More features in the future...
 
 # 更多自定义设置
 - 自定义战役难度设置
