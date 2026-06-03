@@ -1,3 +1,4 @@
+![MoreCustomSettings](./assets/icon.png)
 # More Custom Settings
 - Custom campaign difficulty
 - Custom music
