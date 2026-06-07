@@ -133,7 +133,7 @@ public class CustomMusicLoader{
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
-                loadCustom();
+                load();
             }catch(Exception e){
                 ui.showException(e);
             }
@@ -159,7 +159,7 @@ public class CustomMusicLoader{
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
-                loadCustom();
+                load();
             }catch(Exception e){
                 ui.showException(e);
             }
