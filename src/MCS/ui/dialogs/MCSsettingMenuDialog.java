@@ -136,7 +136,13 @@ public class MCSsettingMenuDialog {
             boolean found = false;
             for(var f : musicLoader.ambient.seq()){
                 if(musicLoader.isMusic(f)){
-                    t.add(f.name()).padLeft(10).left().row();
+                    t.table(Styles.grayPanel, mt -> {
+                        mt.label(f::name).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            f.delete();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).left().row();
                     found = true;
                 }
             }
@@ -146,7 +152,13 @@ public class MCSsettingMenuDialog {
             found = false;
             for(var f : musicLoader.dark.seq()){
                 if(musicLoader.isMusic(f)){
-                    t.add(f.name()).padLeft(10).left().row();
+                    t.table(Styles.grayPanel, mt -> {
+                        mt.label(f::name).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            f.delete();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).left().row();
                     found = true;
                 }
             }
@@ -156,7 +168,13 @@ public class MCSsettingMenuDialog {
             found = false;
             for(var f : musicLoader.boss.seq()){
                 if(musicLoader.isMusic(f)){
-                    t.add(f.name()).padLeft(10).left().row();
+                    t.table(Styles.grayPanel, mt -> {
+                        mt.label(f::name).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            f.delete();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).left().row();
                     found = true;
                 }
             }
