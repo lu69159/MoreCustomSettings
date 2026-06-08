@@ -49,13 +49,9 @@ public class MCSsettingMenuDialog {
 
         t.pref(new TitleSetting("@settingtitle.other"));
 
-        t.checkPref("enableBuildAttackFrag", false, b -> {
-            attacked.enabled = b;
-        });
+        t.checkPref("enableBuildAttackFrag", false, b -> attacked.enabled = b);
         t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> attackedStringDialog.show()));
-        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> {
-            attacked.whitelist = b;
-        });
+        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> attacked.whitelist = b);
         t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> attacked.bannedAttackBlocksDialog.show(attacked.bannedAttackBlocks)));
         t.row();
         t.checkPref("enablecustomcampaigndifficulty", true, b -> {
@@ -75,9 +71,7 @@ public class MCSsettingMenuDialog {
         attackedStringDialog = new BaseDialog("@settings");
         attackedStringDialog.buttons.defaults().size(210, 64);
         attackedStringDialog.cont.table(t -> {
-            t.field(settings.getString("showStringMCS", Core.bundle.get("buildAttacked")), s -> {
-                attacked.tmpString = s;
-            }).width(400f).center().padLeft(10f);
+            t.field(settings.getString("showStringMCS", Core.bundle.get("buildAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
                 attacked.showString = attacked.tmpString;
                 attacked.changed = true;
@@ -140,6 +134,7 @@ public class MCSsettingMenuDialog {
                         mt.label(f::name).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
+                            musicLoader.load();
                             rebuildMusicList();
                         }).padLeft(10);
                     }).left().row();
@@ -156,6 +151,7 @@ public class MCSsettingMenuDialog {
                         mt.label(f::name).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
+                            musicLoader.load();
                             rebuildMusicList();
                         }).padLeft(10);
                     }).left().row();
@@ -172,6 +168,7 @@ public class MCSsettingMenuDialog {
                         mt.label(f::name).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
+                            musicLoader.load();
                             rebuildMusicList();
                         }).padLeft(10);
                     }).left().row();

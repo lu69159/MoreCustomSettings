@@ -23,6 +23,9 @@ public class CustomMusicLoader{
         if(settings.getBool("enableCustomMusic", false)){
             loadCustom();
         }
+        else{
+            reset();
+        }
     }
 
     public void loadCustom(){
@@ -170,7 +173,7 @@ public class CustomMusicLoader{
         int dotIndex = file.name().lastIndexOf("__");
         if(dotIndex != -1) return file.name();
 
-        String name = file.nameWithoutExtension().replaceAll("[^0-9a-zA-Z]", "");
+        String name = file.nameWithoutExtension().replaceAll("[^-0-9a-zA-Z]", "");
         return name + "__" + file.length() + "." + file.extension();
     }
 
