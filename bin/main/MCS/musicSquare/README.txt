@@ -1,1 +1,0 @@
-//该部分代码的URL参考自https://github.com/CharlesPikachu/musicsquare，无任何商业用途，如有侵权请联系模组作者删除
