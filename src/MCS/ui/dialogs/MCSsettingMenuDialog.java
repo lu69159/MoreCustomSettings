@@ -20,6 +20,7 @@ import static MCS.main.*;
 
 public class MCSsettingMenuDialog {
     private BaseDialog attackedStringDialog, musicImportDialog, musicInGameDialog, musicListDialog;
+    private musicSquareSearchDialog musicSearchDialog;
 
     public Cons<SettingsTable> settingBuilder = t -> {
         t.pref(new TitleSetting("@settingtitle.music"));
@@ -45,6 +46,11 @@ public class MCSsettingMenuDialog {
         t.pref(new ButtonSetting("@musicList", Icon.list, () -> {
             rebuildMusicList();
             musicListDialog.show();
+        }));
+
+        t.pref(new ButtonSetting("@musicSquare.search", Icon.zoom, () -> {
+            if (musicSearchDialog == null) musicSearchDialog = new musicSquareSearchDialog();
+            musicSearchDialog.show();
         }));
 
         t.pref(new TitleSetting("@settingtitle.other"));
