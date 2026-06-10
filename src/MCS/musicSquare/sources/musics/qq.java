@@ -28,7 +28,7 @@ public class qq extends musicBase{
         String[] get = {"", ""};
 
         try {
-            Http.get(reqUrl + "&limit=5").timeout(15000).block(res -> {
+            Http.get(reqUrl + "&limit=10").timeout(15000).block(res -> {
                 get[0] = res.getResultAsString();
             });
         } catch (Exception e) {
@@ -49,7 +49,7 @@ public class qq extends musicBase{
 
         for(int i = 0; i < arr.size; i++) {
             var item = arr.get(i);
-            mids.add(item.getString("song_mid"));
+            if(item.getString("pay").equals("免费")) mids.add(item.getString("song_mid"));
         }
 
         try {

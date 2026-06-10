@@ -24,7 +24,7 @@ public abstract class musicBase {
         try{
             return url + URLEncoder.encode(name, "UTF-8") + "&limit=5";
         }catch(UnsupportedEncodingException e){
-            return url + name + "&limit=5";
+            return url + name + "&limit=10";
         }
     }
 
