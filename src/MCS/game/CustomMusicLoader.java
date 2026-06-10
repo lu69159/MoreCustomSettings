@@ -14,7 +14,7 @@ import static mindustry.Vars.*;
 
 public class CustomMusicLoader{
     public Fi musicFolder;
-    public Fi ambient, dark, boss;
+    public Fi ambient, dark, boss, tmp;
     public Seq<Music> ambientMusic = new Seq<>();
     public Seq<Music> darkMusic = new Seq<>();
     public Seq<Music> bossMusic = new Seq<>();
@@ -80,6 +80,9 @@ public class CustomMusicLoader{
 
         boss = musicFolder.child("b");
         if(!boss.exists()) boss.mkdirs();
+
+        tmp = musicFolder.child("tmp");
+        if(!tmp.exists()) tmp.mkdirs();
     }
 
     public void loadMusic(Fi folder, Seq<Music> musicSeq){

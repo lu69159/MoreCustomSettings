@@ -1,15 +1,22 @@
 package MCS.musicSquare.sources;
 
-import arc.struct.Seq;
+import arc.*;
+import arc.files.*;
+import arc.func.*;
+import arc.struct.*;
 import arc.util.*;
-import arc.util.serialization.Jval;
+import arc.util.Http;
+
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 
-public class musicBase {
+import static mindustry.Vars.*;
+import static MCS.main.*;
+
+public abstract class musicBase {
     public String url;
 
-    public musicBase(String url) {
+    public musicBase(String url){
         this.url = url;
     }
 
@@ -22,39 +29,7 @@ public class musicBase {
     }
 
     public Seq<Track> search(String name) {
-        Seq<Track> results = new Seq<>();
-        String reqUrl = url(name);
-        Log.info("musicBase search URL: " + reqUrl);
-
-        String[] get = {""};
-        try {
-            Http.get(reqUrl).timeout(15000).submit(res -> {
-                get[0] = res.getResultAsString();
-            });
-        } catch (Exception e) {
-            return results;
-        }
-        if (get[0].isEmpty()) return results;
-
-        String body = get[0];
-        Log.info("musicBase response: " + (body.length() > 500 ? body.substring(0, 500) + "..." : body));
-
-        var json = Jval.read(body);
-        if(!json.isArray()) return results;
-
-        var arr = json.asArray();
-
-        for (int i = 0; i < arr.size; i++) {
-            var item = arr.get(i);
-            Track track = new Track();
-            track.url = item.getString("url");
-            track.pic = item.getString("pic");
-            track.artist = item.getString("artist");
-            track.name = item.getString("name");
-            results.add(track);
-        }
-
-        return results;
+        return new Seq<>();
     }
 
     public static class Track {
@@ -62,13 +37,47 @@ public class musicBase {
         public String pic;
         public String artist;
         public String name;
-        public String uid;
-        public String source;
-        public String title;
-        public String qualityLabel;
-        public boolean detailsLoaded;
-        public String audioUrl;
-        public String cover;
-        public String songid;
+
+        public void download(Fi dir){
+            if(url == null) return;
+
+            Core.app.post(() -> ui.loadfrag.show(Core.bundle.get("musicSquare.downloading")));
+
+            Http.get(url, res -> {
+                try{
+                    byte[] data = res.getResult();
+
+                    String ext = "mp3";
+                    String base = url.split("\\?")[0];
+                    int dot = base.lastIndexOf('.');
+                    if(dot > 0){
+                        String e = base.substring(dot + 1).toLowerCase();
+                        if(e.equals("ogg") || e.equals("mp3") || e.equals("flac") || e.equals("wav")){
+                            ext = e;
+                        }
+                    }
+
+                    String sanitized = (artist + "-" + name).replaceAll("[^-0-9a-zA-Z]", "");
+                    if(sanitized.isEmpty()) sanitized = "track_" + System.nanoTime();
+
+                    if(!dir.exists()) musicLoader.loadFolder();
+                    dir.child(sanitized + "__" + data.length + "." + ext).writeBytes(data);
+
+                    Core.app.post(() -> {
+                        ui.loadfrag.hide();
+                        musicLoader.load();
+                        ui.showInfo("@musicSquare.downloaded");
+                    });
+                }catch(Throwable e){
+                    Core.app.post(() -> {
+                        ui.loadfrag.hide();
+                        ui.showException(new Exception("Download failed", e));
+                    });
+                }
+            }, error -> Core.app.post(() -> {
+                ui.loadfrag.hide();
+                ui.showException(new Exception("Download error: " + error));
+            }));
+        }
     }
 }
