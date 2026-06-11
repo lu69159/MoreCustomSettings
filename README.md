@@ -20,6 +20,7 @@
 ![preview1](./preview/preview1.png)
 ![preview2](./preview/preview2.png)
 ![preview3](./preview/preview3.png)
+![preview4](./preview/preview4.png)
 
 
 ### - You can submit mod bugs or feature requests via Issues
