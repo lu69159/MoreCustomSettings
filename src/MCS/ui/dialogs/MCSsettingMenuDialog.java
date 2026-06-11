@@ -1,10 +1,12 @@
 package MCS.ui.dialogs;
 
 import arc.*;
+import arc.audio.*;
 import arc.func.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
 import mindustry.gen.*;
@@ -49,17 +51,11 @@ public class MCSsettingMenuDialog {
         }));
 
         t.pref(new ButtonSetting("@musicSquare.search", Icon.zoom, () -> {
-            if (musicSearchDialog == null) musicSearchDialog = new musicSquareSearchDialog();
             musicSearchDialog.show();
         }));
 
         t.pref(new TitleSetting("@settingtitle.other"));
 
-        t.checkPref("enableBuildAttackFrag", false, b -> attacked.enabled = b);
-        t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> attackedStringDialog.show()));
-        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> attacked.whitelist = b);
-        t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> attacked.bannedAttackBlocksDialog.show(attacked.bannedAttackBlocks)));
-        t.row();
         t.checkPref("enablecustomcampaigndifficulty", true, b -> {
             if(b){
                 ui.campaignRules = new CustomCampaignRulesDialog();
@@ -70,6 +66,11 @@ public class MCSsettingMenuDialog {
                 spawner = new WaveSpawner();
             }
         });
+        t.checkPref("enableBuildAttackFrag", false, b -> attacked.enabled = b);
+        t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> attackedStringDialog.show()));
+        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> attacked.whitelist = b);
+        t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> attacked.bannedAttackBlocksDialog.show(attacked.bannedAttackBlocks)));
+        t.row();
         t.pref(new GithubLink("Github"));
     };
 
@@ -117,8 +118,17 @@ public class MCSsettingMenuDialog {
         musicListDialog = new BaseDialog("@musicList");
         musicListDialog.addCloseButton();
 
+        musicSearchDialog = new musicSquareSearchDialog();
+        musicSearchDialog.setup();
+
         try{
             ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
+            Seq<Music> a = control.sound.ambientMusic, b = control.sound.bossMusic, d = control.sound.darkMusic;
+            control.sound = new CustomSoundControl(){{
+                ambientMusic = a;
+                bossMusic = b;
+                darkMusic = d;
+            }};
         } catch(Exception ex) {
             throw new RuntimeException(ex);
         }

@@ -4,6 +4,7 @@ import arc.Core;
 import arc.audio.*;
 import arc.files.*;
 import arc.struct.*;
+import arc.util.Nullable;
 import mindustry.game.*;
 import mindustry.gen.*;
 
@@ -18,6 +19,8 @@ public class CustomMusicLoader{
     public Seq<Music> ambientMusic = new Seq<>();
     public Seq<Music> darkMusic = new Seq<>();
     public Seq<Music> bossMusic = new Seq<>();
+    public @Nullable Music menuMusic;
+    public @Nullable Music editorMusic;
 
     public void load(){
         if(settings.getBool("enableCustomMusic", false)){
@@ -38,7 +41,7 @@ public class CustomMusicLoader{
                 String n = f.name().split("__", 2)[0];
                 if(n.equals("menu")){
                     try{
-                        Musics.menu = new Music(f){
+                        menuMusic = new Music(f){
                             @Override
                             public void setLooping(boolean isLooping){}
                         };
@@ -48,7 +51,7 @@ public class CustomMusicLoader{
                 }
                 else if(n.equals("editor")){
                     try{
-                        Musics.editor = new Music(f){
+                        editorMusic = new Music(f){
                             @Override
                             public void setLooping(boolean isLooping){}
                         };
@@ -110,10 +113,6 @@ public class CustomMusicLoader{
         control.sound.ambientMusic.add(ambientMusic);
         control.sound.darkMusic.add(darkMusic);
         control.sound.bossMusic.add(bossMusic);
-
-        // still had problem: can't play vanilla Musics.xxx when reset
-        Musics.menu = tree.loadMusic("menu");
-        Musics.editor = tree.loadMusic("editor");
     }
 
     public void delete(){

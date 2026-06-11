@@ -1,6 +1,5 @@
 package MCS.musicSquare.sources.musics;
 
-import MCS.musicSquare.sources.*;
 import arc.struct.Seq;
 import arc.util.Http;
 import arc.util.Log;

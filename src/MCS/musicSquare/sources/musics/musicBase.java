@@ -1,10 +1,8 @@
-package MCS.musicSquare.sources;
+package MCS.musicSquare.sources.musics;
 
 import arc.*;
 import arc.files.*;
-import arc.func.*;
 import arc.struct.*;
-import arc.util.*;
 import arc.util.Http;
 
 import java.net.URLEncoder;
@@ -22,7 +20,7 @@ public abstract class musicBase {
 
     public String url(String name){
         try{
-            return url + URLEncoder.encode(name, "UTF-8") + "&limit=5";
+            return url + URLEncoder.encode(name, "UTF-8") + "&limit=10";
         }catch(UnsupportedEncodingException e){
             return url + name + "&limit=10";
         }

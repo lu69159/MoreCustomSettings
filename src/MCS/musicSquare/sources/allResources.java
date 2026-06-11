@@ -34,7 +34,7 @@ public class allResources{
         }, "MusicSearch").start();
     }
 
-    public void loadMore(int limit){ //TODO: 目前点击包是无事发生
+    public void loadMore(int limit){ //TODO，目前点击包是无事发生
         search(keyword);
     }
 }
