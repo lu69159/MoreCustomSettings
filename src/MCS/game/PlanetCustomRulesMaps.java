@@ -6,6 +6,7 @@ import arc.util.serialization.Json.*;
 import mindustry.type.Planet;
 
 import static MCS.main.*;
+import static arc.Core.settings;
 import static mindustry.Vars.content;
 
 public class PlanetCustomRulesMaps{
@@ -71,6 +72,10 @@ public class PlanetCustomRulesMaps{
             r.clearSectorOnLose = Core.settings.getBool(name + "CS", p.clearSectorOnLose);
 
             put(new PlanetCustomCampaignRules(p, r));
+
+            if(settings.getBool("forceCampaignDifficulty") && settings.getBool(p.name + "-forceCD")){
+                p.allowCampaignRules = true;
+            }
         }
     }
 

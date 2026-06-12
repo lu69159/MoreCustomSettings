@@ -49,12 +49,11 @@ public class MCSsettingMenuDialog {
             rebuildMusicList();
             musicListDialog.show();
         }));
-
         t.pref(new ButtonSetting("@musicSquare.search", Icon.zoom, () -> {
             musicSearchDialog.show();
         }));
 
-        t.pref(new TitleSetting("@settingtitle.other"));
+        t.pref(new TitleSetting("@settingtitle.campaignDifficulty"));
 
         t.checkPref("enablecustomcampaigndifficulty", true, b -> {
             if(b){
@@ -66,6 +65,29 @@ public class MCSsettingMenuDialog {
                 spawner = new WaveSpawner();
             }
         });
+
+        //forceCampaignDifficulty
+        t.checkPref("forceCampaignDifficulty", false, b -> {
+            if(b){
+                for(var p : content.planets()){
+                    if(!p.allowCampaignRules){
+                        settings.put(p.name + "-forceCD", true);
+                        p.allowCampaignRules = true;
+                    }
+                }
+            }
+            else{
+                for(var p : content.planets()){
+                    if(settings.getBool(p.name + "-forceCD")){
+                        settings.remove(p.name + "-forceCD");
+                        p.allowCampaignRules = false;
+                    }
+                }
+            }
+        });
+
+        t.pref(new TitleSetting("@settingtitle.other"));
+
         t.checkPref("enableBuildAttackFrag", false, b -> attacked.enabled = b);
         t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> attackedStringDialog.show()));
         t.checkPref("bannedAttackedBlocksWhitelist", false, b -> attacked.whitelist = b);
@@ -115,7 +137,9 @@ public class MCSsettingMenuDialog {
             t.row();
         });
 
-        musicListDialog = new BaseDialog("@musicList");
+        musicListDialog = new BaseDialog("@musicList"){{
+            onResize(() -> rebuildMusicList());
+        }};
         musicListDialog.addCloseButton();
 
         musicSearchDialog = new musicSquareSearchDialog();
@@ -147,13 +171,13 @@ public class MCSsettingMenuDialog {
             for(var f : musicLoader.ambient.seq()){
                 if(musicLoader.isMusic(f)){
                     t.table(Styles.grayPanel, mt -> {
-                        mt.label(f::name).left().fillX().expandX();
+                        mt.labelWrap(f::name).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
                             rebuildMusicList();
                         }).padLeft(10);
-                    }).left().row();
+                    }).growX().left().row();
                     found = true;
                 }
             }
@@ -164,13 +188,13 @@ public class MCSsettingMenuDialog {
             for(var f : musicLoader.dark.seq()){
                 if(musicLoader.isMusic(f)){
                     t.table(Styles.grayPanel, mt -> {
-                        mt.label(f::name).left().fillX().expandX();
+                        mt.labelWrap(f::name).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
                             rebuildMusicList();
                         }).padLeft(10);
-                    }).left().row();
+                    }).growX().left().row();
                     found = true;
                 }
             }
@@ -181,18 +205,18 @@ public class MCSsettingMenuDialog {
             for(var f : musicLoader.boss.seq()){
                 if(musicLoader.isMusic(f)){
                     t.table(Styles.grayPanel, mt -> {
-                        mt.label(f::name).left().fillX().expandX();
+                        mt.labelWrap(f::name).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
                             rebuildMusicList();
                         }).padLeft(10);
-                    }).left().row();
+                    }).growX().left().row();
                     found = true;
                 }
             }
             if(!found) t.add("@musicList.empty").padLeft(10).left().row();
-        }).growX().growY();
+        }).width(Core.graphics.getWidth() / Scl.scl() * 0.75f).growY(); //.growX().growY();
     }
 
     public static class TitleSetting extends SettingsTable.Setting {

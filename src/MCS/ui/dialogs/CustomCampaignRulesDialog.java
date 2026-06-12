@@ -119,7 +119,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 slider(t, "@rules.unitbuildspeedmultiplier", customRule.team(team).unitBuildSpeedMultiplier, value -> {
                     customRule.team(team).unitBuildSpeedMultiplier = value;
                 });
-            }).width(650f).left().fillX().row();
+            }).left().growX().row();
 
             current.add(new Label("@other")).left().row();
             current.table(Tex.button, t -> {
@@ -135,7 +135,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 slider(t, "@rules.unitfactoryactivation", customRule.unitFactoryActivationDelay, value -> {
                     customRule.unitFactoryActivationDelay = value * 60f;
                 }, 0, 60, 0.5f, StatUnit.minutes.localized());
-            }).width(650f).left().fillX().row();
+            }).left().growX().row();
 
             if(planet.allowSectorInvasion){
                 check("@rules.invasions", b -> customRule.sectorInvasion = b, () -> customRule.sectorInvasion);
@@ -197,7 +197,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
         Table row = new Table();
 
         Label label = new Label(text);
-        row.add(label).left().fillX().expandX();
+        row.add(label).left();
 
         Slider slider = new Slider(min, max, step, false);
         slider.setValue(def);
