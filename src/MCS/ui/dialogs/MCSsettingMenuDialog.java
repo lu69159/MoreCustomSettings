@@ -147,7 +147,10 @@ public class MCSsettingMenuDialog {
 
         try{
             ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
-            Seq<Music> a = control.sound.ambientMusic, b = control.sound.bossMusic, d = control.sound.darkMusic;
+            Seq<Music> a = new Seq<>(control.sound.ambientMusic), b = new Seq<>(control.sound.bossMusic), d = new Seq<>(control.sound.darkMusic);
+            control.sound.ambientMusic.clear();
+            control.sound.darkMusic.clear();
+            control.sound.bossMusic.clear();
             control.sound = new CustomSoundControl(){{
                 ambientMusic = a;
                 bossMusic = b;
