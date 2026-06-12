@@ -130,7 +130,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 }).size(38f);
             }
 
-            if(t.pic != null && !t.pic.isEmpty()){
+            if(t.pic != null && !t.pic.isEmpty() && musicBase.isSafeUrl(t.pic)){
                 Http.get(t.pic, res -> {
                     try{
                         byte[] data = res.getResult();
@@ -151,7 +151,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackPreviewListening(musicBase.Track t){
-        if(t.url == null || t.url.isEmpty()) return;
+        if(t.url == null || !musicBase.isSafeUrl(t.url)) return;
         previewingUrl = t.url;
         musicLoader.loadFolder();
         musicLoader.tmp.mkdirs();
@@ -235,7 +235,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void downloadNamed(musicBase.Track t, String name){
-        if(t.url == null || t.url.isEmpty()) return;
+        if(t.url == null || !musicBase.isSafeUrl(t.url)) return;
 
         ui.loadfrag.show(Core.bundle.get("musicSquare.downloading"));
 

@@ -5,6 +5,7 @@ import arc.files.*;
 import arc.struct.*;
 import arc.util.Http;
 
+import java.net.URL;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 
@@ -30,6 +31,17 @@ public abstract class musicBase {
         return new Seq<>();
     }
 
+    public static boolean isSafeUrl(String url){
+        if(url == null || url.isEmpty()) return false;
+        try{
+            var parsed = new URL(url);
+            String protocol = parsed.getProtocol();
+            return "http".equals(protocol) || "https".equals(protocol);
+        }catch(Exception e){
+            return false;
+        }
+    }
+
     public static class Track {
         public String url;
         public String pic;
@@ -37,7 +49,7 @@ public abstract class musicBase {
         public String name;
 
         public void download(Fi dir){
-            if(url == null) return;
+            if(url == null || !isSafeUrl(url)) return;
 
             Core.app.post(() -> ui.loadfrag.show(Core.bundle.get("musicSquare.downloading")));
 
