@@ -128,6 +128,9 @@ public class musicSquareSearchDialog extends BaseDialog {
                 row.button(Icon.download, Styles.clearNonei, () -> {
                     trackDownload(t);
                 }).size(38f);
+            }else{
+                row.add(Core.bundle.get("musicSquare.noSource"))
+                    .color(Color.lightGray).padLeft(8f);
             }
 
             if(t.pic != null && !t.pic.isEmpty() && musicBase.isSafeUrl(t.pic)){
