@@ -12,6 +12,7 @@ public class qq extends musicBase{
         super("https://tang.api.s01s.cn/music_open_api.php?msg=");
     }
 
+    @Override
     public String url(String name){
         try{
             return url + URLEncoder.encode(name, "UTF-8") + "&type=json";
@@ -20,6 +21,7 @@ public class qq extends musicBase{
         }
     }
 
+    @Override
     public Seq<Track> search(String name) {
         Seq<Track> results = new Seq<>();
         Seq<String> mids = new Seq<>();

@@ -39,7 +39,6 @@ public class musicSquareSearchDialog extends BaseDialog {
             if(!previewingUrl.isEmpty()) stopPreviewListening();
             searchField.setText("");
             word = "";
-            previewingUrl = "";
             resource.allResults.clear();
             resultTable.clear();
             if(musicLoader.tmp.exists()){

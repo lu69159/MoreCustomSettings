@@ -9,6 +9,7 @@ public class kuWo extends musicBase {
         super("https://kw-api.cenguigui.cn/?name=");
     }
 
+    @Override
     public Seq<Track> search(String name){
         Seq<musicBase.Track> results = new Seq<>();
         String reqUrl = url(name);

@@ -12,6 +12,7 @@ public class netEase extends musicBase{
         super("https://api.qijieya.cn/meting/?type=search&id=");
     }
 
+    @Override
     public Seq<Track> search(String name) {
         Seq<Track> results = new Seq<>();
         String reqUrl = url(name);
