@@ -41,8 +41,11 @@ public class musicSquareSearchDialog extends BaseDialog {
             word = "";
             resource.allResults.clear();
             resultTable.clear();
-            if(musicLoader.tmp.exists()){
+            if(musicLoader.tmp != null && musicLoader.tmp.exists()){
                 musicLoader.tmp.deleteDirectory();
+                musicLoader.loadFolder();
+            }
+            else{
                 musicLoader.loadFolder();
             }
         });
