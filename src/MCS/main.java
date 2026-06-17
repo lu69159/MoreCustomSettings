@@ -10,13 +10,13 @@ import static mindustry.game.EventType.*;
 
 public class main extends Mod{
     public static MCSsettingMenuDialog menu;
-    public static BuildAttackFrag attacked;
+    public static CustomAttackFrag attacked;
     public static PlanetCustomRulesMaps rulesMaps;
     public static CustomMusicLoader musicLoader;
 
     public main(){
         menu = new MCSsettingMenuDialog();
-        attacked = new BuildAttackFrag();
+        attacked = new CustomAttackFrag();
         rulesMaps = new PlanetCustomRulesMaps();
         musicLoader = new CustomMusicLoader();
 
