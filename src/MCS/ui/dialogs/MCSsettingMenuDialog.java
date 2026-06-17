@@ -127,7 +127,7 @@ public class MCSsettingMenuDialog {
             t.field(settings.getString("unitStringMCS", Core.bundle.get("unitAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
                 attacked.unitString = attacked.tmpString;
-                attacked.blockEnabled = true;
+                attacked.unitEnabled = true;
                 settings.put("unitStringMCS", attacked.unitString);
                 unitStringDialog.hide();
             }).size(105f, 64f).padLeft(10f);
