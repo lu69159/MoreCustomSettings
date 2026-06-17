@@ -8,13 +8,13 @@
 # More Custom Settings
 - Custom campaign difficulty
 - Custom music
-- Building Attacked Warning
+- Building/Unit Attacked Warning
 - More features in the future...
 
 # 更多自定义设置
 - 自定义战役难度设置
 - 自定义音乐
-- 建筑受击提示
+- 建筑/单位受击提示
 - 未来会添加更多功能...
 
 ![preview1](./preview/preview1.png)
