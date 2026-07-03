@@ -177,6 +177,10 @@ public class musicSquareSearchDialog extends BaseDialog {
 
                 Fi file = musicLoader.tmp.child("preview." + ext);
                 file.writeBytes(data);
+                if(file.length() == 0){
+                    Core.app.post(() -> ui.showInfo("Downloaded file is empty"));
+                    return;
+                }
 
                 Core.app.post(() -> {
                     try{

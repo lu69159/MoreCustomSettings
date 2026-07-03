@@ -53,6 +53,10 @@ public class CustomSoundControl extends SoundControl{
 
         Core.audio.setPaused(Core.audio.soundBus.id, state.isPaused());
 
+        if(!(control.sound instanceof CustomSoundControl)){
+            menu.loadCustomSoundControl();
+        }
+
         if(preview && previewMusic != null){
             if(current != previewMusic){
                 if(current != null) current.stop();
