@@ -14,6 +14,7 @@ import static MCS.main.*;
 
 public class CustomSoundControl extends SoundControl{
     public boolean preview = false;
+    public boolean instantChangeBossMusic = false; //TODO
     public @Nullable Music previewMusic;
 
     public boolean custom(){

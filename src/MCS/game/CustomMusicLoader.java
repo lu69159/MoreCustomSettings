@@ -160,7 +160,7 @@ public class CustomMusicLoader{
 
                 fi.copyTo(folder);
                 Path source = Paths.get(folder.path() + "/" + fi.name());
-                Path to = Paths.get(folder.path() + "/" + name + "__" + fi.length() + "." + fi.extension());
+                Path to = Paths.get(folder.path() + "/" + name + "/" + fi.nameWithoutExtension() + "__" + fi.length() + "." + fi.extension());
                 Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
 
                 ui.showInfo("@importMusic.imported");
