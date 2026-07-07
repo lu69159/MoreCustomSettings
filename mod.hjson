@@ -4,7 +4,7 @@ author: "Space"
 description: "A mod which allows players to customize campaign difficulty, music and so on.
 一个允许玩家自定义战役难度，音乐等选项的模组。"
 repo: lu69159/MoreCustomSettings
-version: 1.5.4
+version: 1.6
 minGameVersion: 154
 
 java: true

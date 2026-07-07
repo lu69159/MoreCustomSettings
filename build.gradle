@@ -6,24 +6,25 @@ sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
-    maven{ url = "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+    maven{ url = "https://maven.xpdustry.com/mindustry" }
+    //maven{ url = "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url = 'https://www.jitpack.io' }
 }
 
 java{
-    targetCompatibility = 8
+    targetCompatibility = 8 //159+用17
     sourceCompatibility = JavaVersion.VERSION_17
 }
 
 ext{
     //the build number that this mod is made for
-    mindustryVersion = 'v158'
+    mindustryVersion = 'v158.1'
     jabelVersion = "93fde537c7"
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
 
-//java 8 backwards compatibility flag
+//java 8 backwards compatibility flag, 159+不需要
 allprojects{
     tasks.withType(JavaCompile).tap{
         configureEach{

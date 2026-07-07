@@ -142,7 +142,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
             }
 
             check("@rules.fog", b -> customRule.fog = b, () -> customRule.fog);
-            check("@rules.showspawns", b -> customRule.showSpawns = b, () -> customRule.showSpawns);
+            check(customRule.isShowSpawns ? "@rules.showspawns" : "@rules.hidespawns", b -> customRule.showSpawns = b, () -> customRule.showSpawns);
             check("@rules.randomwaveai", b -> customRule.randomWaveAI = b, () -> customRule.randomWaveAI);
             check("@rules.pauseDisabled", b -> customRule.pauseDisabled = b, () -> customRule.pauseDisabled);
 

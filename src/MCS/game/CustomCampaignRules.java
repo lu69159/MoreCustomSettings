@@ -5,6 +5,8 @@ import mindustry.game.*;
 import mindustry.gen.Groups;
 import mindustry.type.Planet;
 
+import java.lang.reflect.Field;
+
 public class CustomCampaignRules extends CampaignRules {
     public CustomTeamRules enemy;
     public CustomTeamRules player;
@@ -13,6 +15,33 @@ public class CustomCampaignRules extends CampaignRules {
     public float waveTimeMultiplier; //percent%
     public int extendWaves;
     public float unitFactoryActivationDelay;
+
+    public boolean howSpawns; //改这个的家伙吃饱撑的吧。showSpawns/hideSpawns
+    public Field howSpawnsField;
+    public boolean isShowSpawns;
+
+    private Field initSpawn(Planet planet){
+        Field field;
+        try{
+            field = CampaignRules.class.getDeclaredField("showSpawns");
+            isShowSpawns = true;
+        }catch(NoSuchFieldException e){
+            try{
+                field = CampaignRules.class.getDeclaredField("hideSpawns");
+                isShowSpawns = false;
+            }catch (NoSuchFieldException ex){
+                throw new RuntimeException(ex);
+            }
+        }
+        return field;
+    }
+    public boolean howSpawnsBool(Planet planet){
+         try{
+             return howSpawnsField.getBoolean(planet.campaignRuleDefaults);
+         }catch(IllegalAccessException e){
+             throw new RuntimeException(e);
+         }
+    }
 
     public CustomCampaignRules(Planet planet){
         enemy = new CustomTeamRules();
@@ -24,8 +53,10 @@ public class CustomCampaignRules extends CampaignRules {
         extendWaves = 0;
         unitFactoryActivationDelay = 0f;
 
+        howSpawnsField = initSpawn(planet); // showSpawns/hideSpawns
+        howSpawns = howSpawnsBool(planet);
+
         fog = planet.campaignRuleDefaults.fog;
-        showSpawns = planet.campaignRuleDefaults.showSpawns;
         sectorInvasion = planet.campaignRuleDefaults.sectorInvasion;
         randomWaveAI = planet.campaignRuleDefaults.randomWaveAI;
         rtsAI = planet.campaignRuleDefaults.rtsAI;
@@ -34,9 +65,15 @@ public class CustomCampaignRules extends CampaignRules {
     }
 
     @Override
-    public void apply(Planet planet, Rules rules) {
+    public void apply(Planet planet, Rules rules){
+        try {
+            var tmpSpawns = isShowSpawns ? rules.getClass().getField("showSpawns") : rules.getClass().getField("hideSpawns");
+            tmpSpawns.setBoolean(rules, howSpawns);
+        }catch(NoSuchFieldException | IllegalAccessException e){
+            throw new RuntimeException(e);
+        }
+
         rules.staticFog = rules.fog = fog;
-        rules.showSpawns = showSpawns;
         rules.randomWaveAI = randomWaveAI;
         rules.pauseDisabled = pauseDisabled;
         if(planet.showRtsAIRule){
@@ -106,7 +143,6 @@ public class CustomCampaignRules extends CampaignRules {
     }
 
     public class CustomTeamRules{
-        public RuleTeam ruleteam;
         public float blockHealthMultiplier;
         public float unitHealthMultiplier;
         public float unitCostMultiplier;
