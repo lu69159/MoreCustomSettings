@@ -4,26 +4,30 @@ version = '1.0'
 
 sourceSets.main.java.srcDirs = ["src"]
 
+ext.useLocalDeps = project.hasProperty('useLocalDeps') ? property('useLocalDeps').toBoolean() : true
+
 repositories{
     mavenCentral()
-    ivy{
-        url = 'https://github.com/'
-        patternLayout{artifact '/[organisation]/[module]/releases/download/[revision]/dependencies.jar'}
-        metadataSources{ artifact() }
-    }
+    if(!useLocalDeps){
+        ivy{
+            url = 'https://github.com/'
+            patternLayout{artifact '/[organisation]/[module]/releases/download/[revision]/dependencies.jar'}
+            metadataSources{ artifact() }
+        }
 
-    //If the version is set to 'latest', downloads the latest Mindustry *release* as a dependency
-    ivy{
-        url = 'https://github.com/'
-        patternLayout{artifact '/[organisation]/[module]/releases/[revision]/download/dependencies.jar'}
-        metadataSources{ artifact() }
-    }
+        //If the version is set to 'latest', downloads the latest Mindustry *release* as a dependency
+        ivy{
+            url = 'https://github.com/'
+            patternLayout{artifact '/[organisation]/[module]/releases/[revision]/download/dependencies.jar'}
+            metadataSources{ artifact() }
+        }
 
-    //For depending on the absolute newest commit for Mindustry
-    ivy{
-        url = 'https://github.com/'
-        patternLayout{artifact '/[organisation]/[module]/releases/download/master/[revision].jar'}
-        metadataSources{ artifact() }
+        //For depending on the absolute newest commit for Mindustry
+        ivy{
+            url = 'https://github.com/'
+            patternLayout{artifact '/[organisation]/[module]/releases/download/master/[revision].jar'}
+            metadataSources{ artifact() }
+        }
     }
     //maven{ url = "https://maven.xpdustry.com/mindustry" }
     //maven{ url = "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
@@ -55,19 +59,24 @@ allprojects{
 */
 
 dependencies{
-    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
-    compileOnly files('D:/Game/Mindustry/zizhiMOD/FORK/Arc/arc-core/build/libs/arc-core-1.0.jar')
-    compileOnly files('D:/Game/Mindustry/zizhiMOD/FORK/Mindustry/core/build/libs/core-release.jar')
+    if(useLocalDeps){
+        compileOnly files('D:/Game/Mindustry/zizhiMOD/FORK/Arc/arc-core/build/libs/arc-core-1.0.jar')
+        compileOnly files('D:/Game/Mindustry/zizhiMOD/FORK/Mindustry/core/build/libs/core-release.jar')
+    }else{
+        compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
+        compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
+    }
 
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
 
 //force arc version
-configurations.configureEach{
-    resolutionStrategy.eachDependency { details ->
-        if(details.requested.group == 'com.github.Anuken.Arc'){
-            details.useVersion "$mindustryVersion"
+if(!useLocalDeps){
+    configurations.configureEach{
+        resolutionStrategy.eachDependency { details ->
+            if(details.requested.group == 'com.github.Anuken.Arc'){
+                details.useVersion "$mindustryVersion"
+            }
         }
     }
 }
