@@ -7,6 +7,7 @@ import arc.struct.*;
 import arc.util.Nullable;
 import mindustry.game.*;
 import mindustry.gen.*;
+import mindustry.ui.*;
 
 import java.nio.file.*;
 
@@ -127,48 +128,50 @@ public class CustomMusicLoader{
     }
 
     public Runnable importMusic(String musicFi){
-        return () -> platform.showMultiFileChooser(fi -> {
-            try{
-                Fi folder = Core.settings.getDataDirectory().child("MCS-music").child(musicFi);
-                if(!folder.exists()) folder.mkdirs();
+        return () -> FileChooser.open("ogg", "mp3").submitMulti(files -> {
+            for(var fi : files){
+                try{
+                    Fi folder = Core.settings.getDataDirectory().child("MCS-music").child(musicFi);
+                    if(!folder.exists()) folder.mkdirs();
 
-                fi.copyTo(folder);
-                Path source = Paths.get(folder.path() + "/" + fi.name());
-                Path to = Paths.get(folder.path() + "/" + realName(fi));
-                Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
-
-                ui.showInfo("@importMusic.imported");
-                load();
-            }catch(Exception e){
-                ui.showException(e);
+                    fi.copyTo(folder);
+                    Path source = Paths.get(folder.path() + "/" + fi.name());
+                    Path to = Paths.get(folder.path() + "/" + realName(fi));
+                    Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
+                }catch(Exception e){
+                    ui.showException(e);
+                }
             }
-        }, "ogg", "mp3");
+            ui.showInfo("@importMusic.imported");
+            load();
+        });
     }
 
     public Runnable importMenuMusic(String name){
-        return () -> platform.showMultiFileChooser(fi -> {
-            try{
-                Fi folder = Core.settings.getDataDirectory().child("MCS-music");
-                if(!folder.exists()) folder.mkdirs();
+        return () -> FileChooser.open("ogg", "mp3").submitMulti(files -> {
+            for(var fi : files){
+                try{
+                    Fi folder = Core.settings.getDataDirectory().child("MCS-music");
+                    if(!folder.exists()) folder.mkdirs();
 
-                for(var f : folder.seq()){
-                    if(!f.isDirectory()){
-                        String n = f.name().split("__", 2)[0];
-                        if(n.equals(name)) f.delete();
+                    for(var f : folder.seq()){
+                        if(!f.isDirectory()){
+                            String n = f.name().split("__", 2)[0];
+                            if(n.equals(name)) f.delete();
+                        }
                     }
+
+                    fi.copyTo(folder);
+                    Path source = Paths.get(folder.path() + "/" + fi.name());
+                    Path to = Paths.get(folder.path() + "/" + name + "/" + fi.nameWithoutExtension() + "__" + fi.length() + "." + fi.extension());
+                    Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
+                }catch(Exception e){
+                    ui.showException(e);
                 }
-
-                fi.copyTo(folder);
-                Path source = Paths.get(folder.path() + "/" + fi.name());
-                Path to = Paths.get(folder.path() + "/" + name + "/" + fi.nameWithoutExtension() + "__" + fi.length() + "." + fi.extension());
-                Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
-
-                ui.showInfo("@importMusic.imported");
-                load();
-            }catch(Exception e){
-                ui.showException(e);
             }
-        }, "ogg", "mp3");
+            ui.showInfo("@importMusic.imported");
+            load();
+        });
     }
 
     public String realName(Fi file){

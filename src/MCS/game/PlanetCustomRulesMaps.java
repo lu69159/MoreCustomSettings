@@ -67,8 +67,7 @@ public class PlanetCustomRulesMaps{
             r.sectorInvasion = Core.settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
             r.fog = Core.settings.getBool(name + "fog", p.campaignRules.fog);
 
-            //r.showSpawns = Core.settings.getBool(name + "SS", p.campaignRules.showSpawns);
-            r.howSpawns = Core.settings.getBool(name + "SS", r.howSpawnsBool(p));
+            r.hideSpawns = Core.settings.getBool(name + "SS", p.campaignRules.hideSpawns);
 
             r.randomWaveAI = Core.settings.getBool(name + "RW", p.campaignRules.randomWaveAI);
             r.rtsAI = Core.settings.getBool(name + "RTS", p.campaignRules.randomWaveAI);
@@ -110,8 +109,7 @@ public class PlanetCustomRulesMaps{
         Core.settings.put(name + "SI", r.sectorInvasion);
         Core.settings.put(name + "fog", r.fog);
 
-        //Core.settings.put(name + "SS", r.showSpawns);
-        Core.settings.put(name + "SS", r.howSpawns);
+        Core.settings.put(name + "SS", r.hideSpawns);
 
         Core.settings.put(name + "RW", r.randomWaveAI);
         Core.settings.put(name + "RTS", r.rtsAI);
