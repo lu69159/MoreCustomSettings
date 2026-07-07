@@ -6,7 +6,7 @@ sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
-    //maven{ url = "https://maven.xpdustry.com/mindustry" }
+    maven{ url = "https://maven.xpdustry.com/mindustry" }
     //maven{ url = "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url = 'https://www.jitpack.io' }
 }
@@ -37,8 +37,8 @@ allprojects{
 */
 
 dependencies{
-    //compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-    //compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
+    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
+    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     compileOnly files('D:/Game/Mindustry/zizhiMOD/FORK/Arc/arc-core/build/libs/arc-core-1.0.jar')
     compileOnly files('D:/Game/Mindustry/zizhiMOD/FORK/Mindustry/core/build/libs/core-release.jar')
 
