@@ -147,7 +147,7 @@ public class CustomMusicLoader{
         });
     }
 
-    public Runnable importMenuMusic(String name){
+    public Runnable importMenuMusic(String musicname){
         return () -> FileChooser.open("ogg", "mp3").submitMulti(files -> {
             for(var fi : files){
                 try{
@@ -157,13 +157,13 @@ public class CustomMusicLoader{
                     for(var f : folder.seq()){
                         if(!f.isDirectory()){
                             String n = f.name().split("__", 2)[0];
-                            if(n.equals(name)) f.delete();
+                            if(n.equals(musicname)) f.delete();
                         }
                     }
 
                     fi.copyTo(folder);
                     Path source = Paths.get(folder.path() + "/" + fi.name());
-                    Path to = Paths.get(folder.path() + "/" + name + "/" + fi.nameWithoutExtension() + "__" + fi.length() + "." + fi.extension());
+                    Path to = Paths.get(folder.path() + "/" + musicname + "__" + fi.length() + "." + fi.extension());
                     Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
                 }catch(Exception e){
                     ui.showException(e);
