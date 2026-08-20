@@ -159,7 +159,7 @@ public class CustomAttackFrag {
                     l.addListener(new HandCursorListener());
                 })
                 .update(label -> {
-                                label.color.set(Color.orange).lerp(Pal.accent.cpy(), Mathf.absin(Time.time, 2f, 1f));
+                                label.color.set(Pal.heal).lerp(Pal.accent.cpy(), Mathf.absin(Time.time, 2f, 1f));
                                 if(unitChanged){
                                     label.setText(unitString);
                                     unitChanged = false;
