@@ -203,7 +203,7 @@ public class MCSsettingMenuDialog {
             for(var f : musicLoader.ambient.seq()){
                 if(musicLoader.isMusic(f)){
                     t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(f::name).left().fillX().expandX();
+                        mt.labelWrap(f.name().split("__", 2)[0]).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
@@ -220,7 +220,7 @@ public class MCSsettingMenuDialog {
             for(var f : musicLoader.dark.seq()){
                 if(musicLoader.isMusic(f)){
                     t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(f::name).left().fillX().expandX();
+                        mt.labelWrap(f.name().split("__", 2)[0]).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
@@ -237,7 +237,7 @@ public class MCSsettingMenuDialog {
             for(var f : musicLoader.boss.seq()){
                 if(musicLoader.isMusic(f)){
                     t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(f::name).left().fillX().expandX();
+                        mt.labelWrap(f.name().split("__", 2)[0]).left().fillX().expandX();
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
