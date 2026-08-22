@@ -68,7 +68,7 @@ public abstract class musicBase {
                     }
 
                     String sanitized = (artist + "-" + name).replaceAll("[^-0-9a-zA-Z]", "");
-                    if(sanitized.isEmpty()) sanitized = "track_" + System.nanoTime();
+                    if(sanitized.isEmpty()) sanitized = "track" + System.nanoTime();
 
                     if(!dir.exists()) musicLoader.loadFolder();
                     dir.child(sanitized + "__" + data.length + "." + ext).writeBytes(data);

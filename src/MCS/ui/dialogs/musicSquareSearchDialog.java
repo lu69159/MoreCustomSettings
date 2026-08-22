@@ -262,6 +262,12 @@ public class musicSquareSearchDialog extends BaseDialog {
                     }
                 }
 
+                if(name.equals("menu")){
+                    Core.settings.put("MCSmenuMusicName", t.name);
+                }else{
+                    Core.settings.put("MCSeditorMusicName", t.name);
+                }
+
                 musicLoader.loadFolder();
                 for(var f : musicLoader.musicFolder.seq()){
                     if(f.name().split("__", 2)[0].equals(name)) f.delete();

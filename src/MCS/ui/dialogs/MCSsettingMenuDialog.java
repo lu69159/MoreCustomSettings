@@ -246,6 +246,46 @@ public class MCSsettingMenuDialog {
                 }
             }
             if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+
+            //MENU & EDITOR MUSIC
+            t.add("@importMusic.menu").color(Pal.accent).padTop(10).left().row();
+            found = false;
+            for(var f : musicLoader.musicFolder.seq()){
+                if(musicLoader.isMusic(f) && f.nameWithoutExtension().split("__", 2)[0].equals("menu")){
+                    t.table(Styles.grayPanel, mt -> {
+                        mt.labelWrap(settings.getString("MCSmenuMusicName", "unknown music")).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            f.delete();
+                            settings.remove("MCSmenuMusicName");
+                            musicLoader.menuMusic = null;
+                            musicLoader.load();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).growX().left().row();
+                    found = true;
+                }
+            }
+            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+
+            t.add("@importMusic.editor").color(Pal.accent).padTop(10).left().row();
+            found = false;
+            for(var f : musicLoader.musicFolder.seq()){
+                if(musicLoader.isMusic(f) && f.nameWithoutExtension().split("__", 2)[0].equals("editor")){
+                    t.table(Styles.grayPanel, mt -> {
+                        mt.labelWrap(settings.getString("MCSeditorMusicName", "unknown music")).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            f.delete();
+                            settings.remove("MCSeditorMusicName");
+                            musicLoader.editorMusic = null;
+                            musicLoader.load();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).growX().left().row();
+                    found = true;
+                }
+            }
+            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+
         }).width(Core.graphics.getWidth() / Scl.scl() * 0.75f).growY(); //.growX().growY();
     }
 

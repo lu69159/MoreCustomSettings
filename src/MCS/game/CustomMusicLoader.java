@@ -123,6 +123,10 @@ public class CustomMusicLoader{
         if(musicFolder.exists()){
             musicFolder.deleteDirectory();
         }
+        menuMusic = null;
+        editorMusic = null;
+        settings.remove("MCSmenuMusicName");
+        settings.remove("MCSeditorMusicName");
         ui.showInfo("@clearMusic.clear");
         loadFolder();
     }
@@ -159,6 +163,13 @@ public class CustomMusicLoader{
                             String n = f.name().split("__", 2)[0];
                             if(n.equals(musicname)) f.delete();
                         }
+                    }
+
+                    String musicShowName = fi.nameWithoutExtension();
+                    if(musicname.equals("menu")){
+                        Core.settings.put("MCSmenuMusicName", musicShowName);
+                    }else{
+                        Core.settings.put("MCSeditorMusicName", musicShowName);
                     }
 
                     fi.copyTo(folder);
