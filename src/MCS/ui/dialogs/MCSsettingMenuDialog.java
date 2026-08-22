@@ -92,7 +92,6 @@ public class MCSsettingMenuDialog {
         t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> blockStringDialog.show()));
         t.checkPref("bannedAttackedBlocksWhitelist", false, b -> attacked.blockWhitelist = b);
         t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> attacked.bannedAttackBlocksDialog.show(attacked.bannedAttackBlocks)));
-        t.row();
 
         t.pref(new TitleSetting("@settingtitle.unitAttacked"));
 
@@ -101,7 +100,6 @@ public class MCSsettingMenuDialog {
         t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> unitStringDialog.show()));
         t.checkPref("bannedAttackedUnitsWhitelist", false, u -> attacked.unitWhitelist = u);
         t.pref(new ButtonSetting("@bannedAttackedUnits", Icon.cancel, () -> attacked.bannedAttackUnitsDialog.show(attacked.bannedAttackUnits)));
-        t.row();
 
         t.pref(new GithubLink("Github"));
     };
