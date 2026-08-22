@@ -263,9 +263,9 @@ public class musicSquareSearchDialog extends BaseDialog {
                 }
 
                 if(name.equals("menu")){
-                    Core.settings.put("MCSmenuMusicName", t.name);
+                    Core.settings.put("MCSmenuMusicName", t.artist + " - " + t.name);
                 }else{
-                    Core.settings.put("MCSeditorMusicName", t.name);
+                    Core.settings.put("MCSeditorMusicName", t.artist + " - " + t.name);
                 }
 
                 musicLoader.loadFolder();
