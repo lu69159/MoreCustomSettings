@@ -23,5 +23,5 @@
 ![preview4](./preview/preview4.png)
 
 
-### - You can submit mod bugs or feature requests via Issues
-### -你可以在Issues提交模组的bug或者希望实现的功能
+### - Submit mod bugs or feature requests via Issues
+### - 在Issues提交模组的bug或者希望实现的功能
