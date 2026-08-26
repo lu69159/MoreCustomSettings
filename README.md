@@ -1,4 +1,4 @@
-![MoreCustomSettings](./assets/icon.png)
+![MoreCustomSettings](./preview/socialPreview.png)
 
 ![GitHub Stars](https://img.shields.io/github/stars/lu69159/MoreCustomSettings)
 ![GitHub Downloads](https://img.shields.io/github/downloads/lu69159/MoreCustomSettings/total)
