@@ -12,7 +12,6 @@ public enum CustomDifficulty{
 
     public static final CustomDifficulty[] all = values();
 
-    //TODO add more fields
     public float enemyHealthMultiplier, enemySpawnMultiplier, waveTimeMultiplier;
     public boolean isCustom;
 

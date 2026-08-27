@@ -41,8 +41,6 @@ public class CustomAttackFrag {
     @Nullable private Building attackedBuild;
     @Nullable private Unit attackedUnit;
 
-    //TODO: 残血阈值下的单位受攻击提醒
-
     public CustomAttackFrag(){
         Events.on(BuildDamageEvent.class, b -> {
             if(blockEnabled && b.build.team == player.team() && bannedAttackBlocks.contains(b.build.block) == blockWhitelist){
