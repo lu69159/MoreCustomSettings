@@ -4,6 +4,7 @@ import arc.*;
 import arc.files.*;
 import arc.struct.*;
 import arc.util.Http;
+import mindustry.graphics.Pal;
 
 import java.net.URL;
 import java.net.URLEncoder;
@@ -49,9 +50,9 @@ public abstract class musicBase {
         public String name;
 
         public void download(Fi dir){
-            if(url == null || !isSafeUrl(url)) return;
+            if(!isSafeUrl(url)) return;
 
-            Core.app.post(() -> ui.loadfrag.show(Core.bundle.get("musicSquare.downloading")));
+            Core.app.post(() -> ui.loadfrag.show(Core.bundle.format("musicSquare.downloading", Pal.accent)));
 
             Http.get(url, res -> {
                 try{

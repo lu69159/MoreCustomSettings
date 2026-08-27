@@ -246,7 +246,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     private void downloadNamed(musicBase.Track t, String name){
         if(t.url == null || !musicBase.isSafeUrl(t.url)) return;
 
-        ui.loadfrag.show(Core.bundle.get("musicSquare.downloading"));
+        ui.loadfrag.show(Core.bundle.format("musicSquare.downloading", Pal.accent));
 
         Http.get(t.url, res -> {
             try{
