@@ -2,32 +2,20 @@ package MCS.game;
 
 import arc.*;
 import arc.audio.*;
-import arc.math.Mathf;
+import arc.math.*;
+import arc.struct.*;
 import arc.util.*;
-import mindustry.Vars;
 import mindustry.audio.*;
 import mindustry.content.*;
 import mindustry.gen.Musics;
 
 import static arc.Core.settings;
 import static mindustry.Vars.*;
-import static mindustry.game.EventType.*;
 import static MCS.main.*;
 
 public class CustomSoundControl extends SoundControl{
     public boolean preview = false;
-    public boolean instantChangeBossMusic = settings.getBool("instantChangeBossMusic", false); //TODO
     public @Nullable Music previewMusic;
-
-    public CustomSoundControl(){
-        super();
-        Events.on(WaveEvent.class, e -> {
-            boolean boss = state.rules.spawns.contains((group) -> group.getSpawned(state.wave - 2) > 0 && group.effect == StatusEffects.boss);
-            if(instantChangeBossMusic && shouldPlay() && current != null && boss){
-                current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
-            }
-        });
-    }
 
     public boolean enabledCustomMusic(){
         return settings.getBool("enableCustomMusic", false);
@@ -65,10 +53,6 @@ public class CustomSoundControl extends SoundControl{
         }
 
         Core.audio.setPaused(Core.audio.soundBus.id, state.isPaused());
-
-        if(!(control.sound instanceof CustomSoundControl)){
-            menu.loadCustomSoundControl();
-        }
 
         if(keepSilent){
             keepSilent = false;
@@ -109,18 +93,31 @@ public class CustomSoundControl extends SoundControl{
             //this just fades out the last track to make way for ingame music
             silence();
 
-            /* TODO: 目前不确定这段有没必要
-            boolean boss = state.rules.spawns.contains((group) -> group.getSpawned(state.wave - 2) > 0 && group.effect == StatusEffects.boss);
-            if(instantChangeBossMusic && boss){
-                playOnce(getBossMusic().random(lastRandomPlayed));
-            }
-             */
             if(!state.rules.disableMusic || enabledCustomMusic()){
-                if (alwaysPlayMusic()) {
+                if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null){
+                    var m = enabledCustomMusic() ? bossMusic : getBossMusic();
+
+                    if(current == null){
+                        var bm = m.random(lastRandomPlayed);
+                        playOnce(bm);
+                        if(current == bm) silenced = true;
+                    }else if(!m.contains(current)){
+                        fade = Mathf.clamp(fade - Time.delta / foutTime);
+                        current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
+                        if(fade <= 0.01f){
+                            current.stop();
+                            current = null;
+                            var bm = m.random(lastRandomPlayed);
+                            playOnce(bm);
+                            if(current == bm) silenced = true;
+                        }
+                    }
+
+                }else if(alwaysPlayMusic()){
                     if (current == null) {
                         playRandom();
                     }
-                } else if (Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
+                }else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
                     //chance to play it per interval
                     if (Mathf.chance(musicChance)) {
                         lastPlayed = Time.millis();
@@ -134,23 +131,23 @@ public class CustomSoundControl extends SoundControl{
     }
 
     @Override
-    public void playRandom() {
+    public void playRandom(){
+        Seq<Music> bossSeq, darkSeq, ambientSeq;
         if(settings.getBool("enableCustomMusic", false)){
-            if(Vars.state.boss() != null){
-                playOnce(getBossMusic().random(lastRandomPlayed));
-            }else if (isDark()){
-                playOnce(getDarkMusic().random(lastRandomPlayed));
-            }else{
-                playOnce(getAmbientMusic().random(lastRandomPlayed));
-            }
+            bossSeq = bossMusic;
+            darkSeq = darkMusic;
+            ambientSeq = ambientMusic;
         }else{
-            if(Vars.state.boss() != null){
-                playOnce(bossMusic.random(lastRandomPlayed));
-            }else if (isDark()){
-                playOnce(darkMusic.random(lastRandomPlayed));
-            }else{
-                playOnce(ambientMusic.random(lastRandomPlayed));
-            }
+            bossSeq = getBossMusic();
+            darkSeq = getDarkMusic();
+            ambientSeq = getAmbientMusic();
+        }
+        if(state.boss() != null){
+            playOnce(bossSeq.random(lastRandomPlayed));
+        }else if (isDark()){
+            playOnce(darkSeq.random(lastRandomPlayed));
+        }else{
+            playOnce(ambientSeq.random(lastRandomPlayed));
         }
     }
 
