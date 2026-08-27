@@ -36,7 +36,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         resource.onSearchBeginning = this::loading;
         resource.onSearchComplete = this::complete;
         hidden(() -> {
-            if(!previewingUrl.isEmpty()) stopPreviewListening();
+            stopPreviewListening();
             searchField.setText("");
             word = "";
             resource.allResults.clear();

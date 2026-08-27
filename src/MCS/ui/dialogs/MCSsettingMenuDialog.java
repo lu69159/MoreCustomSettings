@@ -27,6 +27,7 @@ public class MCSsettingMenuDialog {
     public Cons<SettingsTable> settingBuilder = t -> {
         t.pref(new TitleSetting("@settingtitle.music"));
 
+        t.checkPref("instantChangeBossMusic", false);
         t.checkPref("enableCustomMusic", false, b -> {
             if(b){
                 musicLoader.loadCustom();
@@ -55,7 +56,7 @@ public class MCSsettingMenuDialog {
 
         t.pref(new TitleSetting("@settingtitle.campaignDifficulty"));
 
-        t.checkPref("enablecustomcampaigndifficulty", true, b -> {
+        t.checkPref("enablecustomcampaigndifficulty", false, b -> {
             if(b){
                 ui.campaignRules = new CustomCampaignRulesDialog();
                 spawner = new CustomWaveSpawner();
