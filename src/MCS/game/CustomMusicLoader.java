@@ -251,6 +251,10 @@ public class CustomMusicLoader{
         return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
     }
 
+    public boolean isSameMusic(Music m1, Music m2){
+        return decodeName(getName(m1.file.name())).equals(decodeName(getName(m2.file.name()))) && m1.file.length() == m2.file.length() && m1.file.length() == m2.file.length();
+    }
+
     public String realName(Fi file){
         int dotIndex = file.name().lastIndexOf("__");
         if(dotIndex != -1) return file.name();
