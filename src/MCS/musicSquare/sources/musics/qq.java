@@ -39,12 +39,7 @@ public class qq extends musicBase{
 
         String body = get[0];
 
-        var json = Jval.read(body);
-        if(!json.isArray()){
-            Log.info("musicBase json array expected");
-            return results;
-        }
-        var arr = json.asArray();
+        var arr = Jval.read(body).asArray();
 
         if(arr.size == 0) return results;
 

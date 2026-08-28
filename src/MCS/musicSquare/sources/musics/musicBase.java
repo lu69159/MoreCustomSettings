@@ -111,9 +111,9 @@ public abstract class musicBase {
                     }
 
                     if(name.equals("menu")){
-                        Core.settings.put("MCSmenuMusicName", artist + " - " + name);
+                        Core.settings.put("MCSmenuMusicName", artist + " - " + this.name);
                     }else{
-                        Core.settings.put("MCSeditorMusicName", artist + " - " + name);
+                        Core.settings.put("MCSeditorMusicName", artist + " - " + this.name);
                     }
 
                     musicLoader.loadFolder();

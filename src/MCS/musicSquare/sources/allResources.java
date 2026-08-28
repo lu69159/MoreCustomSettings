@@ -10,8 +10,9 @@ public class allResources{
 
     private final netEase netEase = new netEase();
     private final kuWo kuWo = new kuWo();
+    private final kuGou kuGou = new kuGou();
     private final qq qq = new qq();
-    public Seq<musicBase> all = Seq.with(netEase, kuWo, qq);
+    public Seq<musicBase> all = Seq.with(netEase, kuWo, kuGou, qq);
 
     public Seq<musicBase.Track> allResults = new Seq<>();
     private String keyword;
