@@ -299,11 +299,13 @@ public class MCSsettingMenuDialog {
             }
             if(!found) t.add("@musicList.empty").padLeft(10).left().row();
 
-            t.add("@importMusic.planet").color(Pal.accent).padTop(10).left().row();
             //planetMusic
+            t.add("@importMusic.planet").color(Pal.accent).padTop(10).left().row();
+            t.image().color(Pal.accent).height(3).left().fillX().padBottom(3).row();
+
             for(var p : content.planets()){
                 if(!p.accessible) continue;
-                t.add("[#" + p.iconColor + "]" + Iconc.planet + p.localizedName).color(Pal.accent).padTop(5).left().row();
+                t.add("[#" + p.iconColor + "]" + Iconc.planet + p.localizedName).padTop(5).left().row();
                 if(musicLoader.planetMusicMap.get(p) != null){
                     t.table(Styles.grayPanel, mt -> {
                         var f = musicLoader.planetMusicMap.get(p).file;

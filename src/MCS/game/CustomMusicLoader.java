@@ -114,7 +114,7 @@ public class CustomMusicLoader{
         try{
             for(var fi : planets.seq()){
                 if(isMusic(fi)){
-                    String n = decodeName(fi.name().split("__", 2)[0]);
+                    String n = decodeName(getName(fi.name()));
                     var planet = content.planets().find(p -> p.name.equals(n));
                     if(planet != null && planet.accessible){
                         try{
@@ -151,7 +151,7 @@ public class CustomMusicLoader{
         reset();
         settings.put("enableCustomMusic", false);
         for(var fi : planets.seq()){
-            settings.remove("MCSplanetMusicName-" + decodeName(fi.name().split("__", 2)[0]));
+            settings.remove("MCSplanetMusicName-" + decodeName(getName(fi.name())));
         }
         musicFolder.deleteDirectory();
         menuMusic = null;
@@ -247,6 +247,10 @@ public class CustomMusicLoader{
         });
     }
 
+    public boolean isMusic(Fi fi){
+        return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
+    }
+
     public String realName(Fi file){
         int dotIndex = file.name().lastIndexOf("__");
         if(dotIndex != -1) return file.name();
@@ -255,20 +259,21 @@ public class CustomMusicLoader{
         return name + "__" + file.length() + "." + file.extension();
     }
 
-    public boolean isMusic(Fi fi){
-        return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
-    }
-
-    public static String encodeName(String input){
+    public String encodeName(String input){
         if(input == null) return null;
         return "E" + Base64.getUrlEncoder().withoutPadding().encodeToString(input.getBytes(StandardCharsets.UTF_8));
     }
-    public static String decodeName(String token){
+    public String decodeName(String token){
         if(token == null || token.length() <= 1 || !token.startsWith("E")) return token;
         try{
             return new String(Base64.getUrlDecoder().decode(token.substring(1)), StandardCharsets.UTF_8);
         }catch(IllegalArgumentException ignore){
             return token;
         }
+    }
+    public String getName(String realName){
+        int index = realName.lastIndexOf("__");
+        if(index != -1) return realName.substring(0, index);
+        return realName;
     }
 }
