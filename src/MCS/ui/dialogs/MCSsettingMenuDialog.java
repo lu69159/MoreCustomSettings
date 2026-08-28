@@ -1,8 +1,8 @@
 package MCS.ui.dialogs;
 
-import arc.*;
 import arc.audio.*;
 import arc.func.*;
+import arc.graphics.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
@@ -15,13 +15,13 @@ import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 import MCS.game.*;
 
-import static arc.Core.settings;
+import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.Vars.*;
 import static MCS.main.*;
 
 public class MCSsettingMenuDialog {
-    private BaseDialog blockStringDialog, unitStringDialog, musicImportDialog, musicInGameDialog, musicListDialog;
+    private BaseDialog blockStringDialog, unitStringDialog, musicImportDialog, musicInGameDialog, planetMusicListDialog, musicListDialog;
     private musicSquareSearchDialog musicSearchDialog;
 
     public Cons<SettingsTable> settingBuilder = t -> {
@@ -40,7 +40,7 @@ public class MCSsettingMenuDialog {
         if(!mobile){
             t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
                 if (musicLoader.musicFolder == null || !musicLoader.musicFolder.exists()) musicLoader.loadFolder();
-                Core.app.openFolder(musicLoader.musicFolder.absolutePath());
+                app.openFolder(musicLoader.musicFolder.absolutePath());
             }));
         }
         t.pref(new ButtonSetting("@clearMusic", Icon.trash,
@@ -109,7 +109,7 @@ public class MCSsettingMenuDialog {
         blockStringDialog = new BaseDialog("@settings");
         blockStringDialog.buttons.defaults().size(210, 64);
         blockStringDialog.cont.table(t -> {
-            t.field(settings.getString("blockStringMCS", Core.bundle.get("buildAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
+            t.field(settings.getString("blockStringMCS", bundle.get("buildAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
                 attacked.blockString = attacked.tmpString;
                 attacked.blockChanged = true;
@@ -123,7 +123,7 @@ public class MCSsettingMenuDialog {
         unitStringDialog = new BaseDialog("@settings");
         unitStringDialog.buttons.defaults().size(210, 64);
         unitStringDialog.cont.table(t -> {
-            t.field(settings.getString("unitStringMCS", Core.bundle.get("unitAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
+            t.field(settings.getString("unitStringMCS", bundle.get("unitAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
                 attacked.unitString = attacked.tmpString;
                 attacked.unitEnabled = true;
@@ -147,6 +147,18 @@ public class MCSsettingMenuDialog {
             t.row();
         });
 
+        planetMusicListDialog = new BaseDialog("@importMusic");
+        planetMusicListDialog.addCloseButton();
+        planetMusicListDialog.cont.pane(t -> {
+            t.defaults().size(200f, 60f).left();
+
+            for(var planet : content.planets()){
+                if(!planet.accessible) continue;
+                t.button(planet.localizedName, Icon.planet.tint(planet.iconColor), musicLoader.importNamedMusic(planet.name));
+                t.row();
+            }
+        });
+
         musicImportDialog = new BaseDialog("@importMusic");
         musicImportDialog.addCloseButton();
         musicImportDialog.cont.table(Tex.button, t -> {
@@ -154,9 +166,11 @@ public class MCSsettingMenuDialog {
 
             t.button("@importMusic.inGame", Styles.flatt, () -> musicInGameDialog.show());
             t.row();
-            t.button("@importMusic.editor", Styles.flatt, musicLoader.importMenuMusic("editor"));
+            t.button("@importMusic.editor", Styles.flatt, musicLoader.importNamedMusic("editor"));
             t.row();
-            t.button("@importMusic.menu", Styles.flatt, musicLoader.importMenuMusic("menu"));
+            t.button("@importMusic.menu", Styles.flatt, musicLoader.importNamedMusic("menu"));
+            t.row();
+            t.button("@importMusic.planet", Styles.flatt, () -> planetMusicListDialog.show());
             t.row();
         });
 
@@ -169,7 +183,7 @@ public class MCSsettingMenuDialog {
         musicSearchDialog.setup();
 
         try{
-            ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
+            ui.settings.addCategory(bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
             replaceResetButton();
 
             Seq<Music> a = new Seq<>(control.sound.ambientMusic), b = new Seq<>(control.sound.bossMusic), d = new Seq<>(control.sound.darkMusic);
@@ -285,11 +299,33 @@ public class MCSsettingMenuDialog {
             }
             if(!found) t.add("@musicList.empty").padLeft(10).left().row();
 
-        }).width(Core.graphics.getWidth() / Scl.scl() * 0.75f).growY(); //.growX().growY();
+            t.add("@importMusic.planet").color(Pal.accent).padTop(10).left().row();
+            //planetMusic
+            for(var p : content.planets()){
+                if(!p.accessible) continue;
+                t.add("[#" + p.iconColor + "]" + Iconc.planet + p.localizedName).color(Pal.accent).padTop(5).left().row();
+                if(musicLoader.planetMusicMap.get(p) != null){
+                    t.table(Styles.grayPanel, mt -> {
+                        var f = musicLoader.planetMusicMap.get(p).file;
+                        mt.labelWrap(settings.getString("MCSplanetMusicName-" + p.name, "unknown music")).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            f.delete();
+                            settings.remove("MCSplanetMusicName-" + p.name);
+                            musicLoader.planetMusicMap.remove(p);
+                            musicLoader.load();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).growX().left().row();
+                }else{
+                    t.add("@musicList.empty").padLeft(10).left().row();
+                }
+            }
+
+        }).width(graphics.getWidth() / Scl.scl() * 0.75f).growY(); //.growX().growY();
     }
 
     private void replaceResetButton(){
-        var cat = ui.settings.getCategories().find(sc -> sc.name.equals(Core.bundle.get("morecustomsettings")));
+        var cat = ui.settings.getCategories().find(sc -> sc.name.equals(bundle.get("morecustomsettings")));
         cat.table = new SettingsTable(){
             @Override
             public void rebuild() {
@@ -297,10 +333,10 @@ public class MCSsettingMenuDialog {
                 for(Setting setting : list){
                     setting.add(this);
                 }
-                button(Core.bundle.get("settings.reset", "Reset to Defaults"), () -> {
+                button(bundle.get("settings.reset", "Reset to Defaults"), () -> {
                     for(Setting setting : list) {
                         if (setting.name != null && setting.title != null) {
-                            Core.settings.remove(setting.name);
+                            settings.remove(setting.name);
                         }
                     }
 
@@ -352,7 +388,7 @@ public class MCSsettingMenuDialog {
 
         @Override
         public void add(SettingsTable table) {
-            table.button(name, icon, onClick).marginLeft(4).growX().row();
+            table.button(name, icon, onClick).marginLeft(5f).growX().row();
         }
     }
 
@@ -364,9 +400,9 @@ public class MCSsettingMenuDialog {
             table.add(new Table(t -> {
                 t.button(Icon.github, new ImageButton.ImageButtonStyle(), () -> {
                     String url = "https://github.com/lu69159/MoreCustomSettings";
-                    if (!Core.app.openURI(url)) {
+                    if (!app.openURI(url)) {
                         ui.showInfoFade("@linkfail");
-                        Core.app.setClipboardText(url);
+                        app.setClipboardText(url);
                     }
                 });
             })).row();
