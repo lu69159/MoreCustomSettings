@@ -52,7 +52,7 @@ public abstract class musicBase {
         public void download(Fi dir){
             if(!isSafeUrl(url)) return;
 
-            Core.app.post(() -> ui.loadfrag.show(Core.bundle.format("musicSquare.downloading", Pal.accent)));
+            ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
 
             Http.get(url, res -> {
                 try{
@@ -68,7 +68,7 @@ public abstract class musicBase {
                         }
                     }
 
-                    String sanitized = (artist + "-" + name).replaceAll("[^-0-9a-zA-Z]", "");
+                    String sanitized = (artist + "-" + name).replaceAll("[^-0-9a-zA-Z -)(\\[\\]]", "");
                     if(sanitized.isEmpty()) sanitized = "track" + System.nanoTime();
 
                     if(!dir.exists()) musicLoader.loadFolder();
@@ -94,7 +94,7 @@ public abstract class musicBase {
         public void downloadNamed(String name){
             if(!isSafeUrl(url)) return;
 
-            ui.loadfrag.show(Core.bundle.format("musicSquare.downloading", Pal.accent));
+            ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
 
             Http.get(url, res -> {
                 try{

@@ -168,15 +168,6 @@ public class MCSsettingMenuDialog {
         musicSearchDialog = new musicSquareSearchDialog();
         musicSearchDialog.setup();
 
-        loadCustomSoundControl();
-
-        if(settings.getBool("enablecustomcampaigndifficulty")){
-            ui.campaignRules = new CustomCampaignRulesDialog();
-            spawner = new CustomWaveSpawner();
-        }
-    }
-
-    public void loadCustomSoundControl(){
         try{
             ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
             replaceResetButton();
@@ -190,8 +181,13 @@ public class MCSsettingMenuDialog {
                 bossMusic = b;
                 darkMusic = d;
             }};
-        } catch(Exception ex) {
+        }catch(Exception ex){
             throw new RuntimeException(ex);
+        }
+
+        if(settings.getBool("enablecustomcampaigndifficulty")){
+            ui.campaignRules = new CustomCampaignRulesDialog();
+            spawner = new CustomWaveSpawner();
         }
     }
 
