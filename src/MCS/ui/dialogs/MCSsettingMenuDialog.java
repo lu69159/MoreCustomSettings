@@ -179,6 +179,8 @@ public class MCSsettingMenuDialog {
     public void loadCustomSoundControl(){
         try{
             ui.settings.addCategory(Core.bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
+            replaceResetButton();
+
             Seq<Music> a = new Seq<>(control.sound.ambientMusic), b = new Seq<>(control.sound.bossMusic), d = new Seq<>(control.sound.darkMusic);
             control.sound.ambientMusic.clear();
             control.sound.darkMusic.clear();
@@ -288,6 +290,42 @@ public class MCSsettingMenuDialog {
             if(!found) t.add("@musicList.empty").padLeft(10).left().row();
 
         }).width(Core.graphics.getWidth() / Scl.scl() * 0.75f).growY(); //.growX().growY();
+    }
+
+    private void replaceResetButton(){
+        var cat = ui.settings.getCategories().find(sc -> sc.name.equals(Core.bundle.get("morecustomsettings")));
+        cat.table = new SettingsTable(){
+            @Override
+            public void rebuild() {
+                clearChildren();
+                for(Setting setting : list){
+                    setting.add(this);
+                }
+                button(Core.bundle.get("settings.reset", "Reset to Defaults"), () -> {
+                    for(Setting setting : list) {
+                        if (setting.name != null && setting.title != null) {
+                            Core.settings.remove(setting.name);
+                        }
+                    }
+
+                    musicLoader.reset();
+                    attacked.reset();
+
+                    if(ui.campaignRules instanceof CustomCampaignRulesDialog) ui.campaignRules = new CampaignRulesDialog();
+                    if(spawner instanceof CustomWaveSpawner) spawner = new WaveSpawner();
+
+                    for(var p : content.planets()){
+                        if(settings.getBool(p.name + "-forceCD")){
+                            settings.remove(p.name + "-forceCD");
+                            p.allowCampaignRules = false;
+                        }
+                    }
+
+                    rebuild();
+                }).margin(14f).width(240f).pad(6f);
+            }
+        };
+        cat.builder.get(cat.table);
     }
 
     public static class TitleSetting extends SettingsTable.Setting {

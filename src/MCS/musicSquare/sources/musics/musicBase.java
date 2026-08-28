@@ -90,5 +90,53 @@ public abstract class musicBase {
                 ui.showException(new Exception("Download error: " + error));
             }));
         }
+
+        public void downloadNamed(String name){
+            if(!isSafeUrl(url)) return;
+
+            ui.loadfrag.show(Core.bundle.format("musicSquare.downloading", Pal.accent));
+
+            Http.get(url, res -> {
+                try{
+                    byte[] data = res.getResult();
+
+                    String ext = "mp3";
+                    String base = url.split("\\?")[0];
+                    int dot = base.lastIndexOf('.');
+                    if(dot > 0){
+                        String e = base.substring(dot + 1).toLowerCase();
+                        if(e.equals("ogg") || e.equals("mp3") || e.equals("flac") || e.equals("wav")){
+                            ext = e;
+                        }
+                    }
+
+                    if(name.equals("menu")){
+                        Core.settings.put("MCSmenuMusicName", artist + " - " + name);
+                    }else{
+                        Core.settings.put("MCSeditorMusicName", artist + " - " + name);
+                    }
+
+                    musicLoader.loadFolder();
+                    for(var f : musicLoader.musicFolder.seq()){
+                        if(f.name().split("__", 2)[0].equals(name)) f.delete();
+                    }
+                    musicLoader.musicFolder.child(name + "__" + data.length + "." + ext).writeBytes(data);
+
+                    Core.app.post(() -> {
+                        ui.loadfrag.hide();
+                        musicLoader.load();
+                        ui.showInfo("@musicSquare.downloaded");
+                    });
+                }catch(Throwable e){
+                    Core.app.post(() -> {
+                        ui.loadfrag.hide();
+                        ui.showException(new Exception("Download failed", e));
+                    });
+                }
+            }, error -> Core.app.post(() -> {
+                ui.loadfrag.hide();
+                ui.showException(new Exception("Download error: " + error));
+            }));
+        }
     }
 }

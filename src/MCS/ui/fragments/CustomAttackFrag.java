@@ -119,6 +119,20 @@ public class CustomAttackFrag {
         settings.put("bannedAttackUnitsMCS", json);
     }
 
+    public void reset(){
+        blockEnabled = false;
+        unitEnabled = false;
+        blockWhitelist = false;
+        unitWhitelist = false;
+        bannedAttackBlocks.clear();
+        bannedAttackUnits.clear();
+
+        settings.remove("blockStringMCS");
+        settings.remove("unitStringMCS");
+        settings.remove("bannedAttackBlocksMCS");
+        settings.remove("bannedAttackUnitsMCS");
+    }
+
     public void build(Group parent){
         parent.fill(t -> {
             t.y = Core.graphics.getHeight() / 4f;
