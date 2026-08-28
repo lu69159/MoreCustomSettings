@@ -252,7 +252,13 @@ public class CustomMusicLoader{
     }
 
     public boolean isSameMusic(Music m1, Music m2){
-        return decodeName(getName(m1.file.name())).equals(decodeName(getName(m2.file.name()))) && m1.file.length() == m2.file.length() && m1.file.length() == m2.file.length();
+        if(m1 == null || m2 == null) return false;
+        if(m1 == m2) return true;
+        if(settings.getString("MCSplanetMusicName-" + decodeName(getName(m1.file.name())), "unknown music").equals(settings.getString("MCSplanetMusicName-" + decodeName(getName(m2.file.name())), "unknown music")) && m1.file.length() == m2.file.length()){
+            m2 = m1;
+            return true;
+        }
+        return false;
     }
 
     public String realName(Fi file){

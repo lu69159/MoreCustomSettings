@@ -70,7 +70,7 @@ public class CustomSoundControl extends SoundControl{
             if(ui.planet.isShown()){
                 if(enabledCustomMusic() && musicLoader.planetMusicMap.get(ui.planet.state.planet) != null){
                     boolean same = musicLoader.isSameMusic(musicLoader.planetMusicMap.get(ui.planet.state.planet), current);
-                    if(current != null && same){ //TODO还能优化
+                    if(current != null && same){
                         play(current);
                     }else{
                         play(musicLoader.planetMusicMap.get(ui.planet.state.planet));
