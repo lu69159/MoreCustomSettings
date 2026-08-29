@@ -214,6 +214,7 @@ public class CustomMusicLoader{
                         Path source = Paths.get(folder.path() + "/" + fi.name());
                         Path to = Paths.get(folder.path() + "/" + inputName + "__" + fi.length() + "." + fi.extension());
                         Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
+                        successImported = true;
                     }catch(Exception e){
                         ui.showException(e);
                     }
