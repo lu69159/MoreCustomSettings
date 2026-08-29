@@ -12,6 +12,7 @@ import mindustry.ui.*;
 import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.regex.*;
 
 import static arc.Core.settings;
 import static mindustry.Vars.*;
@@ -24,8 +25,9 @@ public class CustomMusicLoader{
     public Seq<Music> bossMusic = new Seq<>();
     public @Nullable Music menuMusic;
     public @Nullable Music editorMusic;
-
     public ObjectMap<Planet, Music> planetMusicMap = new ObjectMap<>();
+
+    private final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
 
     public void load(){
         if(settings.getBool("enableCustomMusic", false)){
@@ -114,8 +116,7 @@ public class CustomMusicLoader{
         try{
             for(var fi : planets.seq()){
                 if(isMusic(fi)){
-                    String n = decodeName(getName(fi.name()));
-                    var planet = content.planets().find(p -> p.name.equals(n));
+                    var planet = content.planets().find(p -> p.name.equals(getName(fi)));
                     if(planet != null && planet.accessible){
                         try{
                             planetMusicMap.put(planet, new Music(fi){
@@ -151,7 +152,7 @@ public class CustomMusicLoader{
         reset();
         settings.put("enableCustomMusic", false);
         for(var fi : planets.seq()){
-            settings.remove("MCSplanetMusicName-" + decodeName(getName(fi.name())));
+            settings.remove("MCSplanetMusicName-" + getName(fi));
         }
         musicFolder.deleteDirectory();
         menuMusic = null;
@@ -192,7 +193,7 @@ public class CustomMusicLoader{
             for(var fi : files){
                 if(inputName.equals("menu") || inputName.equals("editor")){
                     try{
-                        Fi folder = Core.settings.getDataDirectory().child("MCS-music");
+                        Fi folder = musicFolder;
                         if(!folder.exists()) folder.mkdirs();
 
                         for(var f : folder.seq()){
@@ -223,16 +224,21 @@ public class CustomMusicLoader{
 
                         for(var f : folder.seq()){
                             if(!f.isDirectory()){
-                                String n = decodeName(f.name().split("__", 2)[0]);
-                                if(n.equals(inputName)) f.delete();
+                                if(getName(f).equals(inputName)) f.delete();
                             }
                         }
 
                         Core.settings.put("MCSplanetMusicName-" + inputName, fi.nameWithoutExtension());
+                        String name;
+                        if(pattern.matcher(inputName).find()){
+                            name = "encodeName_" + encodeName(inputName) + "__" + fi.length() + "." + fi.extension();
+                        }else{
+                            name = inputName + "__" + fi.length() + "." + fi.extension();
+                        }
 
                         fi.copyTo(folder);
                         Path source = Paths.get(folder.path() + "/" + fi.name());
-                        Path to = Paths.get(folder.path() + "/" + encodeName(inputName) + "__" + fi.length() + "." + fi.extension());
+                        Path to = Paths.get(folder.path() + "/" + name);
                         Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
                         successImported = true;
                     }catch(Exception e){
@@ -251,39 +257,42 @@ public class CustomMusicLoader{
         return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
     }
 
-    public boolean isSameMusic(Music m1, Music m2){
-        if(m1 == null || m2 == null) return false;
-        if(m1 == m2) return true;
-        if(settings.getString("MCSplanetMusicName-" + decodeName(getName(m1.file.name())), "unknown music").equals(settings.getString("MCSplanetMusicName-" + decodeName(getName(m2.file.name())), "unknown music")) && m1.file.length() == m2.file.length()){
-            m2 = m1;
+    public boolean isSameMusic(Music current, Music music){
+        if(current == null || music == null) return false;
+        if(current == music) return true;
+        if(settings.getString("MCSplanetMusicName-" + getName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getName(music.file), "unknown music")) && current.file.length() == music.file.length()){
+            music = current;
             return true;
         }
         return false;
     }
 
     public String realName(Fi file){
-        int dotIndex = file.name().lastIndexOf("__");
-        if(dotIndex != -1) return file.name();
-
-        String name = file.nameWithoutExtension().replaceAll("[^-0-9a-zA-Z -)(\\[\\]]", "");
-        return name + "__" + file.length() + "." + file.extension();
-    }
-
-    public String encodeName(String input){
-        if(input == null) return null;
-        return "E" + Base64.getUrlEncoder().withoutPadding().encodeToString(input.getBytes(StandardCharsets.UTF_8));
-    }
-    public String decodeName(String token){
-        if(token == null || token.length() <= 1 || !token.startsWith("E")) return token;
-        try{
-            return new String(Base64.getUrlDecoder().decode(token.substring(1)), StandardCharsets.UTF_8);
-        }catch(IllegalArgumentException ignore){
-            return token;
+        if(pattern.matcher(file.nameWithoutExtension()).find()){
+            return "encodeName_" + encodeName(file.nameWithoutExtension()) + "__" + file.length() + "." + file.extension();
+        }else{
+            return file.nameWithoutExtension() + "__" + file.length() + "." + file.extension();
         }
     }
-    public String getName(String realName){
+    public String getName(Fi file){
+        String realName = file.nameWithoutExtension();
         int index = realName.lastIndexOf("__");
-        if(index != -1) return realName.substring(0, index);
-        return realName;
+        if(index < 0) return realName;
+        if(!realName.startsWith("encodeName_")) return realName.substring(0, index);
+
+        return decodeName(realName.substring(("encodeName_").length(), index));
+    }
+
+    private String encodeName(String input){
+        if(input == null) return null;
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(input.getBytes(StandardCharsets.UTF_8));
+    }
+    private String decodeName(String input){
+        if(input == null || input.length() <= 1) return input;
+        try{
+            return new String(Base64.getUrlDecoder().decode(input), StandardCharsets.UTF_8);
+        }catch(IllegalArgumentException ignore){
+            return input;
+        }
     }
 }
