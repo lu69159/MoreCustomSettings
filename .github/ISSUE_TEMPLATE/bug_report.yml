@@ -1,0 +1,28 @@
+name: Bug report
+description: An issue with the mod.
+labels: ["bug"]
+
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue
+      description: Explain your issue in detail.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to reproduce
+      description: Steps to reproduce the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: (Crash) logs
+      description: Either crash reports from the crash folder, or the file you get when you go into Settings -> Game Data -> Export Crash logs.
+    validations:
+      required: false
