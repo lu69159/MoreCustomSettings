@@ -183,7 +183,7 @@ public class MCSsettingMenuDialog {
         musicSearchDialog.setup();
 
         try{
-            ui.settings.addCategory(bundle.get("morecustomsettings"), Icon.settings, settingBuilder);
+            ui.settings.addCategory(bundle.get("morecustomsettings"), Icon.settings.tint(Pal.accent), settingBuilder);
             replaceResetButton();
 
             Seq<Music> a = new Seq<>(control.sound.ambientMusic), b = new Seq<>(control.sound.bossMusic), d = new Seq<>(control.sound.darkMusic);
