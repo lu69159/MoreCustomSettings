@@ -29,20 +29,20 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
 
         Events.on(SaveLoadEvent.class, e -> {
             if(state.isCampaign()){
-                rulesMaps.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
+                ruleMaps.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
                 Call.setRules(Vars.state.rules);
             }
         });
         Events.on(SectorLaunchEvent.class, e -> {
             if(state.isCampaign()){
-                rulesMaps.get(e.sector.planet).apply(e.sector.planet, state.rules);
+                ruleMaps.get(e.sector.planet).apply(e.sector.planet, state.rules);
                 Call.setRules(Vars.state.rules);
             }
         });
 
         hidden(() -> {
             if(planet != null){
-                rulesMaps.save(planet, customRule);
+                ruleMaps.save(planet, customRule);
                 if(state.isGame() && state.isCampaign() && state.getPlanet() == planet){
                     customRule.apply(planet, state.rules);
                     Call.setRules(Vars.state.rules);
@@ -160,7 +160,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     public void show(Planet planet){
         this.planet = planet;
         team = RuleTeam.enemy;
-        customRule = rulesMaps.get(planet);
+        customRule = ruleMaps.get(planet);
 
         rebuild();
         show();

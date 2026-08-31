@@ -343,6 +343,7 @@ public class MCSsettingMenuDialog {
                     }
 
                     musicLoader.reset();
+                    ruleMaps.reset();
                     attacked.reset();
 
                     if(ui.campaignRules instanceof CustomCampaignRulesDialog) ui.campaignRules = new CampaignRulesDialog();

@@ -5,7 +5,6 @@ import arc.struct.*;
 import arc.util.serialization.Json.*;
 import mindustry.type.Planet;
 
-import static MCS.main.*;
 import static arc.Core.settings;
 import static mindustry.Vars.content;
 
@@ -32,6 +31,39 @@ public class PlanetCustomRulesMaps{
         }
     }
 
+    public void reset(){
+        for(var p : content.planets()){
+            String name = p.name + "MCS";
+
+            settings.remove(name + "EBH");
+            settings.remove(name + "EUH");
+            settings.remove(name + "EUC");
+            settings.remove(name + "EUBS");
+            settings.remove(name + "PBH");
+            settings.remove(name + "PUH");
+            settings.remove(name + "PUC");
+            settings.remove(name + "PUBS");
+
+            settings.remove(name + "ES");
+            settings.remove(name + "WT");
+            settings.remove(name + "EW");
+            settings.remove(name + "UFA");
+
+            settings.remove(name + "D");
+
+            settings.remove(name + "SI");
+            settings.remove(name + "fog");
+            settings.remove(name + "HS");
+            settings.remove(name + "RW");
+            settings.remove(name + "RTS");
+            settings.remove(name + "CS");
+        }
+
+        for(var pr : maps){
+            pr.rules = new CustomCampaignRules(pr.planet);
+        }
+    }
+
     public void put(PlanetCustomCampaignRules rules){
         maps.add(rules);
     }
@@ -48,30 +80,28 @@ public class PlanetCustomRulesMaps{
             String name = p.name + "MCS";
             CustomCampaignRules r = new CustomCampaignRules(p);
 
-            r.enemy.blockHealthMultiplier = Core.settings.getFloat(name + "EBH", 1f);
-            r.enemy.unitHealthMultiplier = Core.settings.getFloat(name + "EUH", 1f);
-            r.enemy.unitCostMultiplier =  Core.settings.getFloat(name + "EUC", 1f);
-            r.enemy.unitBuildSpeedMultiplier = Core.settings.getFloat(name + "EUBS", 1f);
-            r.player.blockHealthMultiplier = Core.settings.getFloat(name + "PBH", 1f);
-            r.player.unitHealthMultiplier = Core.settings.getFloat(name + "PUH", 1f);
-            r.player.unitCostMultiplier =  Core.settings.getFloat(name + "PUC", 1f);
-            r.player.unitBuildSpeedMultiplier = Core.settings.getFloat(name + "PUBS", 1f);
+            r.enemy.blockHealthMultiplier = settings.getFloat(name + "EBH", 1f);
+            r.enemy.unitHealthMultiplier = settings.getFloat(name + "EUH", 1f);
+            r.enemy.unitCostMultiplier =  settings.getFloat(name + "EUC", 1f);
+            r.enemy.unitBuildSpeedMultiplier = settings.getFloat(name + "EUBS", 1f);
+            r.player.blockHealthMultiplier = settings.getFloat(name + "PBH", 1f);
+            r.player.unitHealthMultiplier = settings.getFloat(name + "PUH", 1f);
+            r.player.unitCostMultiplier =  settings.getFloat(name + "PUC", 1f);
+            r.player.unitBuildSpeedMultiplier = settings.getFloat(name + "PUBS", 1f);
 
-            r.enemySpawnMultiplier = Core.settings.getFloat(name + "ES", 100f);
-            r.waveTimeMultiplier = Core.settings.getFloat(name + "WT", 100f);
-            r.extendWaves = Core.settings.getInt(name + "EW", 0);
-            r.unitFactoryActivationDelay = Core.settings.getFloat(name + "UFA", 0f);
+            r.enemySpawnMultiplier = settings.getFloat(name + "ES", 100f);
+            r.waveTimeMultiplier = settings.getFloat(name + "WT", 100f);
+            r.extendWaves = settings.getInt(name + "EW", 0);
+            r.unitFactoryActivationDelay = settings.getFloat(name + "UFA", 0f);
 
-            r.customDiff = CustomDifficulty.all[Core.settings.getInt(name + "D", 2)];
+            r.customDiff = CustomDifficulty.all[settings.getInt(name + "D", 2)];
 
-            r.sectorInvasion = Core.settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
-            r.fog = Core.settings.getBool(name + "fog", p.campaignRules.fog);
-
-            r.hideSpawns = Core.settings.getBool(name + "SS", p.campaignRules.hideSpawns);
-
-            r.randomWaveAI = Core.settings.getBool(name + "RW", p.campaignRules.randomWaveAI);
-            r.rtsAI = Core.settings.getBool(name + "RTS", p.campaignRules.randomWaveAI);
-            r.clearSectorOnLose = Core.settings.getBool(name + "CS", p.clearSectorOnLose);
+            r.sectorInvasion = settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
+            r.fog = settings.getBool(name + "fog", p.campaignRules.fog);
+            r.hideSpawns = settings.getBool(name + "HS", p.campaignRules.hideSpawns);
+            r.randomWaveAI = settings.getBool(name + "RW", p.campaignRules.randomWaveAI);
+            r.rtsAI = settings.getBool(name + "RTS", p.campaignRules.randomWaveAI);
+            r.clearSectorOnLose = settings.getBool(name + "CS", p.clearSectorOnLose);
 
             put(new PlanetCustomCampaignRules(p, r));
 
@@ -86,34 +116,32 @@ public class PlanetCustomRulesMaps{
         String name = customrules.planet.name + "MCS";
 
 
-        Core.settings.put(name + "EBH", r.enemy.blockHealthMultiplier);
-        Core.settings.put(name + "EUH", r.enemy.unitHealthMultiplier);
-        Core.settings.put(name + "EUC", r.enemy.unitCostMultiplier);
-        Core.settings.put(name + "EUBS", r.enemy.unitBuildSpeedMultiplier);
-        Core.settings.put(name + "PBH", r.player.blockHealthMultiplier);
-        Core.settings.put(name + "PUH", r.player.unitHealthMultiplier);
-        Core.settings.put(name + "PUC", r.player.unitCostMultiplier);
-        Core.settings.put(name + "PUBS", r.player.unitBuildSpeedMultiplier);
+        settings.put(name + "EBH", r.enemy.blockHealthMultiplier);
+        settings.put(name + "EUH", r.enemy.unitHealthMultiplier);
+        settings.put(name + "EUC", r.enemy.unitCostMultiplier);
+        settings.put(name + "EUBS", r.enemy.unitBuildSpeedMultiplier);
+        settings.put(name + "PBH", r.player.blockHealthMultiplier);
+        settings.put(name + "PUH", r.player.unitHealthMultiplier);
+        settings.put(name + "PUC", r.player.unitCostMultiplier);
+        settings.put(name + "PUBS", r.player.unitBuildSpeedMultiplier);
 
-        Core.settings.put(name + "ES", r.enemySpawnMultiplier);
-        Core.settings.put(name + "WT", r.waveTimeMultiplier);
-        Core.settings.put(name + "EW", r.extendWaves);
-        Core.settings.put(name + "UFA", r.unitFactoryActivationDelay);
+        settings.put(name + "ES", r.enemySpawnMultiplier);
+        settings.put(name + "WT", r.waveTimeMultiplier);
+        settings.put(name + "EW", r.extendWaves);
+        settings.put(name + "UFA", r.unitFactoryActivationDelay);
 
         for(int i = 0; i < CustomDifficulty.all.length; i++){
             if(r.customDiff== CustomDifficulty.all[i]){
-                Core.settings.put(name + "D", i);
+                settings.put(name + "D", i);
             }
         }
 
-        Core.settings.put(name + "SI", r.sectorInvasion);
-        Core.settings.put(name + "fog", r.fog);
-
-        Core.settings.put(name + "SS", r.hideSpawns);
-
-        Core.settings.put(name + "RW", r.randomWaveAI);
-        Core.settings.put(name + "RTS", r.rtsAI);
-        Core.settings.put(name + "CS", r.clearSectorOnLose);
+        settings.put(name + "SI", r.sectorInvasion);
+        settings.put(name + "fog", r.fog);
+        settings.put(name + "HS", r.hideSpawns);
+        settings.put(name + "RW", r.randomWaveAI);
+        settings.put(name + "RTS", r.rtsAI);
+        settings.put(name + "CS", r.clearSectorOnLose);
     }
 
     public static class PlanetCustomCampaignRules{
