@@ -13,6 +13,7 @@ import mindustry.world.meta.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 import MCS.game.*;
+import MCS.game.enumClass.*;
 
 import static mindustry.Vars.*;
 import static mindustry.game.EventType.*;

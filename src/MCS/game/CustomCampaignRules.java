@@ -4,8 +4,7 @@ import mindustry.Vars;
 import mindustry.game.*;
 import mindustry.gen.Groups;
 import mindustry.type.Planet;
-
-import java.lang.reflect.Field;
+import MCS.game.enumClass.*;
 
 public class CustomCampaignRules extends CampaignRules {
     public CustomTeamRules enemy;

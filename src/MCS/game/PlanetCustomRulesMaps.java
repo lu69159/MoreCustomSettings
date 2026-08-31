@@ -1,9 +1,8 @@
 package MCS.game;
 
-import arc.*;
 import arc.struct.*;
-import arc.util.serialization.Json.*;
 import mindustry.type.Planet;
+import MCS.game.enumClass.CustomDifficulty;
 
 import static arc.Core.settings;
 import static mindustry.Vars.content;

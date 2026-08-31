@@ -1,4 +1,4 @@
-package MCS.game;
+package MCS.game.enumClass;
 
 import arc.Core;
 
