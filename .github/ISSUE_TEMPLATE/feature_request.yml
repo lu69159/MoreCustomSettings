@@ -1,0 +1,11 @@
+name: Feature request
+description: Suggest new feature for the mod.
+labels: ["feature request"]
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the content or mechanics you are proposing."
+    validations:
+      required: true
