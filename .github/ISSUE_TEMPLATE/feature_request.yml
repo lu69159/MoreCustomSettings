@@ -6,6 +6,6 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: "Describe the content or mechanics you are proposing."
+      label: "Describe the feature you are proposing."
     validations:
       required: true
