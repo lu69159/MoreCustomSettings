@@ -73,9 +73,9 @@ public class CustomWaveSpawner extends WaveSpawner{
             if(state.isCampaign()){
                 //1.5+ x 1 boss result in 2 bosses, else
                 spawned = Math.max(1, group.effect == StatusEffects.boss ?
-                        Mathf.round(spawned * ruleMaps.get(state.getPlanet()).enemySpawnMultiplier / 100f) :
+                        Mathf.round(spawned * rulesMap.get(state.getPlanet()).enemySpawnMultiplier / 100f) :
                         //1.n x 1 unit result in 2 units
-                        Mathf.ceil(spawned * ruleMaps.get(state.getPlanet()).enemySpawnMultiplier / 100f)
+                        Mathf.ceil(spawned * rulesMap.get(state.getPlanet()).enemySpawnMultiplier / 100f)
                 );
             }
             int spawnedf = spawned;

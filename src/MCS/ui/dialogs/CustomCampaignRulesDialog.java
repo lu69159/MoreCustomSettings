@@ -30,24 +30,22 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
 
         Events.on(SaveLoadEvent.class, e -> {
             if(state.isCampaign()){
-                ruleMaps.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
+                rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
                 Call.setRules(Vars.state.rules);
             }
         });
         Events.on(SectorLaunchEvent.class, e -> {
             if(state.isCampaign()){
-                ruleMaps.get(e.sector.planet).apply(e.sector.planet, state.rules);
+                rulesMap.get(e.sector.planet).apply(e.sector.planet, state.rules);
                 Call.setRules(Vars.state.rules);
             }
         });
 
         hidden(() -> {
-            if(planet != null){
-                ruleMaps.save(planet, customRule);
-                if(state.isGame() && state.isCampaign() && state.getPlanet() == planet){
-                    customRule.apply(planet, state.rules);
-                    Call.setRules(Vars.state.rules);
-                }
+            if(planet != null && state.isCampaign() && state.getPlanet() == planet){
+                rulesMap.save(planet, customRule);
+                customRule.apply(planet, state.rules);
+                Call.setRules(Vars.state.rules);
             }
         });
     }
@@ -161,7 +159,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     public void show(Planet planet){
         this.planet = planet;
         team = RuleTeam.enemy;
-        customRule = ruleMaps.get(planet);
+        customRule = rulesMap.get(planet);
 
         rebuild();
         show();
@@ -182,7 +180,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     }
 
     void slider(Table t, String text, float def, Floatc listener){
-        slider(t, text, def, listener, 0.1f, 10f, 0.01f, false);
+        slider(t, text, def, listener, 0.1f, 10f, 0.05f, false);
     }
 
     void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, boolean percent){

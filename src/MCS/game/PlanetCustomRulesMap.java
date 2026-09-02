@@ -7,11 +7,44 @@ import MCS.game.enumClass.CustomDifficulty;
 import static arc.Core.settings;
 import static mindustry.Vars.content;
 
-public class PlanetCustomRulesMaps{
+//TODO：保存方式整合，统一使用Jval，不同内容使用不同文件
+public class PlanetCustomRulesMap {
     Seq<PlanetCustomCampaignRules> maps = new Seq<>();
 
     public void load(){
-        loadCustomSetting();
+        for(var p : content.planets()){
+            String name = p.name + "MCS";
+            CustomCampaignRules r = new CustomCampaignRules(p);
+
+            r.enemy.blockHealthMultiplier = settings.getFloat(name + "EBH", 1f);
+            r.enemy.unitHealthMultiplier = settings.getFloat(name + "EUH", 1f);
+            r.enemy.unitCostMultiplier =  settings.getFloat(name + "EUC", 1f);
+            r.enemy.unitBuildSpeedMultiplier = settings.getFloat(name + "EUBS", 1f);
+            r.player.blockHealthMultiplier = settings.getFloat(name + "PBH", 1f);
+            r.player.unitHealthMultiplier = settings.getFloat(name + "PUH", 1f);
+            r.player.unitCostMultiplier =  settings.getFloat(name + "PUC", 1f);
+            r.player.unitBuildSpeedMultiplier = settings.getFloat(name + "PUBS", 1f);
+
+            r.enemySpawnMultiplier = settings.getFloat(name + "ES", 100f);
+            r.waveTimeMultiplier = settings.getFloat(name + "WT", 100f);
+            r.extendWaves = settings.getInt(name + "EW", 0);
+            r.unitFactoryActivationDelay = settings.getFloat(name + "UFA", 0f);
+
+            r.customDiff = CustomDifficulty.all[settings.getInt(name + "D", 2)];
+
+            r.sectorInvasion = settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
+            r.fog = settings.getBool(name + "fog", p.campaignRules.fog);
+            r.hideSpawns = settings.getBool(name + "HS", p.campaignRules.hideSpawns);
+            r.randomWaveAI = settings.getBool(name + "RW", p.campaignRules.randomWaveAI);
+            r.rtsAI = settings.getBool(name + "RTS", p.campaignRules.randomWaveAI);
+            r.clearSectorOnLose = settings.getBool(name + "CS", p.clearSectorOnLose);
+
+            put(new PlanetCustomCampaignRules(p, r));
+
+            if(settings.getBool("forceCampaignDifficulty") && settings.getBool(p.name + "-forceCD")){
+                p.allowCampaignRules = true;
+            }
+        }
     }
 
     public void save(Planet planet, CustomCampaignRules rules){
@@ -72,42 +105,6 @@ public class PlanetCustomRulesMaps{
             if(rules.planet == planet) return rules.rules;
         }
         return new CustomCampaignRules(planet);
-    }
-
-    private void loadCustomSetting(){
-        for(var p : content.planets()){
-            String name = p.name + "MCS";
-            CustomCampaignRules r = new CustomCampaignRules(p);
-
-            r.enemy.blockHealthMultiplier = settings.getFloat(name + "EBH", 1f);
-            r.enemy.unitHealthMultiplier = settings.getFloat(name + "EUH", 1f);
-            r.enemy.unitCostMultiplier =  settings.getFloat(name + "EUC", 1f);
-            r.enemy.unitBuildSpeedMultiplier = settings.getFloat(name + "EUBS", 1f);
-            r.player.blockHealthMultiplier = settings.getFloat(name + "PBH", 1f);
-            r.player.unitHealthMultiplier = settings.getFloat(name + "PUH", 1f);
-            r.player.unitCostMultiplier =  settings.getFloat(name + "PUC", 1f);
-            r.player.unitBuildSpeedMultiplier = settings.getFloat(name + "PUBS", 1f);
-
-            r.enemySpawnMultiplier = settings.getFloat(name + "ES", 100f);
-            r.waveTimeMultiplier = settings.getFloat(name + "WT", 100f);
-            r.extendWaves = settings.getInt(name + "EW", 0);
-            r.unitFactoryActivationDelay = settings.getFloat(name + "UFA", 0f);
-
-            r.customDiff = CustomDifficulty.all[settings.getInt(name + "D", 2)];
-
-            r.sectorInvasion = settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
-            r.fog = settings.getBool(name + "fog", p.campaignRules.fog);
-            r.hideSpawns = settings.getBool(name + "HS", p.campaignRules.hideSpawns);
-            r.randomWaveAI = settings.getBool(name + "RW", p.campaignRules.randomWaveAI);
-            r.rtsAI = settings.getBool(name + "RTS", p.campaignRules.randomWaveAI);
-            r.clearSectorOnLose = settings.getBool(name + "CS", p.clearSectorOnLose);
-
-            put(new PlanetCustomCampaignRules(p, r));
-
-            if(settings.getBool("forceCampaignDifficulty") && settings.getBool(p.name + "-forceCD")){
-                p.allowCampaignRules = true;
-            }
-        }
     }
 
     private void saveCustomSetting(PlanetCustomCampaignRules customrules){

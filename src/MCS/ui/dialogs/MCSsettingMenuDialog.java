@@ -23,6 +23,7 @@ import static MCS.main.*;
 public class MCSsettingMenuDialog {
     private BaseDialog blockStringDialog, unitStringDialog, musicImportDialog, musicInGameDialog, planetMusicListDialog, musicListDialog;
     private musicSquareSearchDialog musicSearchDialog;
+    private ContentManagerDialog contentManagerDialog;
 
     public Cons<SettingsTable> settingBuilder = t -> {
         t.pref(new TitleSetting("@settingtitle.music"));
@@ -86,6 +87,10 @@ public class MCSsettingMenuDialog {
                 }
             }
         });
+
+        t.pref(new TitleSetting("@settingtitle.contentManager"));
+
+        t.pref(new ButtonSetting("@contentManager", Icon.fileText, () -> contentManagerDialog.show()));
 
         t.pref(new TitleSetting("@settingtitle.buildAttacked"));
 
@@ -181,6 +186,8 @@ public class MCSsettingMenuDialog {
 
         musicSearchDialog = new musicSquareSearchDialog();
         musicSearchDialog.setup();
+
+        contentManagerDialog = new ContentManagerDialog("@contentManager");
 
         try{
             ui.settings.addCategory(bundle.get("morecustomsettings"), Icon.settings.tint(Pal.accent), settingBuilder);
@@ -343,7 +350,7 @@ public class MCSsettingMenuDialog {
                     }
 
                     musicLoader.reset();
-                    ruleMaps.reset();
+                    rulesMap.reset();
                     attacked.reset();
 
                     if(ui.campaignRules instanceof CustomCampaignRulesDialog) ui.campaignRules = new CampaignRulesDialog();
