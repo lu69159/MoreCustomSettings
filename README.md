@@ -8,12 +8,14 @@
 # More Custom Settings
 - Custom campaign difficulty
 - Custom music
+- Custom content manage
 - Building/Unit Attacked Warning
 - More features in the future...
 
 # 更多自定义设置
 - 自定义战役难度设置
 - 自定义音乐
+- 自定义内容管理
 - 建筑/单位受击提示
 - 未来会添加更多功能...
 
@@ -21,6 +23,8 @@
 ![preview2](./preview/preview2.png)
 ![preview3](./preview/preview3.png)
 ![preview4](./preview/preview4.png)
+![preview5](./preview/preview5.png)
+![preview6](./preview/preview6.png)
 
 
 ### - Submit mod bugs or feature requests via Issues

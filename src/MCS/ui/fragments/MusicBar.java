@@ -135,7 +135,7 @@ public class MusicBar{
                         found = true;
                     }
                     if (!found) list.add("@musicList.empty").padLeft(10).left().row();
-                }).grow().row();
+                }).visible(() -> musicBarTable.visible && openList).grow().row();
                 t.button("@back", Icon.left, () -> openList = !openList).growX();
             }, () -> musicBarTable.visible && openList).growX();
         }};
