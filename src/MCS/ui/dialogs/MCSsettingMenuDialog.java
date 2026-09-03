@@ -90,6 +90,14 @@ public class MCSsettingMenuDialog {
 
         t.pref(new TitleSetting("@settingtitle.contentManager"));
 
+        t.checkPref("enableContentManager", false, b -> {
+            contentManager.enabled = b;
+            if(b){
+                contentManager.reloadData();
+            }else{
+                contentManager.resetData();
+            }
+        });
         t.pref(new ButtonSetting("@contentManager", Icon.fileText, () -> contentManagerDialog.show()));
 
         t.pref(new TitleSetting("@settingtitle.buildAttacked"));

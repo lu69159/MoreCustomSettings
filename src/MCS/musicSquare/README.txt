@@ -1,1 +1,1 @@
-//部分代码参考自https://github.com/CharlesPikachu/musicsquare，仅用于学习，无任何商业用途，如有侵权请联系模组作者删除
+部分代码参考自https://github.com/CharlesPikachu/musicsquare，仅用于学习，无任何商业用途，如有侵权请联系模组作者删除

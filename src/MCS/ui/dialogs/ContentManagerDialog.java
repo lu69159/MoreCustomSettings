@@ -1,15 +1,19 @@
 package MCS.ui.dialogs;
 
+import MCS.game.enumClass.ContentManageMode;
 import arc.Core;
 import arc.graphics.*;
+import arc.graphics.g2d.TextureRegion;
 import arc.math.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
+import arc.util.Strings;
 import mindustry.content.Planets;
 import mindustry.ctype.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
+import mindustry.mod.Mods;
 import mindustry.type.*;
 import mindustry.ui.BorderImage;
 import mindustry.ui.Styles;
@@ -21,6 +25,7 @@ import static MCS.main.*;
 public class ContentManagerDialog extends BaseDialog{
     Planet choosePlanet;
     private final Seq<Planet> loadedPlanets = new Seq<>(), unloadedPlanets = new Seq<>();
+    private final Seq<Mods.LoadedMod> loadedMods = new Seq<>(), unloadedMods = new Seq<>();
 
     public ContentManagerDialog(String title) {
         super(title);
@@ -37,20 +42,45 @@ public class ContentManagerDialog extends BaseDialog{
 
     void setup(){
         float w = Math.max(Core.graphics.getWidth() / 8f, 50f);
-        float h = Math.max(Core.graphics.getHeight() / 8f, 35f);
+        float h = w/2f;
 
         if(choosePlanet == null) choosePlanet = Planets.erekir;
-
         loadedPlanets.clear();
         unloadedPlanets.clear();
+        loadedMods.clear();
+        unloadedMods.clear();
 
-        loadedPlanets.addAll(contentManager.getData(choosePlanet).loadedPlanets);
-        for(var p : content.planets()){
-            if(p.accessible && !loadedPlanets.contains(p)) unloadedPlanets.add(p);
+
+        if(contentManager.mode == ContentManageMode.planet){
+            loadedPlanets.addAll(contentManager.getData(choosePlanet).loadedPlanets);
+            for(var p : content.planets()){
+                if(p.accessible && !loadedPlanets.contains(p)) unloadedPlanets.add(p);
+            }
+        }
+        else if(contentManager.mode == ContentManageMode.mod){
+            loadedMods.addAll(contentManager.getData(choosePlanet).loadedMods);
+            for(var m : mods.getMods()){
+                if(!m.meta.hidden && m.state.equals(Mods.ModState.enabled) && !loadedMods.contains(m)) unloadedMods.add(m);
+            }
         }
 
         cont.clear();
+
         cont.table(left -> {
+            left.background(Styles.grayPanel);
+
+            left.table(t -> {
+                t.add(new Label("@contentManager.mode")).height(50f).row();
+                var group = new ButtonGroup<>();
+                for(var cMode : ContentManageMode.all){
+                    t.button(cMode.localized(), Styles.flatTogglet, () -> {
+                        contentManager.mode = cMode;
+                        contentManager.reloadData();
+                        setup();
+                    }).tooltip("[lightgray]" + cMode.toolTip()).height(50f).growX().group(group).checked(contentManager.mode == cMode).row();
+                }
+            }).height(150f).top().growX().row();
+
             left.add("[accent]" + Core.bundle.get("planets")).top().row();
             left.image().color(Pal.accent).height(3.0F).left().fillX().padBottom(5.0F).top().row();
             left.pane(side -> {
@@ -63,76 +93,22 @@ public class ContentManagerDialog extends BaseDialog{
                     }
                 });
             }).grow();
-        }).width(w).left().growY();
+        }).width(w + 5f).left().growY();
 
         cont.table(mid -> {
             mid.table(loaded -> {
                 loaded.add(Core.bundle.get("contentManager.loaded")).top().row();
                 loaded.pane(tab -> {
-                    boolean isEmpty = true;
-                    for(var planet : loadedPlanets){
-                        isEmpty = false;
-                        tab.button(t -> {
-                            t.defaults().left().top();
-                            t.margin(12f);
-                            t.table(title1 -> {
-                                title1.left();
-                                title1.add(new BorderImage(){{
-                                    if(Core.atlas.isFound(planet.fullIcon)){
-                                        setDrawable(planet.fullIcon);
-                                    }else{
-                                        setDrawable(Icon.planet.getRegion());
-                                        setColor(planet.iconColor);
-                                    }
-                                    border(Pal.accent);
-                                }}).size(h - 8f).padTop(-8f).padLeft(-8f).padRight(8f);
-                                title1.table(text -> {
-                                    text.add(planet.localizedName + "\n" + (planet.isVanilla() ? "" : "[lightgray]" + planet.minfo.mod.meta.displayName)).wrap().top().width(300f).growX().left();
-                                }).top().growX();
-                                title1.add().growX();
-                            });
-                        }, Styles.grayt, () -> {
-                            contentManager.getData(choosePlanet).loadedPlanets.remove(planet);
-                            contentManager.reloadData();
-                            setup();
-                        }).height(h).top().growX().row();
-                    }
-                    if(isEmpty) tab.add("@empty");
+                    if(contentManager.mode == ContentManageMode.planet) showPlanets(true, tab, h);
+                    else if(contentManager.mode == ContentManageMode.mod) showMods(true, tab, h);
                 }).top().grow();
 
             }).width(w).left().growY();
             mid.table(unloaded -> {
                 unloaded.add(Core.bundle.get("contentManager.unloaded")).top().row();
                 unloaded.pane(tab -> {
-                    boolean isEmpty = true;
-                    for(var planet : unloadedPlanets){
-                        isEmpty = false;
-                        tab.button(t -> {
-                            t.defaults().left().top();
-                            t.margin(12f);
-                            t.table(title1 -> {
-                                title1.left();
-                                title1.add(new BorderImage(){{
-                                    if(Core.atlas.isFound(planet.fullIcon)){
-                                        setDrawable(planet.fullIcon);
-                                    }else{
-                                        setDrawable(Icon.planet.getRegion());
-                                        setColor(planet.iconColor);
-                                    }
-                                    border(Color.lightGray);
-                                }}).size(h - 8f).padTop(-8f).padLeft(-8f).padRight(8f);
-                                title1.table(text -> {
-                                    text.add(planet.localizedName + "\n" + (planet.isVanilla() ? "" : "[lightgray]" + planet.minfo.mod.meta.displayName)).wrap().top().width(300f).growX().left();
-                                }).height(h).top().growX();
-                                title1.add().growX();
-                            });
-                        }, Styles.grayt, () -> {
-                            contentManager.getData(choosePlanet).loadedPlanets.add(planet);
-                            contentManager.reloadData();
-                            setup();
-                        }).height(h).top().growX().row();
-                    }
-                    if(isEmpty) tab.add("@empty");
+                    if(contentManager.mode == ContentManageMode.planet) showPlanets(false, tab, h);
+                    else if(contentManager.mode == ContentManageMode.mod) showMods(false, tab, h);
                 }).top().grow();
 
             }).width(w).right().growY();
@@ -203,7 +179,7 @@ public class ContentManagerDialog extends BaseDialog{
                             list.left();
                             int count = 0;
                             for(UnlockableContent u : arr){
-                                Image image = list.add(new Image(u.uiIcon)).size(Mathf.clamp((Core.graphics.getWidth() - Math.max(Core.graphics.getWidth() / 8f, 200f)) / 40f, 32f, Core.app.isMobile() ? 40f : 80f)).pad(3).get();
+                                Image image = list.add(new Image(u.uiIcon)).size(32f).pad(3).get();
 
                                 image.clicked(() -> ui.content.show(u));          // Vars.ui
                                 image.addListener(new Tooltip(tip -> tip.background(Tex.button).add(u.localizedName)));
@@ -225,5 +201,126 @@ public class ContentManagerDialog extends BaseDialog{
         }).grow().scrollX(false);
     }
 
-
+    void showPlanets(boolean isLoaded, Table tab, float h){
+        boolean isEmpty = true;
+        if(isLoaded){
+            for(var planet : loadedPlanets){
+                isEmpty = false;
+                tab.button(t -> {
+                    t.defaults().left().top();
+                    t.margin(12f);
+                    t.table(title1 -> {
+                        title1.left();
+                        title1.add(new BorderImage(){{
+                            if(Core.atlas.isFound(planet.fullIcon)){
+                                setDrawable(planet.fullIcon);
+                            }else{
+                                setDrawable(Icon.planet.getRegion());
+                                setColor(planet.iconColor);
+                            }
+                            border(Pal.accent);
+                        }}).size(h - 8f).padTop(-8f).padLeft(-8f).padRight(8f);
+                        title1.table(text -> {
+                            text.add(planet.localizedName + "\n" + (planet.isVanilla() ? "" : "[lightgray]" + planet.minfo.mod.meta.displayName)).wrap().top().width(300f).growX().left();
+                        }).growX();
+                        title1.add().growX();
+                    });
+                }, Styles.grayt, () -> {
+                    contentManager.getData(choosePlanet).loadedPlanets.remove(planet);
+                    contentManager.reloadData();
+                    setup();
+                }).height(h).top().growX().row();
+            }
+        }else{
+            for(var planet : unloadedPlanets){
+                isEmpty = false;
+                tab.button(t -> {
+                    t.defaults().left().top();
+                    t.margin(12f);
+                    t.table(title1 -> {
+                        title1.left();
+                        title1.add(new BorderImage(){{
+                            if(Core.atlas.isFound(planet.fullIcon)){
+                                setDrawable(planet.fullIcon);
+                            }else{
+                                setDrawable(Icon.planet.getRegion());
+                                setColor(planet.iconColor);
+                            }
+                            border(Color.lightGray);
+                        }}).size(h - 8f).padTop(-8f).padLeft(-8f).padRight(8f);
+                        title1.table(text -> {
+                            text.add(planet.localizedName + "\n" + (planet.isVanilla() ? "" : "[lightgray]" + planet.minfo.mod.meta.displayName)).wrap().top().width(300f).growX().left();
+                        }).growX();
+                        title1.add().growX();
+                    });
+                }, Styles.grayt, () -> {
+                    contentManager.getData(choosePlanet).loadedPlanets.add(planet);
+                    contentManager.reloadData();
+                    setup();
+                }).height(h).top().growX().row();
+            }
+        }
+        if(isEmpty) tab.add("@empty");
+    }
+    void showMods(boolean isLoaded, Table tab, float h){
+        boolean isEmpty = true;
+        if(isLoaded){
+            for(var mod : loadedMods){
+                isEmpty = false;
+                tab.button(t -> {
+                    t.defaults().left().top();
+                    t.margin(12f);
+                    t.table(title1 -> {
+                        title1.left();
+                        title1.add(new BorderImage(){{
+                            if(mod.iconTexture != null){
+                                setDrawable(new TextureRegion(mod.iconTexture));
+                            }else{
+                                setDrawable(Tex.nomap);
+                            }
+                            border(Pal.accent);
+                        }}).size(h - 8f).padTop(-8f).padLeft(-8f).padRight(8f);
+                        title1.table(text -> {
+                            String shortDesc = mod.meta.shortDescription();
+                            text.add("[accent]" + Strings.stripColors(mod.meta.displayName) + "\n" + (!shortDesc.isEmpty() ? "[lightgray]" + shortDesc + "\n" : "")).wrap().top().width(300f).growX().left();
+                        }).growX();
+                        title1.add().growX();
+                    });
+                }, Styles.grayt, () -> {
+                    contentManager.getData(choosePlanet).loadedMods.remove(mod);
+                    contentManager.reloadData();
+                    setup();
+                }).height(h).top().growX().row();
+            }
+        }else{
+            for(var mod :  unloadedMods){
+                isEmpty = false;
+                tab.button(t -> {
+                    t.defaults().left().top();
+                    t.margin(12f);
+                    t.table(title1 -> {
+                        title1.left();
+                        title1.add(new BorderImage(){{
+                            if(mod.iconTexture != null){
+                                setDrawable(new TextureRegion(mod.iconTexture));
+                            }else{
+                                setDrawable(Tex.nomap);
+                            }
+                            border(Color.lightGray);
+                        }}).size(h - 8f).padTop(-8f).padLeft(-8f).padRight(8f);
+                        title1.table(text -> {
+                            String shortDesc = mod.meta.shortDescription();
+                            text.add("[accent]" + Strings.stripColors(mod.meta.displayName) + "\n" + (!shortDesc.isEmpty() ? "[lightgray]" + shortDesc + "\n" : "")).wrap().top().width(300f).growX().left();
+                        }).growX();
+                        title1.add().growX();
+                    });
+                }, Styles.grayt, () -> {
+                    contentManager.getData(choosePlanet).loadedMods.add(mod);
+                    contentManager.reloadData();
+                    setup();
+                }).height(h).top().growX().row();
+            }
+        }
+        if(isEmpty) tab.add("@empty");
+    }
 }
