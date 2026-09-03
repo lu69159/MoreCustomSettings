@@ -24,7 +24,6 @@ import static mindustry.Vars.*;
 import static mindustry.game.EventType.*;
 
 public class CustomAttackFrag {
-    public Table table;
     public boolean blockEnabled, unitEnabled;
     public boolean blockWhitelist, unitWhitelist;
     public boolean blockChanged = false, unitChanged = false, posted = false;
@@ -77,7 +76,6 @@ public class CustomAttackFrag {
 
     @SuppressWarnings("unchecked")
     public void load(){
-        table = new Table(Styles.black6);
         String json;
 
         blockEnabled = settings.getBool("enableBuildAttackFrag", false);
