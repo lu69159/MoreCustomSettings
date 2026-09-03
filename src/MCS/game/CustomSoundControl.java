@@ -98,11 +98,11 @@ public class CustomSoundControl extends SoundControl{
             }else{
                 play(Musics.editor);
             }
-        }else {
+        }else{
             //this just fades out the last track to make way for ingame music
             silence();
 
-            if(!state.rules.disableMusic || enabledCustomMusic()){
+            if(!state.rules.disableMusic){
                 if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null){
                     var m = enabledCustomMusic() ? bossMusic : getBossMusic();
 
@@ -158,6 +158,10 @@ public class CustomSoundControl extends SoundControl{
         }else{
             playOnce(ambientSeq.random(lastRandomPlayed));
         }
+    }
+    @Nullable
+    public Music getLastRandomPlayed(){
+        return lastRandomPlayed;
     }
 
     public void playPreView(Music music){

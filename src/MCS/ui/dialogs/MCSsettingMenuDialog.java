@@ -29,6 +29,9 @@ public class MCSsettingMenuDialog {
         t.pref(new TitleSetting("@settingtitle.music"));
 
         t.checkPref("instantChangeBossMusic", false);
+        t.checkPref("enableMusicBar", false, b -> {
+            if(!b && state.rules.disableMusic) state.rules.disableMusic = false;
+        });
         t.checkPref("enableCustomMusic", false, b -> {
             if(b){
                 musicLoader.loadCustom();
@@ -36,6 +39,7 @@ public class MCSsettingMenuDialog {
             else{
                 musicLoader.reset();
             }
+            MCSui.musicBar.reload();
         });
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> musicImportDialog.show()));
         if(!mobile){
@@ -102,18 +106,18 @@ public class MCSsettingMenuDialog {
 
         t.pref(new TitleSetting("@settingtitle.buildAttacked"));
 
-        t.checkPref("enableBuildAttackFrag", false, b -> attacked.blockEnabled = b);
+        t.checkPref("enableBuildAttackFrag", false, b -> MCSui.attacked.blockEnabled = b);
         t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> blockStringDialog.show()));
-        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> attacked.blockWhitelist = b);
-        t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> attacked.bannedAttackBlocksDialog.show(attacked.bannedAttackBlocks)));
+        t.checkPref("bannedAttackedBlocksWhitelist", false, b -> MCSui.attacked.blockWhitelist = b);
+        t.pref(new ButtonSetting("@bannedAttackedBlocks", Icon.cancel, () -> MCSui.attacked.bannedAttackBlocksDialog.show(MCSui.attacked.bannedAttackBlocks)));
 
         t.pref(new TitleSetting("@settingtitle.unitAttacked"));
 
-        t.checkPref("enableUnitAttackFrag", false, u -> attacked.unitEnabled = u);
+        t.checkPref("enableUnitAttackFrag", false, u -> MCSui.attacked.unitEnabled = u);
         t.sliderPref("unitHealthPercent", 50, 0, 100, 1, i -> i + "%");
         t.pref(new ButtonSetting("@editAttackedString", Icon.pencil, () -> unitStringDialog.show()));
-        t.checkPref("bannedAttackedUnitsWhitelist", false, u -> attacked.unitWhitelist = u);
-        t.pref(new ButtonSetting("@bannedAttackedUnits", Icon.cancel, () -> attacked.bannedAttackUnitsDialog.show(attacked.bannedAttackUnits)));
+        t.checkPref("bannedAttackedUnitsWhitelist", false, u -> MCSui.attacked.unitWhitelist = u);
+        t.pref(new ButtonSetting("@bannedAttackedUnits", Icon.cancel, () -> MCSui.attacked.bannedAttackUnitsDialog.show(MCSui.attacked.bannedAttackUnits)));
 
         t.pref(new GithubLink("Github"));
     };
@@ -122,11 +126,11 @@ public class MCSsettingMenuDialog {
         blockStringDialog = new BaseDialog("@settings");
         blockStringDialog.buttons.defaults().size(210, 64);
         blockStringDialog.cont.table(t -> {
-            t.field(settings.getString("blockStringMCS", bundle.get("buildAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
+            t.field(settings.getString("blockStringMCS", bundle.get("buildAttacked")), s -> MCSui.attacked.tmpString = s).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
-                attacked.blockString = attacked.tmpString;
-                attacked.blockChanged = true;
-                settings.put("blockStringMCS", attacked.blockString);
+                MCSui.attacked.blockString = MCSui.attacked.tmpString;
+                MCSui.attacked.blockChanged = true;
+                settings.put("blockStringMCS", MCSui.attacked.blockString);
                 blockStringDialog.hide();
             }).size(105f, 64f).padLeft(10f);
             t.button("@back", Icon.left, blockStringDialog::hide).size(105f, 64f);
@@ -136,11 +140,11 @@ public class MCSsettingMenuDialog {
         unitStringDialog = new BaseDialog("@settings");
         unitStringDialog.buttons.defaults().size(210, 64);
         unitStringDialog.cont.table(t -> {
-            t.field(settings.getString("unitStringMCS", bundle.get("unitAttacked")), s -> attacked.tmpString = s).width(400f).center().padLeft(10f);
+            t.field(settings.getString("unitStringMCS", bundle.get("unitAttacked")), s -> MCSui.attacked.tmpString = s).width(400f).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
-                attacked.unitString = attacked.tmpString;
-                attacked.unitEnabled = true;
-                settings.put("unitStringMCS", attacked.unitString);
+                MCSui.attacked.unitString = MCSui.attacked.tmpString;
+                MCSui.attacked.unitEnabled = true;
+                settings.put("unitStringMCS", MCSui.attacked.unitString);
                 unitStringDialog.hide();
             }).size(105f, 64f).padLeft(10f);
             t.button("@back", Icon.left, unitStringDialog::hide).size(105f, 64f);
@@ -359,7 +363,7 @@ public class MCSsettingMenuDialog {
 
                     musicLoader.reset();
                     rulesMap.reset();
-                    attacked.reset();
+                    MCSui.attacked.reset();
 
                     if(ui.campaignRules instanceof CustomCampaignRulesDialog) ui.campaignRules = new CampaignRulesDialog();
                     if(spawner instanceof CustomWaveSpawner) spawner = new WaveSpawner();

@@ -23,6 +23,7 @@ public class CustomMusicLoader{
     public Seq<Music> ambientMusic = new Seq<>();
     public Seq<Music> darkMusic = new Seq<>();
     public Seq<Music> bossMusic = new Seq<>();
+    public Seq<Music> allInGameMusic = new Seq<>();
     public @Nullable Music menuMusic;
     public @Nullable Music editorMusic;
     public ObjectMap<Planet, Music> planetMusicMap = new ObjectMap<>();
@@ -43,6 +44,8 @@ public class CustomMusicLoader{
         loadMusic(ambient, ambientMusic);
         loadMusic(dark, darkMusic);
         loadMusic(boss, bossMusic);
+        allInGameMusic = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
+        allInGameMusic.sortComparing(music -> getName(music.file));
         loadPlanetMusic();
         for(var f : musicFolder.seq()){
             if(!f.isDirectory()){
@@ -138,6 +141,8 @@ public class CustomMusicLoader{
         ambientMusic = Seq.with(Musics.game1, Musics.game3, Musics.game6, Musics.game8, Musics.game9, Musics.fine);
         darkMusic = Seq.with(Musics.game2, Musics.game5, Musics.game7, Musics.game4);
         bossMusic = Seq.with(Musics.boss1, Musics.boss2, Musics.game2, Musics.game5);
+
+        allInGameMusic = Seq.with(Musics.boss1, Musics.boss2, Musics.fine, Musics.game1, Musics.game2, Musics.game3, Musics.game4, Musics.game5, Musics.game6, Musics.game7, Musics.game8, Musics.game9);
 
         control.sound.ambientMusic.clear();
         control.sound.darkMusic.clear();
