@@ -29,12 +29,8 @@ public class ContentManager {
     private final Seq<Jval> unloadedData = new Seq<>();
 
     public ContentManager(){
-        Events.on(EventType.SectorLaunchEvent.class, e -> {
-            if(enabled) overrideRule();
-        });
-        Events.on(EventType.SaveLoadEvent.class, e -> {
-            if(enabled) overrideRule();
-        });
+        Events.on(EventType.SectorLaunchEvent.class, e -> overrideRule());
+        Events.on(EventType.SaveLoadEvent.class, e -> overrideRule());
     }
 
     public void load(){
@@ -130,6 +126,7 @@ public class ContentManager {
     }
 
     private void overrideRule(){
+        if(!enabled) return;
         if(state.isCampaign()){
             if(state.rules.bannedBlocks.size > 0){
                 var blocks = state.rules.bannedBlocks;
