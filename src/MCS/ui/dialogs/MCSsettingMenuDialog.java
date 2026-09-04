@@ -32,7 +32,7 @@ public class MCSsettingMenuDialog {
         t.checkPref("enableMusicBar", false, b -> {
             if(!b && state.rules.disableMusic) state.rules.disableMusic = false;
         });
-        t.sliderPref("musicBarScl",100, 25, 200, 5, i -> i + "%", changed -> MCSui.musicBar.reload());
+        t.sliderPref("musicBarScl",100, 50, 200, 5, i -> i + "%", changed -> MCSui.musicBar.reload());
         t.checkPref("enableCustomMusic", false, b -> {
             if(b){
                 musicLoader.loadCustom();

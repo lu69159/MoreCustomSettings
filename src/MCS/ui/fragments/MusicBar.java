@@ -128,6 +128,7 @@ public class MusicBar{
                     list.table(Styles.none, mt -> {
                         mt.labelWrap(name).left().fillX().expandX();
                         mt.button(Icon.play, Styles.clearNonei, () -> {
+                            if(state.rules.disableMusic) state.rules.disableMusic = false;
                             control.sound.playMusic(music, true);
                         }).height(32f).disabled(dis -> control.sound.getCurrent() == music || (settings.getBool("instantChangeBossMusic", false) && state.boss() != null)).padLeft(10);
                     }).growX().left().row();
