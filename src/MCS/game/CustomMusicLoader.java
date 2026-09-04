@@ -14,6 +14,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.regex.*;
 
+import static MCS.main.MCSui;
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 
@@ -188,6 +189,7 @@ public class CustomMusicLoader{
             if(successImported){
                 ui.showInfo("@importMusic.imported");
                 load();
+                MCSui.musicBar.reload();
             }
         });
     }
