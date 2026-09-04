@@ -29,8 +29,12 @@ public class ContentManager {
     private final Seq<Jval> unloadedData = new Seq<>();
 
     public ContentManager(){
-        Events.on(EventType.SectorLaunchEvent.class, e -> overrideRule());
-        Events.on(EventType.SaveLoadEvent.class, e -> overrideRule());
+        Events.on(EventType.SectorLaunchEvent.class, e -> {
+            if(enabled) overrideRule();
+        });
+        Events.on(EventType.SaveLoadEvent.class, e -> {
+            if(enabled) overrideRule();
+        });
     }
 
     public void load(){
