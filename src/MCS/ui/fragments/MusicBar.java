@@ -2,9 +2,9 @@ package MCS.ui.fragments;
 
 import arc.Core;
 import arc.Events;
+import arc.input.KeyCode;
 import arc.scene.*;
 import arc.scene.event.*;
-import arc.scene.style.Drawable;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
@@ -13,19 +13,20 @@ import mindustry.gen.*;
 import mindustry.ui.*;
 import MCS.game.CustomSoundControl;
 
-import static arc.Core.settings;
+import static arc.Core.*;
 import static mindustry.Vars.*;
 import static MCS.main.*;
 
 public class MusicBar{
     public boolean posted = false;
     public boolean openList = false;
+    private float barX = -1f, barY = -1f;
     private Table bar, list;
 
     public MusicBar(){
         Events.on(EventType.WorldLoadEvent.class, e -> {
             if(!posted){
-                Core.app.post(() -> {
+                app.post(() -> {
                     build(ui.hudGroup);
                 });
                 posted = true;
@@ -37,17 +38,17 @@ public class MusicBar{
         ImageButton moveButton = new ImageButton(Icon.move, Styles.clearNonei);
         moveButton.touchable = Touchable.enabled;
 
+        float barScl = settings.getInt("musicBarScl", 100)/100f;
         Table musicBarTable = new Table(){{
-            setWidth(Scl.scl(480f));
-            setHeight(Scl.scl(100f));
-            x = Core.graphics.getWidth() / 4f;
-            y = Core.graphics.getHeight() * 7/8f;
+            setWidth(barScl * Scl.scl(480f));
+            setHeight(barScl * Scl.scl(100f));
+            x = barX < 0 ? graphics.getWidth() / 4f : barX;
+            y = barY < 0 ? graphics.getHeight() * 7/8f : barY;
             background(Styles.black3);
             labelWrap(() -> control.sound.getCurrent() == null ? ((CustomSoundControl)control.sound).getLastRandomPlayed() == null ?
-                    "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).left().row();
+                    "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).growX().left().row();
             table(buttons -> {
-                buttons.defaults().size(60f,60f);
-
+                buttons.defaults().size(barScl * 60f);
                 buttons.button(Icon.leftOpen, Styles.clearNonei, () -> {
                     var sound = (CustomSoundControl)control.sound;
                     var m = sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? null : sound.getLastRandomPlayed() : sound.getCurrent();
@@ -106,45 +107,40 @@ public class MusicBar{
 
                 buttons.button(Icon.menu, Styles.clearNonei, () -> {
                     openList = !openList;
-                }).left().padRight(20f);
+                }).checked(chk -> openList).left().padRight(20f);
 
                 buttons.add(moveButton).tooltip("@dragToMove").left();
-            }).width(5*60f + 4*20f).fillY().center();
+            }).width(barScl * (5*60f + 4*20f)).fillY().center();
             visible(() -> settings.getBool("enableMusicBar", false) && state.isGame());
         }};
 
         Table musicListTable = new Table(){{
-            setWidth(Scl.scl(480f));
-            float h = Math.min(musicLoader.allInGameMusic.size * Scl.scl(60f), Scl.scl(600f));
+            setWidth(barScl * Scl.scl(480f));
+            float h = Math.min(musicLoader.allInGameMusic.size * Scl.scl(32f), graphics.getHeight() / 4f);
             setHeight(h);
             x = musicBarTable.x;
-            y = musicBarTable.y + musicBarTable.getHeight() - h - Scl.scl(20f);
-            collapser(t -> {
-                t.setHeight(Math.max(Core.graphics.getHeight() / 4f, 400f));
-                t.pane(list -> {
-                    list.background(Styles.black3);
-                    boolean found = false;
-                    for (var music : musicLoader.allInGameMusic) {
-                        String name = musicLoader.getName(music.file);
-                        list.table(Styles.none, mt -> {
-                            mt.labelWrap(name).left().fillX().expandX();
-                            mt.button(Icon.play, Styles.clearNonei, () -> {
-                                control.sound.playMusic(music, true);
-                            }).disabled(dis -> control.sound.getCurrent() == music || (settings.getBool("instantChangeBossMusic", false) && state.boss() != null)).padLeft(10);
-                        }).growX().left().row();
-                        found = true;
-                    }
-                    if (!found) list.add("@musicList.empty").padLeft(10).left().row();
-                }).visible(() -> musicBarTable.visible && openList).grow().row();
-                t.button("@back", Icon.left, () -> openList = !openList).growX();
-            }, () -> musicBarTable.visible && openList).growX();
+            y = musicBarTable.y - h;
+            pane(list -> {
+                list.background(Styles.black5);
+                boolean found = false;
+                for (var music : musicLoader.allInGameMusic) {
+                    String name = musicLoader.getName(music.file);
+                    list.table(Styles.none, mt -> {
+                        mt.labelWrap(name).left().fillX().expandX();
+                        mt.button(Icon.play, Styles.clearNonei, () -> {
+                            control.sound.playMusic(music, true);
+                        }).height(32f).disabled(dis -> control.sound.getCurrent() == music || (settings.getBool("instantChangeBossMusic", false) && state.boss() != null)).padLeft(10);
+                    }).growX().left().row();
+                    found = true;
+                }
+                if (!found) list.add("@musicList.empty").padLeft(10).left().row();
+            }).visible(() -> musicBarTable.visible && openList).grow();
         }};
 
         moveButton.addListener((new ElementGestureListener(){
             @Override
             public void pan(InputEvent event, float x, float y, float deltaX, float deltaY){
                 musicBarTable.moveBy(deltaX, deltaY);
-                musicListTable.moveBy(deltaX, deltaY);
 
                 if(musicBarTable.y > parent.getHeight() - musicBarTable.getHeight()){
                     musicBarTable.y = parent.getHeight() - musicBarTable.getHeight();
@@ -157,10 +153,13 @@ public class MusicBar{
                     musicBarTable.x = 0;
                 }
 
-                if(musicListTable.y > parent.getHeight() - musicBarTable.getHeight() - musicListTable.getHeight()){
-                    musicListTable.y = musicBarTable.y + musicBarTable.getHeight() - musicListTable.getHeight() - Scl.scl(20f);
-                }else if(musicListTable.y < 0){
-                    musicListTable.y = musicBarTable.y + Scl.scl(20f);
+                barX = musicBarTable.x;
+                barY = musicBarTable.y;
+
+                if(musicBarTable.y > parent.getHeight() / 2f){
+                    musicListTable.y = musicBarTable.y - musicListTable.getHeight();
+                }else{
+                    musicListTable.y = musicBarTable.y + musicBarTable.getHeight();
                 }
                 if(musicListTable.x != musicBarTable.x) musicListTable.x = musicBarTable.x;
             }
@@ -177,7 +176,7 @@ public class MusicBar{
 
     public void reload(){
         if(posted){
-            Core.app.post(() -> {
+            app.post(() -> {
                 ui.hudGroup.removeChild(bar);
                 ui.hudGroup.removeChild(list);
                 build(ui.hudGroup);

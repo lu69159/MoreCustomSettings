@@ -1,13 +1,14 @@
 package MCS.game;
 
 import MCS.game.enumClass.ContentManageMode;
-import arc.Core;
+import arc.*;
 import arc.files.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.serialization.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
+import mindustry.game.EventType;
 import mindustry.mod.Mods;
 import mindustry.type.*;
 import mindustry.ui.dialogs.DatabaseDialog;
@@ -27,6 +28,10 @@ public class ContentManager {
     private final Seq<PlanetContentData> planetContentDataMap = new Seq<>();
     private final Seq<Jval> unloadedData = new Seq<>();
 
+    public ContentManager(){
+        Events.on(EventType.SectorLaunchEvent.class, e -> overrideRule());
+        Events.on(EventType.SaveLoadEvent.class, e -> overrideRule());
+    }
 
     public void load(){
         saveFi = saveFolder.child("contents.json");
@@ -117,6 +122,43 @@ public class ContentManager {
             f.set(ui.database, null);
         }catch(ReflectiveOperationException e){
             ui.showException(e);
+        }
+    }
+
+    private void overrideRule(){
+        if(state.isCampaign()){
+            if(state.rules.bannedBlocks.size > 0){
+                var blocks = state.rules.bannedBlocks;
+                if(state.rules.blockWhitelist){
+                    for(var b : content.blocks()){
+                        if(b.shownPlanets.contains(state.getPlanet())){
+                            blocks.add(b);
+                        }
+                    }
+                }else{
+                    for(var b : blocks){
+                        if(b.shownPlanets.contains(state.getPlanet())){
+                            blocks.remove(b);
+                        }
+                    }
+                }
+            }
+            if(state.rules.bannedUnits.size > 0){
+                var units = state.rules.bannedUnits;
+                if(state.rules.blockWhitelist){
+                    for(var u : content.units()){
+                        if(u.shownPlanets.contains(state.getPlanet())){
+                            units.add(u);
+                        }
+                    }
+                }else{
+                    for(var u : units){
+                        if(u.shownPlanets.contains(state.getPlanet())){
+                            units.remove(u);
+                        }
+                    }
+                }
+            }
         }
     }
 
