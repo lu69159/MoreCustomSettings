@@ -41,7 +41,7 @@ public class ContentManagerDialog extends BaseDialog{
     }
 
     void setup(){
-        float w = Scl.scl(Math.max(Core.graphics.getWidth() / 8f, 50f));
+        float w = Math.max(Core.graphics.getWidth() / 8f, 50f) / Scl.scl(1);
         float h = w/2f;
 
         if(choosePlanet == null) choosePlanet = Planets.erekir;
