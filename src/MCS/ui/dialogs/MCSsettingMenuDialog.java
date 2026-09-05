@@ -364,7 +364,7 @@ public class MCSsettingMenuDialog {
 
                     musicLoader.reset();
                     rulesMap.reset();
-                    MCSui.attacked.reset();
+                    MCSui.reset();
 
                     if(ui.campaignRules instanceof CustomCampaignRulesDialog) ui.campaignRules = new CampaignRulesDialog();
                     if(spawner instanceof CustomWaveSpawner) spawner = new WaveSpawner();

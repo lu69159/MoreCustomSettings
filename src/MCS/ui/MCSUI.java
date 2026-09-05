@@ -18,4 +18,9 @@ public class MCSUI{
         attacked.load();
         menu.load();
     }
+
+    public void reset(){
+        attacked.reset();
+        musicBar.reset();
+    }
 }

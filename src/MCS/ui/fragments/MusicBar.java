@@ -8,6 +8,7 @@ import arc.scene.event.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
+import mindustry.core.GameState;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
@@ -20,14 +21,12 @@ import static MCS.main.*;
 public class MusicBar{
     public boolean posted = false;
     public boolean openList = false;
-    private float barX, barY;
+    private float barX = -1f, barY = -1f;
     private Table bar, list;
 
     public MusicBar(){
         Events.on(EventType.WorldLoadEvent.class, e -> {
             if(!posted){
-                barX = settings.getFloat("MCS-musicBarX", -1f);
-                barY = settings.getFloat("MCS-musicBarY", -1f);
                 app.post(() -> {
                     build(ui.hudGroup);
                 });
@@ -35,8 +34,10 @@ public class MusicBar{
             }
         });
         Events.on(EventType.StateChangeEvent.class, e -> {
-            settings.put("MCS-musicBarX", barX);
-            settings.put("MCS-musicBarY", barY);
+            if(posted && e.from == GameState.State.playing){
+                settings.putFloat("MCS-musicBarX", barX);
+                settings.putFloat("MCS-musicBarY", barY);
+            }
         });
     }
 
@@ -48,8 +49,8 @@ public class MusicBar{
         Table musicBarTable = new Table(){{
             setWidth(barScl * Scl.scl(480f));
             setHeight(barScl * Scl.scl(100f));
-            x = barX < 0 ? graphics.getWidth() / 4f : barX;
-            y = barY < 0 ? graphics.getHeight() * 7/8f : barY;
+            x = barX < 0 ? settings.getFloat("MCS-musicBarX",graphics.getWidth() / 4f)  : barX;
+            y = barY < 0 ? settings.getFloat("MCS-musicBarY",graphics.getHeight() * 7/8f) : barY;
             background(Styles.black3);
             labelWrap(() -> control.sound.getCurrent() == null ? ((CustomSoundControl)control.sound).getLastRandomPlayed() == null ?
                     "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).growX().left().row();
@@ -198,5 +199,10 @@ public class MusicBar{
                 build(ui.hudGroup);
             });
         }
+    }
+
+    public void reset(){
+        settings.remove("MCS-musicBarX");
+        settings.remove("MCS-musicBarY");
     }
 }
