@@ -4,8 +4,6 @@ import arc.*;
 import arc.files.*;
 import arc.struct.*;
 import arc.util.Http;
-import mindustry.graphics.Pal;
-
 import java.net.URL;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
