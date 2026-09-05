@@ -20,17 +20,23 @@ import static MCS.main.*;
 public class MusicBar{
     public boolean posted = false;
     public boolean openList = false;
-    private float barX = -1f, barY = -1f;
+    private float barX, barY;
     private Table bar, list;
 
     public MusicBar(){
         Events.on(EventType.WorldLoadEvent.class, e -> {
             if(!posted){
+                barX = settings.getFloat("MCS-musicBarX", -1f);
+                barY = settings.getFloat("MCS-musicBarY", -1f);
                 app.post(() -> {
                     build(ui.hudGroup);
                 });
                 posted = true;
             }
+        });
+        Events.on(EventType.StateChangeEvent.class, e -> {
+            settings.put("MCS-musicBarX", barX);
+            settings.put("MCS-musicBarY", barY);
         });
     }
 
@@ -111,8 +117,17 @@ public class MusicBar{
 
                 buttons.add(moveButton).tooltip("@dragToMove").left();
             }).width(barScl * (5*60f + 4*20f)).fillY().center();
-            visible(() -> settings.getBool("enableMusicBar", false) && state.isGame());
+            visible(() -> settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
         }};
+
+        if(musicBarTable.y > parent.getHeight() - musicBarTable.getHeight()){
+            musicBarTable.y = parent.getHeight() - musicBarTable.getHeight();
+            barY = musicBarTable.y;
+        }
+        if(musicBarTable.x > parent.getWidth() - musicBarTable.getWidth()){
+            musicBarTable.x = parent.getWidth() - musicBarTable.getWidth();
+            barX = musicBarTable.x;
+        }
 
         Table musicListTable = new Table(){{
             setWidth(barScl * Scl.scl(480f));
