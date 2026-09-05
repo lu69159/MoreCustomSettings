@@ -237,12 +237,7 @@ public class CustomMusicLoader{
                         }
 
                         Core.settings.put("MCSplanetMusicName-" + inputName, fi.nameWithoutExtension());
-                        String name;
-                        if(pattern.matcher(inputName).find()){
-                            name = "encodeName_" + encodeName(inputName) + "__" + fi.length() + "." + fi.extension();
-                        }else{
-                            name = inputName + "__" + fi.length() + "." + fi.extension();
-                        }
+                        String name = realString(inputName) + "__" + fi.length() + "." + fi.extension();
 
                         fi.copyTo(folder);
                         Path source = Paths.get(folder.path() + "/" + fi.name());
@@ -273,6 +268,14 @@ public class CustomMusicLoader{
             return true;
         }
         return false;
+    }
+
+    public String realString(String nameWithoutExtension){
+        if(pattern.matcher(nameWithoutExtension).find()){
+            return "encodeName_" + encodeName(nameWithoutExtension);
+        }else{
+            return nameWithoutExtension;
+        }
     }
 
     public String realName(Fi file){

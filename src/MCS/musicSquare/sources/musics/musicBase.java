@@ -68,8 +68,7 @@ public abstract class musicBase {
                         }
                     }
 
-                    String sanitized = (artist + "-" + name).replaceAll("[^-0-9a-zA-Z -)(\\[\\]]", "");
-                    if(sanitized.isEmpty()) sanitized = "track" + System.nanoTime();
+                    String sanitized = musicLoader.realString(artist + "-" + name);
 
                     if(!dir.exists()) musicLoader.loadFolder();
                     dir.child(sanitized + "__" + data.length + "." + ext).writeBytes(data);
@@ -118,7 +117,7 @@ public abstract class musicBase {
 
                     musicLoader.loadFolder();
                     for(var f : musicLoader.musicFolder.seq()){
-                        if(f.name().split("__", 2)[0].equals(name)) f.delete();
+                        if(musicLoader.getName(f).equals(name)) f.delete();
                     }
                     musicLoader.musicFolder.child(name + "__" + data.length + "." + ext).writeBytes(data);
 
