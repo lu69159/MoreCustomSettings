@@ -45,7 +45,10 @@ public class CustomMusicLoader{
         loadMusic(ambient, ambientMusic);
         loadMusic(dark, darkMusic);
         loadMusic(boss, bossMusic);
-        allInGameMusic = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
+        Seq<Music> tmpAll = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
+        for(var m : tmpAll){
+            if(!allInGameMusic.contains(music -> isSameMusic(m, music, false))) allInGameMusic.add(m);
+        }
         allInGameMusic.sortComparing(music -> getName(music.file));
         loadPlanetMusic();
         for(var f : musicFolder.seq()){
@@ -260,13 +263,20 @@ public class CustomMusicLoader{
         return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
     }
 
-    public boolean isSameMusic(Music current, Music music){
+    public boolean isSameMusic(Music current, Music music, boolean getFromSetting){
         if(current == null || music == null) return false;
         if(current == music) return true;
-        if(settings.getString("MCSplanetMusicName-" + getName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getName(music.file), "unknown music")) && current.file.length() == music.file.length()){
-            music = current;
-            return true;
+        if(getFromSetting){
+            if(settings.getString("MCSplanetMusicName-" + getName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getName(music.file), "unknown music")) && current.file.length() == music.file.length()){
+                music = current;
+                return true;
+            }
+        }else{
+            if(getName(current.file).equals(getName(music.file)) && current.file.length() == music.file.length()){
+                return true;
+            }
         }
+
         return false;
     }
 
