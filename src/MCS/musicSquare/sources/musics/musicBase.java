@@ -74,6 +74,7 @@ public abstract class musicBase {
                     Core.app.post(() -> {
                         ui.loadfrag.hide();
                         musicLoader.load();
+                        MCSui.musicBar.reload();
                         ui.showInfo("@musicSquare.downloaded");
                     });
                 }catch(Throwable e){
@@ -88,7 +89,7 @@ public abstract class musicBase {
             }));
         }
 
-        public void downloadNamed(String name){
+        public void downloadNamed(String inputName){
             if(!isSafeUrl(url)) return;
 
             ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
@@ -107,17 +108,21 @@ public abstract class musicBase {
                         }
                     }
 
-                    if(name.equals("menu")){
+                    if(inputName.equals("menu")){
                         Core.settings.put("MCSmenuMusicName", artist + " - " + this.name);
-                    }else{
+                    }else if(inputName.equals("editor")){
                         Core.settings.put("MCSeditorMusicName", artist + " - " + this.name);
+                    }else{
+                        Core.settings.put("MCSplanetMusicName-" + inputName, artist + " - " + this.name);
                     }
 
+                    Fi folder = (!inputName.equals("menu") && !inputName.equals("editor")) ? musicLoader.planets : musicLoader.musicFolder;
                     musicLoader.loadFolder();
-                    for(var f : musicLoader.musicFolder.seq()){
-                        if(musicLoader.getName(f).equals(name)) f.delete();
+
+                    for(var f : folder.seq()){
+                        if(musicLoader.getName(f).equals(inputName)) f.delete();
                     }
-                    musicLoader.musicFolder.child(name + "__" + data.length + "." + ext).writeBytes(data);
+                    folder.child(musicLoader.realString(inputName) + "__" + data.length + "." + ext).writeBytes(data);
 
                     Core.app.post(() -> {
                         ui.loadfrag.hide();

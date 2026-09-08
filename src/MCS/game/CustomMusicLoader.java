@@ -199,57 +199,34 @@ public class CustomMusicLoader{
 
     public Runnable importNamedMusic(String inputName){
         return () -> FileChooser.open("ogg", "mp3").submitMulti(files -> {
-            boolean successImported = false;
+            boolean isPlanets = !inputName.equals("menu") && !inputName.equals("editor"),
+                    successImported = false;
+            Fi folder = isPlanets ? planets : musicFolder;
+            if(!folder.exists()) folder.mkdirs();
+
             for(var fi : files){
-                if(inputName.equals("menu") || inputName.equals("editor")){
-                    try{
-                        Fi folder = musicFolder;
-                        if(!folder.exists()) folder.mkdirs();
-
-                        for(var f : folder.seq()){
-                            if(!f.isDirectory()){
-                                String n = f.name().split("__", 2)[0];
-                                if(n.equals(inputName)) f.delete();
-                            }
+                try{
+                    for(var f : folder.seq()){
+                        if(!f.isDirectory()){
+                            if(getName(f).equals(inputName)) f.delete();
                         }
-
-                        String musicShowName = fi.nameWithoutExtension();
-                        if(inputName.equals("menu")){
-                            Core.settings.put("MCSmenuMusicName", musicShowName);
-                        }else{
-                            Core.settings.put("MCSeditorMusicName", musicShowName);
-                        }
-
-                        fi.copyTo(folder);
-                        Path source = Paths.get(folder.path() + "/" + fi.name());
-                        Path to = Paths.get(folder.path() + "/" + inputName + "__" + fi.length() + "." + fi.extension());
-                        Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
-                        successImported = true;
-                    }catch(Exception e){
-                        ui.showException(e);
                     }
-                }else{
-                    try{
-                        Fi folder = planets;
-                        if(!folder.exists()) folder.mkdirs();
 
-                        for(var f : folder.seq()){
-                            if(!f.isDirectory()){
-                                if(getName(f).equals(inputName)) f.delete();
-                            }
-                        }
-
+                    if(inputName.equals("menu")){
+                        Core.settings.put("MCSmenuMusicName", fi.nameWithoutExtension());
+                    }else if(inputName.equals("editor")){
+                        Core.settings.put("MCSeditorMusicName", fi.nameWithoutExtension());
+                    }else{
                         Core.settings.put("MCSplanetMusicName-" + inputName, fi.nameWithoutExtension());
-                        String name = realString(inputName) + "__" + fi.length() + "." + fi.extension();
-
-                        fi.copyTo(folder);
-                        Path source = Paths.get(folder.path() + "/" + fi.name());
-                        Path to = Paths.get(folder.path() + "/" + name);
-                        Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
-                        successImported = true;
-                    }catch(Exception e){
-                        ui.showException(e);
                     }
+
+                    fi.copyTo(folder);
+                    Path source = Paths.get(fi.path());
+                    Path to = Paths.get(folder.path() + "/" + realString(inputName) + "__" + fi.length() + "." + fi.extension());
+                    Files.move(source, to, StandardCopyOption.REPLACE_EXISTING);
+                    successImported = true;
+                }catch(Exception e){
+                    ui.showException(e);
                 }
             }
             if(successImported){

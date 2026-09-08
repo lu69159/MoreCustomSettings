@@ -210,7 +210,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         previewingUrl = "";
     }
 
-    private void trackDownload(musicBase.Track t){ //TODO：若试听过则直接将tmp文件导入。而不是再次下载
+    private void trackDownload(musicBase.Track t){
         BaseDialog dialog = new BaseDialog("@musicSquare.selectCategory");
         dialog.addCloseButton();
         dialog.cont.table(Tex.button, bt -> {
@@ -238,6 +238,24 @@ public class musicSquareSearchDialog extends BaseDialog {
             bt.button("@importMusic.editor", Styles.flatt, () -> {
                 dialog.hide();
                 t.downloadNamed("editor");
+            });
+            bt.row();
+            bt.button("@importMusic.planet", Styles.flatt, () -> {
+                var planets = new BaseDialog("@importMusic.planet");
+                planets.addCloseButton();
+                planets.cont.pane(table -> {
+                    table.defaults().size(200f, 60f).left();
+                    for(var planet : content.planets()){
+                        if(!planet.accessible) continue;
+                        table.button(planet.localizedName, Icon.planet.tint(planet.iconColor), () -> {
+                            planets.hide();
+                            dialog.hide();
+                            t.downloadNamed(planet.name);
+                        });
+                        table.row();
+                    }
+                });
+                planets.show();
             });
         });
         dialog.show();
