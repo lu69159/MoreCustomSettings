@@ -1,8 +1,6 @@
 package MCS.ui.fragments;
 
-import arc.Core;
 import arc.Events;
-import arc.input.KeyCode;
 import arc.scene.*;
 import arc.scene.event.*;
 import arc.scene.ui.*;
@@ -31,12 +29,6 @@ public class MusicBar{
                     build(ui.hudGroup);
                 });
                 posted = true;
-            }
-        });
-        Events.on(EventType.StateChangeEvent.class, e -> {
-            if(posted && e.from == GameState.State.playing){
-                settings.putFloat("MCS-musicBarX", barX);
-                settings.putFloat("MCS-musicBarY", barY);
             }
         });
     }
@@ -179,9 +171,9 @@ public class MusicBar{
                     musicListTable.y = musicBarTable.y + musicBarTable.getHeight();
                 }
                 if(musicListTable.x != musicBarTable.x) musicListTable.x = musicBarTable.x;
+                settings.putFloat("MCS-musicBarX", barX);
+                settings.putFloat("MCS-musicBarY", barY);
             }
-
-
         }));
 
         bar = musicBarTable;
