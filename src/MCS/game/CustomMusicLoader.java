@@ -250,9 +250,7 @@ public class CustomMusicLoader{
                 return true;
             }
         }else{
-            if(getName(current.file).equals(getName(music.file)) && current.file.length() == music.file.length()){
-                return true;
-            }
+            return getName(current.file).equals(getName(music.file)) && current.file.length() == music.file.length();
         }
 
         return false;
