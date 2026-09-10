@@ -45,6 +45,7 @@ public class CustomMusicLoader{
         loadMusic(ambient, ambientMusic);
         loadMusic(dark, darkMusic);
         loadMusic(boss, bossMusic);
+        allInGameMusic.clear();
         Seq<Music> tmpAll = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
         for(var m : tmpAll){
             if(!allInGameMusic.contains(music -> isSameMusic(m, music, false))) allInGameMusic.add(m);
