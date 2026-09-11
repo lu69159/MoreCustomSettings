@@ -143,7 +143,7 @@ public class MusicBar{
                     found = true;
                 }
                 if (!found) list.add("@musicList.empty").padLeft(10).left().row();
-            }).visible(() -> musicBarTable.visible && openList).grow();
+            }).scrollX(false).visible(() -> musicBarTable.visible && openList).grow();
         }};
 
         moveButton.addListener((new ElementGestureListener(){
