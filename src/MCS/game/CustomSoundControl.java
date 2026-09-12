@@ -121,16 +121,20 @@ public class CustomSoundControl extends SoundControl{
                             if(current == bm) silenced = true;
                         }
                     }
-
-                }else if(alwaysPlayMusic()){
-                    if (current == null) {
-                        playRandom();
-                    }
-                }else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
-                    //chance to play it per interval
-                    if (Mathf.chance(musicChance)) {
-                        lastPlayed = Time.millis();
-                        playRandom();
+                }else{
+                    if(current == null){
+                        if(alwaysPlayMusic()){
+                            playRandom();
+                        }else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
+                            //chance to play it per interval
+                            if (Mathf.chance(musicChance)) {
+                                lastPlayed = Time.millis();
+                                playRandom();
+                            }
+                        }
+                    }else if(fade < 1f && musicLoader.allInGameMusic.contains(current)){
+                        fade = Mathf.clamp(fade + Time.delta / foutTime);
+                        current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
                     }
                 }
             }
