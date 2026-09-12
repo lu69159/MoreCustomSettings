@@ -42,10 +42,12 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
         });
 
         hidden(() -> {
-            if(planet != null && state.isCampaign() && state.getPlanet() == planet){
+            if(planet != null){
                 rulesMap.save(planet, customRule);
-                customRule.apply(planet, state.rules);
-                Call.setRules(Vars.state.rules);
+                if(state.isCampaign() && state.getPlanet() == planet){
+                    customRule.apply(planet, state.rules);
+                    Call.setRules(Vars.state.rules);
+                }
             }
         });
     }

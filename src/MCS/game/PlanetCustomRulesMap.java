@@ -30,7 +30,7 @@ public class PlanetCustomRulesMap {
             r.extendWaves = settings.getInt(name + "EW", 0);
             r.unitFactoryActivationDelay = settings.getFloat(name + "UFA", 0f);
 
-            r.customDiff = CustomDifficulty.all[settings.getInt(name + "D", 2)];
+            r.customDiff = CustomDifficulty.valueOf(settings.getString(name + "DI", "normal"));
 
             r.sectorInvasion = settings.getBool(name + "SI", p.campaignRules.sectorInvasion);
             r.fog = settings.getBool(name + "fog", p.campaignRules.fog);
@@ -81,7 +81,7 @@ public class PlanetCustomRulesMap {
             settings.remove(name + "EW");
             settings.remove(name + "UFA");
 
-            settings.remove(name + "D");
+            settings.remove(name + "DI");
 
             settings.remove(name + "SI");
             settings.remove(name + "fog");
@@ -126,11 +126,7 @@ public class PlanetCustomRulesMap {
         settings.put(name + "EW", r.extendWaves);
         settings.put(name + "UFA", r.unitFactoryActivationDelay);
 
-        for(int i = 0; i < CustomDifficulty.all.length; i++){
-            if(r.customDiff== CustomDifficulty.all[i]){
-                settings.put(name + "D", i);
-            }
-        }
+        settings.put(name + "DI", r.customDiff.name());
 
         settings.put(name + "SI", r.sectorInvasion);
         settings.put(name + "fog", r.fog);
