@@ -88,6 +88,7 @@ public class ContentManager {
     public void reset(){
         mode = ContentManageMode.planet;
         planetContentDataMap.clear();
+        unloadedData.clear();
         saveFolder.child("contents.json").delete();
         load();
     }
