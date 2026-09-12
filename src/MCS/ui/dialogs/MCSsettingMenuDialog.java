@@ -25,7 +25,7 @@ public class MCSsettingMenuDialog {
     private musicSquareSearchDialog musicSearchDialog;
     private ContentManagerDialog contentManagerDialog;
 
-    public Cons<SettingsTable> settingBuilder = t -> {
+    public Cons<SettingsTable> settingBuilder = t -> { //TODO: 或许可以改用Events触发
         t.pref(new TitleSetting("@settingtitle.music"));
 
         t.checkPref("instantChangeBossMusic", false);
