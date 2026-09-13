@@ -36,7 +36,7 @@ public class PlanetCustomRulesMap {
             r.fog = settings.getBool(name + "fog", p.campaignRules.fog);
             r.hideSpawns = settings.getBool(name + "HS", p.campaignRules.hideSpawns);
             r.randomWaveAI = settings.getBool(name + "RW", p.campaignRules.randomWaveAI);
-            r.rtsAI = settings.getBool(name + "RTS", p.campaignRules.randomWaveAI);
+            r.rtsAI = settings.getBool(name + "RTS", p.campaignRules.rtsAI);
             r.clearSectorOnLose = settings.getBool(name + "CS", p.clearSectorOnLose);
 
             put(new PlanetCustomCampaignRules(p, r));
