@@ -62,11 +62,6 @@ public class ContentManager {
             }
         }else{
             mode = ContentManageMode.planet;
-            for(var planet : content.planets()){
-                if(planetContentDataMap.find(data -> data.planet == planet) == null && planet.accessible){
-                    planetContentDataMap.add(new PlanetContentData(planet));
-                }
-            }
         }
         
         enabled = Core.settings.getBool("enableContentManager", false);
@@ -91,8 +86,11 @@ public class ContentManager {
         mode = ContentManageMode.planet;
         planetContentDataMap.clear();
         unloadedData.clear();
-        saveFolder.child("contents.json").delete();
-        load();
+        if(saveFolder.child("contents.json").delete()){
+            load();
+        }else{
+            ui.showException(new Throwable("Failed to delete contents.json"));
+        }
     }
 
     public PlanetContentData getData(Planet planet){
@@ -103,10 +101,15 @@ public class ContentManager {
 
     public void reloadData(){
         if(!enabled) return;
-
+        for(var planet : content.planets()){
+            if(planet.accessible && planetContentDataMap.find(data -> data.planet == planet) == null){
+                planetContentDataMap.add(new PlanetContentData(planet));
+            }
+        }
         for(var d : planetContentDataMap){
             d.loadData();
         }
+        overrideRule();
         try{
             Field f = DatabaseDialog.class.getDeclaredField("allTabs");
             f.setAccessible(true);
