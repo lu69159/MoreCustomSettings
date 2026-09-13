@@ -6,10 +6,12 @@ import arc.files.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.serialization.*;
+import mindustry.world.*;
+import mindustry.world.meta.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
 import mindustry.game.EventType;
-import mindustry.mod.Mods;
+import mindustry.mod.*;
 import mindustry.type.*;
 import mindustry.ui.dialogs.DatabaseDialog;
 
@@ -296,7 +298,7 @@ public class ContentManager {
 
             for(var all : content.getContentMap()){
                 for(var c : all){
-                    if(c instanceof UnlockableContent u && !u.hideDatabase){
+                    if(c instanceof UnlockableContent u && !u.hideDatabase && shouldBeLoaded(u)){
                         if(tmp.contains(u)){
                             if(!u.shownPlanets.contains(planet)) u.shownPlanets.add(planet);
                             if(!u.databaseTabs.contains(planet)) u.databaseTabs.add(planet);
@@ -316,7 +318,7 @@ public class ContentManager {
         public void resetData(){
             for(var all : content.getContentMap()){
                 for(var c : all){
-                    if(c instanceof UnlockableContent u && !u.hideDatabase){
+                    if(c instanceof UnlockableContent u && !u.hideDatabase && shouldBeLoaded(u)){
                         if(originalData.contains(u)){
                             if(!u.shownPlanets.contains(planet)) u.shownPlanets.add(planet);
                             if(!u.databaseTabs.contains(planet)) u.databaseTabs.add(planet);
@@ -327,6 +329,10 @@ public class ContentManager {
                     }
                 }
             }
+        }
+
+        public boolean shouldBeLoaded(UnlockableContent u){
+            return !(u instanceof Block b) || (b.buildVisibility != BuildVisibility.hidden && b.buildVisibility != BuildVisibility.editorOnly && b.buildVisibility != BuildVisibility.sandboxOnly && b.buildVisibility != BuildVisibility.debugOnly);
         }
     }
 }
