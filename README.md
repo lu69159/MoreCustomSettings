@@ -13,7 +13,7 @@
 - Custom Music
   - Supports music customization for the main menu, editor, planet view, and in-game
   - Supports importing via local files / online download
-  - Can switch songs in real-time via the music controller
+  - Can switch songs in real-time via the music player bar in game
 
 - Custom Content Management
   - Aims to bypass the planet content isolation in V8
