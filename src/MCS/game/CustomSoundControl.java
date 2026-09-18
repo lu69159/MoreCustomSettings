@@ -174,9 +174,11 @@ public class CustomSoundControl extends SoundControl{
         previewMusic = music;
     }
     public void stopPreView(){
-        preview = false;
-        if(current != null) current.stop();
-        current = null;
-        previewMusic = null;
+        if(preview){
+            preview = false;
+            if(current != null) current.stop();
+            current = null;
+            previewMusic = null;
+        }
     }
 }
