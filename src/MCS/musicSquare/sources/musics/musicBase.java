@@ -117,7 +117,7 @@ public abstract class musicBase {
                     }
 
                     Fi folder = (!inputName.equals("menu") && !inputName.equals("editor")) ? musicLoader.planets : musicLoader.musicFolder;
-                    musicLoader.loadFolder();
+                    if(!folder.exists()) musicLoader.loadFolder();
 
                     for(var f : folder.seq()){
                         if(musicLoader.getName(f).equals(inputName)) f.delete();

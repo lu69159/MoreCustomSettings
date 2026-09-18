@@ -41,12 +41,9 @@ public class musicSquareSearchDialog extends BaseDialog {
             word = "";
             resource.allResults.clear();
             resultTable.clear();
-            if(musicLoader.tmp != null && musicLoader.tmp.exists()){
+            if(musicLoader.tmp.exists()){
                 musicLoader.tmp.deleteDirectory();
-                musicLoader.loadFolder();
-            }
-            else{
-                musicLoader.loadFolder();
+                musicLoader.tmp.mkdirs();
             }
         });
     }
@@ -158,8 +155,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     private void trackPreviewListening(musicBase.Track t){
         if(t.url == null || !musicBase.isSafeUrl(t.url)) return;
         previewingUrl = t.url;
-        musicLoader.loadFolder();
-        musicLoader.tmp.mkdirs();
+        if(!musicLoader.tmp.exists()) musicLoader.tmp.mkdirs();
 
         Http.get(t.url, res -> {
             try{

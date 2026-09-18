@@ -45,7 +45,7 @@ public class MCSsettingMenuDialog {
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> musicImportDialog.show()));
         if(!mobile){
             t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
-                if (musicLoader.musicFolder == null || !musicLoader.musicFolder.exists()) musicLoader.loadFolder();
+                if (!musicLoader.musicFolder.exists()) musicLoader.loadFolder();
                 app.openFolder(musicLoader.musicFolder.absolutePath());
             }));
         }
@@ -226,7 +226,6 @@ public class MCSsettingMenuDialog {
     }
 
     private void rebuildMusicList(){
-        musicLoader.loadFolder();
         musicListDialog.cont.clearChildren();
         musicListDialog.cont.pane(t -> {
             t.add("@importMusic.ambient").color(Pal.accent).padTop(10).left().row();
