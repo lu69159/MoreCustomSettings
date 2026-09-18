@@ -14,8 +14,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.regex.*;
 
-import static MCS.main.MCSui;
-import static MCS.main.musicLoader;
+import static MCS.main.*;
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 
