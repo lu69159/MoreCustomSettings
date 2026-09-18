@@ -29,13 +29,13 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
         new BaseDialog("@campaign.difficulty");
 
         Events.on(SaveLoadEvent.class, e -> {
-            if(state.isCampaign()){
+            if(state.isCampaign() && Core.settings.getBool("enablecustomcampaigndifficulty")){
                 rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
                 Call.setRules(Vars.state.rules);
             }
         });
         Events.on(SectorLaunchEvent.class, e -> {
-            if(state.isCampaign()){
+            if(state.isCampaign() && Core.settings.getBool("enablecustomcampaigndifficulty")){
                 rulesMap.get(e.sector.planet).apply(e.sector.planet, state.rules);
                 Call.setRules(Vars.state.rules);
             }
