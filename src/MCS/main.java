@@ -1,12 +1,12 @@
 package MCS;
 
-import MCS.ui.MCSUI;
+import MCS.game.*;
+import MCS.ui.*;
+import MCS.ui.dialogs.*;
+import MCS.ui.fragments.*;
 import arc.Events;
 import arc.files.*;
 import mindustry.mod.*;
-import MCS.game.*;
-import MCS.ui.dialogs.*;
-import MCS.ui.fragments.*;
 
 import static mindustry.Vars.*;
 import static mindustry.game.EventType.*;

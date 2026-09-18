@@ -6,7 +6,6 @@ import arc.scene.event.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
-import mindustry.core.GameState;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
