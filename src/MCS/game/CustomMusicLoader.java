@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import static MCS.main.MCSui;
+import static MCS.main.musicLoader;
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 
@@ -30,6 +31,10 @@ public class CustomMusicLoader{
     public ObjectMap<Planet, Music> planetMusicMap = new ObjectMap<>();
 
     private final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
+
+    public CustomMusicLoader(){
+        loadFolder();
+    }
 
     public void load(){
         if(settings.getBool("enableCustomMusic", false)){
