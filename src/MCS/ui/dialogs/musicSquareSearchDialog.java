@@ -113,7 +113,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                     .color(Color.lightGray).growX().wrap();
             }).width(300f).growX().padLeft(8f);
 
-            if(t.url != null && !t.url.isEmpty()){
+            if(t.url != null && !t.url.isEmpty() && musicBase.isSafeUrl(t.url)){
                 var style = new ImageButton.ImageButtonStyle(Styles.clearNonei);
                 style.imageUp = Icon.play;
                 style.imageChecked = Icon.pause;
