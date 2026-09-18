@@ -77,7 +77,7 @@ public class ContentManagerDialog extends BaseDialog{
                         contentManager.mode = cMode;
                         contentManager.reloadData();
                         setup();
-                    }).tooltip("[lightgray]" + cMode.toolTip()).height(50f).growX().group(group).checked(contentManager.mode == cMode).row();
+                    }).tooltip("[lightgray]" + cMode.toolTip(),true).height(50f).growX().group(group).checked(contentManager.mode == cMode).row();
                 }
             }).height(150f).top().growX().row();
 

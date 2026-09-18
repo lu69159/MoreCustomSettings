@@ -108,7 +108,7 @@ public class MusicBar{
                     openList = !openList;
                 }).checked(chk -> openList).left().padRight(20f);
 
-                buttons.add(moveButton).tooltip("@dragToMove").left();
+                buttons.add(moveButton).tooltip("@dragToMove", true).left();
             }).width(barScl * (5*60f + 4*20f)).fillY().center();
             visible(() -> settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
         }};
