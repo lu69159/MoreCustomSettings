@@ -7,7 +7,6 @@ import MCS.game.enumClass.CustomDifficulty;
 import static arc.Core.settings;
 import static mindustry.Vars.content;
 
-//TODO：保存方式整合，统一使用Jval，不同内容使用不同文件
 public class PlanetCustomRulesMap {
     Seq<PlanetCustomCampaignRules> maps = new Seq<>();
 

@@ -16,16 +16,13 @@ public enum CustomDifficulty{
     public boolean isCustom;
 
     CustomDifficulty(float enemyHealthMultiplier, float enemySpawnMultiplier, float waveTimeMultiplier){
-        this.enemySpawnMultiplier = enemySpawnMultiplier;
-        this.waveTimeMultiplier = waveTimeMultiplier;
-        this.enemyHealthMultiplier = enemyHealthMultiplier;
-        isCustom = false;
+        this(enemyHealthMultiplier, enemySpawnMultiplier, waveTimeMultiplier, false);
     }
 
     CustomDifficulty(float enemyHealthMultiplier, float enemySpawnMultiplier, float waveTimeMultiplier, boolean isCustom){
+        this.enemyHealthMultiplier = enemyHealthMultiplier;
         this.enemySpawnMultiplier = enemySpawnMultiplier;
         this.waveTimeMultiplier = waveTimeMultiplier;
-        this.enemyHealthMultiplier = enemyHealthMultiplier;
         this.isCustom = isCustom;
     }
 
