@@ -123,14 +123,14 @@ public class MusicBar{
 
         Table musicListTable = new Table(){{
             setWidth(barScl * Scl.scl(480f));
-            float h = Math.min(musicLoader.allInGameMusic.size * Scl.scl(32f), graphics.getHeight() / 4f);
+            float h = musicLoader.allInGameMusic.size == 0 ? Math.min(Scl.scl(32f), graphics.getHeight() / 4f) : Math.min(musicLoader.allInGameMusic.size * Scl.scl(32f), graphics.getHeight() / 4f);
             setHeight(h);
             x = musicBarTable.x;
             y = musicBarTable.y - h;
             pane(list -> {
                 list.background(Styles.black5);
                 boolean found = false;
-                for (var music : musicLoader.allInGameMusic) {
+                for(var music : musicLoader.allInGameMusic){
                     String name = musicLoader.getName(music.file);
                     list.table(Styles.none, mt -> {
                         mt.labelWrap(name).left().fillX().expandX();
@@ -141,7 +141,8 @@ public class MusicBar{
                     }).growX().left().row();
                     found = true;
                 }
-                if (!found) list.add("@musicList.empty").padLeft(10).left().row();
+                if(!found) list.table(Styles.none, mt -> mt.labelWrap("@musicList.empty")).growX().left().row();
+
             }).scrollX(false).visible(() -> musicBarTable.visible && openList).grow();
         }};
 
