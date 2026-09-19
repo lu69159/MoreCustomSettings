@@ -50,7 +50,10 @@ public class MCSsettingMenuDialog {
             }));
         }
         t.pref(new ButtonSetting("@clearMusic", Icon.trash,
-                () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> musicLoader.delete())
+                () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> {
+                    musicLoader.delete();
+                    MCSui.musicBar.reload();
+                })
         ));
         t.pref(new ButtonSetting("@musicList", Icon.list, () -> {
             rebuildMusicList();
@@ -237,6 +240,7 @@ public class MCSsettingMenuDialog {
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
+                            MCSui.musicBar.reload();
                             rebuildMusicList();
                         }).padLeft(10);
                     }).growX().left().row();
@@ -254,6 +258,7 @@ public class MCSsettingMenuDialog {
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
+                            MCSui.musicBar.reload();
                             rebuildMusicList();
                         }).padLeft(10);
                     }).growX().left().row();
@@ -271,6 +276,7 @@ public class MCSsettingMenuDialog {
                         mt.button("@delete", Icon.trashSmall, () -> {
                             f.delete();
                             musicLoader.load();
+                            MCSui.musicBar.reload();
                             rebuildMusicList();
                         }).padLeft(10);
                     }).growX().left().row();
