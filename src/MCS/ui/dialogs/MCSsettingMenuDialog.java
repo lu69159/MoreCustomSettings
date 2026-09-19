@@ -3,7 +3,6 @@ package MCS.ui.dialogs;
 import java.lang.reflect.*;
 import arc.audio.*;
 import arc.func.*;
-import arc.graphics.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
@@ -357,7 +356,7 @@ public class MCSsettingMenuDialog {
         cat.table = new SettingsTable(){
             @Override
             public void rebuild() {
-                setRebuilding(this, true);
+                fooSetRebuilding(this, true);
                 try{
                     clearChildren();
                     for(Setting setting : list){
@@ -387,14 +386,15 @@ public class MCSsettingMenuDialog {
                     rebuild();
                 }).margin(14f).width(240f).pad(6f);
                 }finally {
-                    setRebuilding(this, false);
+                    fooSetRebuilding(this, false);
                 }
             }
         };
         cat.builder.get(cat.table);
     }
 
-    private static void setRebuilding(SettingsTable table, boolean value){ //Fixed crush in Foo
+    private static void fooSetRebuilding(SettingsTable table, boolean value){ //Fixed crush in Foo
+        if(!isFoo) return;
         try {
             Field field = SettingsTable.class.getDeclaredField("isRebuilding");
             field.setAccessible(true);
