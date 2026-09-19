@@ -1,5 +1,6 @@
 package MCS.ui.dialogs;
 
+import java.lang.reflect.*;
 import arc.audio.*;
 import arc.func.*;
 import arc.graphics.*;
@@ -356,11 +357,13 @@ public class MCSsettingMenuDialog {
         cat.table = new SettingsTable(){
             @Override
             public void rebuild() {
-                clearChildren();
-                for(Setting setting : list){
-                    setting.add(this);
-                }
-                button(bundle.get("settings.reset", "Reset to Defaults"), () -> {
+                setRebuilding(this, true);
+                try{
+                    clearChildren();
+                    for(Setting setting : list){
+                        setting.add(this);
+                    }
+                    button(bundle.get("settings.reset", "Reset to Defaults"), () -> {
                     for(Setting setting : list) {
                         if (setting.name != null && setting.title != null) {
                             settings.remove(setting.name);
@@ -383,9 +386,20 @@ public class MCSsettingMenuDialog {
 
                     rebuild();
                 }).margin(14f).width(240f).pad(6f);
+                }finally {
+                    setRebuilding(this, false);
+                }
             }
         };
         cat.builder.get(cat.table);
+    }
+
+    private static void setRebuilding(SettingsTable table, boolean value){ //Fixed crush in Foo
+        try {
+            Field field = SettingsTable.class.getDeclaredField("isRebuilding");
+            field.setAccessible(true);
+            field.setBoolean(table, value);
+        }catch(Throwable ignored) {}
     }
 
     public static class TitleSetting extends SettingsTable.Setting {
