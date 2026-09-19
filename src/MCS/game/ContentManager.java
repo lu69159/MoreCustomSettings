@@ -64,7 +64,7 @@ public class ContentManager {
             mode = ContentManageMode.planet;
         }
         
-        enabled = Core.settings.getBool("enableContentManager", false);
+        enabled = Core.settings.getBool("enableContentManager");
         reloadData();
     }
     public void save(){

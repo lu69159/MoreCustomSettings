@@ -49,15 +49,10 @@ public class PlanetCustomRulesMap {
     public void save(Planet planet, CustomCampaignRules rules){
         PlanetCustomCampaignRules customrules = new PlanetCustomCampaignRules(planet, rules);
         saveCustomSetting(customrules);
-        boolean found = false;
-        for(int i = 0; i < maps.size; i++){
-            if(maps.get(i).planet == planet){
-                maps.set(i, customrules);
-                found = true;
-                break;
-            }
-        }
-        if(!found){
+        var r = maps.find(rs -> rs.planet == planet);
+        if(r != null){
+            maps.set(maps.indexOf(r), customrules);
+        }else{
             maps.add(customrules);
         }
     }
@@ -100,10 +95,8 @@ public class PlanetCustomRulesMap {
     }
 
     public CustomCampaignRules get(Planet planet){
-        for(var rules : maps){
-            if(rules.planet == planet) return rules.rules;
-        }
-        return new CustomCampaignRules(planet);
+        var r = maps.find(rules -> rules.planet == planet);
+        return r == null ? new CustomCampaignRules(planet) : r.rules;
     }
 
     private void saveCustomSetting(PlanetCustomCampaignRules customrules){
