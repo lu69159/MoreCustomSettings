@@ -1,10 +1,12 @@
 package MCS.game;
 
 import arc.Core;
+import arc.Events;
 import arc.audio.*;
 import arc.files.*;
 import arc.struct.*;
 import arc.util.Nullable;
+import mindustry.game.EventType;
 import mindustry.gen.*;
 import mindustry.type.Planet;
 import mindustry.ui.*;
@@ -29,10 +31,17 @@ public class CustomMusicLoader{
     public @Nullable Music editorMusic;
     public ObjectMap<Planet, Music> planetMusicMap = new ObjectMap<>();
 
+    private boolean replacedFoo = false;
     private final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
 
     public CustomMusicLoader(){
         loadFolder();
+        Events.run(EventType.WorldLoadEvent.class, () -> {
+            if(isFoo && !replacedFoo){
+                loadCustom();
+                replacedFoo = true;
+            }
+        });
     }
 
     public void load(){

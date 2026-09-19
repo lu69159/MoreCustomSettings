@@ -18,6 +18,8 @@ public class main extends Mod{
     public static ContentManager contentManager;
     public static MCSUI MCSui;
 
+    public static boolean isFoo = false;
+
     public main(){
         musicLoader = new CustomMusicLoader();
         rulesMap = new PlanetCustomRulesMap();
@@ -25,11 +27,21 @@ public class main extends Mod{
         MCSui = new MCSUI();
 
         Events.run(ClientLoadEvent.class, () -> {
+            isFoo();
             if(!saveFolder.exists()) saveFolder.mkdirs();
             musicLoader.load();
             rulesMap.load();
             contentManager.load();
             MCSui.load();
         });
+    }
+
+    public void isFoo(){
+        try{
+            Class.forName("mindustry.client.Main", false, getClass().getClassLoader());
+            isFoo = true;
+        }catch(Throwable t){
+            isFoo = false;
+        }
     }
 }
