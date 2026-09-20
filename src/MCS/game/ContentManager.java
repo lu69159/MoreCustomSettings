@@ -1,6 +1,6 @@
 package MCS.game;
 
-import MCS.game.enumClass.ContentManageMode;
+import MCS.game.enumClass.*;
 import arc.*;
 import arc.files.*;
 import arc.struct.*;
@@ -33,6 +33,14 @@ public class ContentManager {
     public ContentManager(){
         Events.on(EventType.SectorLaunchEvent.class, e -> overrideRule());
         Events.on(EventType.SaveLoadEvent.class, e -> overrideRule());
+        Events.on(MCSeventType.ContentManagerChangeEvent.class, e -> {
+            enabled = e.enabled;
+            if(e.enabled){
+                reloadData();
+            }else{
+                resetData();
+            }
+        });
     }
 
     public void load(){

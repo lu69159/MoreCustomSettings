@@ -1,5 +1,6 @@
 package MCS.ui.fragments;
 
+import MCS.game.enumClass.MusicMode;
 import arc.Events;
 import arc.scene.*;
 import arc.scene.event.*;
@@ -38,7 +39,7 @@ public class MusicBar{
 
         float barScl = settings.getInt("musicBarScl", 100)/100f;
         Table musicBarTable = new Table(){{
-            setWidth(barScl * Scl.scl(480f));
+            setWidth(barScl * Scl.scl(510f));
             setHeight(barScl * Scl.scl(100f));
             x = barX < 0 ? settings.getFloat("MCS-musicBarX",graphics.getWidth() / 4f)  : barX;
             y = barY < 0 ? settings.getFloat("MCS-musicBarY",graphics.getHeight() * 7/8f) : barY;
@@ -47,45 +48,8 @@ public class MusicBar{
                     "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).growX().left().row();
             table(buttons -> {
                 buttons.defaults().size(barScl * 60f);
+
                 buttons.button(Icon.leftOpen, Styles.clearNonei, () -> {
-                    var sound = (CustomSoundControl)control.sound;
-                    var m = sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? null : sound.getLastRandomPlayed() : sound.getCurrent();
-
-                    if(state.rules.disableMusic) state.rules.disableMusic = false;
-                    if(m == null){
-                        sound.playRandom();
-                    }else{
-                        int index = musicLoader.allInGameMusic.indexOf(m) + 1;
-                        if(index < 1){
-                            sound.playMusic(musicLoader.allInGameMusic.random(),true);
-                        }else{
-                            int nextIndex = index < musicLoader.allInGameMusic.size ? index : 0;
-                            sound.playMusic(musicLoader.allInGameMusic.get(nextIndex), true);
-                        }
-                    }
-                }).disabled(dis -> settings.getBool("instantChangeBossMusic", false) && state.boss() != null).left().padRight(20f);
-
-                var style = new ImageButton.ImageButtonStyle(Styles.clearNonei);
-                style.imageUp = Icon.play;
-                style.imageChecked = Icon.pause;
-                buttons.button(Icon.play, style, () -> {
-                    if(state.rules.disableMusic){
-                        state.rules.disableMusic = false;
-                        if(control.sound.getCurrent() == null){
-                            var sound = (CustomSoundControl)control.sound;
-                            if((sound.getLastRandomPlayed() == null)) sound.playRandom();
-                            else sound.playMusic(sound.getLastRandomPlayed(),true);
-                        }
-                    }else if(control.sound.getCurrent() == null){
-                        control.sound.playRandom();
-                    }else{
-                        state.rules.disableMusic = true;
-                        control.sound.getCurrent().stop();
-                    }
-
-                }).checked(chk -> !state.rules.disableMusic && control.sound.getCurrent() != null).left().padRight(20f);
-
-                buttons.button(Icon.rightOpen, Styles.clearNonei, () -> {
                     var sound = (CustomSoundControl)control.sound;
                     var m = sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? null : sound.getLastRandomPlayed() : sound.getCurrent();
 
@@ -101,14 +65,61 @@ public class MusicBar{
                             sound.playMusic(musicLoader.allInGameMusic.get(nextIndex), true);
                         }
                     }
-                }).disabled(dis -> settings.getBool("instantChangeBossMusic", false) && state.boss() != null).left().padRight(20f);
+                }).disabled(dis -> settings.getBool("instantChangeBossMusic", false) && state.boss() != null).left().padRight(10f);
+
+                var stylePlay = new ImageButton.ImageButtonStyle(Styles.clearNonei);
+                stylePlay.imageUp = Icon.play;
+                stylePlay.imageChecked = Icon.pause;
+                buttons.button(Icon.play, stylePlay, () -> {
+                    if(state.rules.disableMusic){
+                        state.rules.disableMusic = false;
+                        if(control.sound.getCurrent() == null){
+                            var sound = (CustomSoundControl)control.sound;
+                            if((sound.getLastRandomPlayed() == null)) sound.playRandom();
+                            else sound.playMusic(sound.getLastRandomPlayed(),true);
+                        }
+                    }else if(control.sound.getCurrent() == null){
+                        control.sound.playRandom();
+                    }else{
+                        state.rules.disableMusic = true;
+                        control.sound.getCurrent().stop();
+                    }
+
+                }).checked(chk -> !state.rules.disableMusic && control.sound.getCurrent() != null).left().padRight(10f);
+
+                buttons.button(Icon.rightOpen, Styles.clearNonei, () -> {
+                    var sound = (CustomSoundControl)control.sound;
+                    var m = sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? null : sound.getLastRandomPlayed() : sound.getCurrent();
+
+                    if(state.rules.disableMusic) state.rules.disableMusic = false;
+                    if(m == null){
+                        sound.playRandom();
+                    }else{
+                        int index = musicLoader.allInGameMusic.indexOf(m) + 1;
+                        if(index < 1){
+                            sound.playMusic(musicLoader.allInGameMusic.random(),true);
+                        }else{
+                            int nextIndex = index < musicLoader.allInGameMusic.size ? index : 0;
+                            sound.playMusic(musicLoader.allInGameMusic.get(nextIndex), true);
+                        }
+                    }
+                }).disabled(dis -> settings.getBool("instantChangeBossMusic", false) && state.boss() != null).left().padRight(10f);
 
                 buttons.button(Icon.menu, Styles.clearNonei, () -> {
                     openList = !openList;
-                }).checked(chk -> openList).left().padRight(20f);
+                }).checked(chk -> openList).left().padRight(10f);
 
-                buttons.add(moveButton).tooltip("@dragToMove", true).left();
-            }).width(barScl * (5*60f + 4*20f)).fillY().center();
+                buttons.button(((CustomSoundControl)control.sound).mode.icon, Styles.clearNonei, () -> {
+                    var sound = (CustomSoundControl)control.sound;
+                    sound.mode = MusicMode.values()[(sound.mode.ordinal() + 1) % MusicMode.values().length];
+                    settings.put("MCS-musicMode", sound.mode.name());
+                }).tooltip(true, t -> {
+                    t.label(() -> ((CustomSoundControl)control.sound).mode.toolTip());
+                })
+                .update(b -> b.getStyle().imageUp = ((CustomSoundControl)control.sound).mode.icon).left().padRight(10f);;
+
+                buttons.add(moveButton).tooltip("@musicBar.dragToMove", true).left();
+            }).width(barScl * (6*60f + 5*10f)).fillY().center();
             visible(() -> settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
         }};
 
@@ -122,7 +133,7 @@ public class MusicBar{
         }
 
         Table musicListTable = new Table(){{
-            setWidth(barScl * Scl.scl(480f));
+            setWidth(barScl * Scl.scl(510f));
             float h = musicLoader.allInGameMusic.size == 0 ? Math.min(Scl.scl(32f), graphics.getHeight() / 4f) : Math.min(musicLoader.allInGameMusic.size * Scl.scl(32f), graphics.getHeight() / 4f);
             setHeight(h);
             x = musicBarTable.x;

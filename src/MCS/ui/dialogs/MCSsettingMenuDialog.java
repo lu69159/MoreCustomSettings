@@ -1,6 +1,8 @@
 package MCS.ui.dialogs;
 
 import java.lang.reflect.*;
+import MCS.game.*;
+import arc.Events;
 import arc.audio.*;
 import arc.func.*;
 import arc.scene.style.*;
@@ -13,35 +15,25 @@ import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import MCS.game.*;
 
+import static MCS.main.*;
+import static MCS.game.enumClass.MCSeventType.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.Vars.*;
-import static MCS.main.*;
 
 public class MCSsettingMenuDialog {
     private BaseDialog blockStringDialog, unitStringDialog, musicImportDialog, musicInGameDialog, planetMusicListDialog, musicListDialog;
     private musicSquareSearchDialog musicSearchDialog;
     private ContentManagerDialog contentManagerDialog;
 
-    public Cons<SettingsTable> settingBuilder = t -> { //TODO: 或许可以改用Events触发
+    public Cons<SettingsTable> settingBuilder = t -> { //TODO: 部分内容还未改为Events触发
         t.pref(new TitleSetting("@settingtitle.music"));
 
         t.checkPref("instantChangeBossMusic", false);
-        t.checkPref("enableMusicBar", false, b -> {
-            if(!b && state.rules.disableMusic) state.rules.disableMusic = false;
-        });
+        t.checkPref("enableMusicBar", false, b -> Events.fire(new MusicBarChangeEvent(b)));
         t.sliderPref("musicBarScl",100, 50, 200, 5, i -> i + "%", changed -> MCSui.musicBar.reload());
-        t.checkPref("enableCustomMusic", false, b -> {
-            if(b){
-                musicLoader.loadCustom();
-            }
-            else{
-                musicLoader.reset();
-            }
-            MCSui.musicBar.reload();
-        });
+        t.checkPref("enableCustomMusic", false, b -> Events.fire(new CustomMusicChangeEvent(b)));
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> musicImportDialog.show()));
         if(!mobile){
             t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
@@ -106,14 +98,7 @@ public class MCSsettingMenuDialog {
 
         t.pref(new TitleSetting("@settingtitle.contentManager"));
 
-        t.checkPref("enableContentManager", false, b -> {
-            contentManager.enabled = b;
-            if(b){
-                contentManager.reloadData();
-            }else{
-                contentManager.resetData();
-            }
-        });
+        t.checkPref("enableContentManager", false, b -> Events.fire(new ContentManagerChangeEvent(b)));
         t.pref(new ButtonSetting("@contentManager", Icon.fileText, () -> contentManagerDialog.show()));
 
         t.pref(new TitleSetting("@settingtitle.buildAttacked"));

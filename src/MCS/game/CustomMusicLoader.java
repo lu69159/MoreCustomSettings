@@ -1,5 +1,6 @@
 package MCS.game;
 
+import MCS.game.enumClass.MCSeventType;
 import arc.Core;
 import arc.Events;
 import arc.audio.*;
@@ -41,6 +42,14 @@ public class CustomMusicLoader{
                 loadCustom();
                 replacedFoo = true;
             }
+        });
+        Events.on(MCSeventType.CustomMusicChangeEvent.class, e -> {
+            if(e.enabled){
+                loadCustom();
+            }else{
+                reset();
+            }
+            MCSui.musicBar.reload();
         });
     }
 

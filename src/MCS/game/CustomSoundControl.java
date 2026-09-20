@@ -1,12 +1,12 @@
 package MCS.game;
 
+import MCS.game.enumClass.*;
 import arc.*;
 import arc.audio.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.audio.*;
-import mindustry.content.*;
 import mindustry.gen.Musics;
 
 import static arc.Core.settings;
@@ -16,6 +16,25 @@ import static MCS.main.*;
 public class CustomSoundControl extends SoundControl{
     public boolean preview = false;
     public @Nullable Music previewMusic;
+    public MusicMode mode;
+
+    public CustomSoundControl(){
+        mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
+        Events.on(MCSeventType.MusicBarChangeEvent.class, e -> {
+            if(e.enabled){
+                mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
+            }else{
+                if(state.rules.disableMusic) state.rules.disableMusic = false;
+                mode = MusicMode.normal;
+            }
+        });
+        Events.run(MCSeventType.CustomMusicChangeEvent.class, () -> {
+            if(current != null){
+                current.stop();
+                current = null;
+            }
+        });
+    }
 
     public boolean enabledCustomMusic(){
         return settings.getBool("enableCustomMusic", false);
@@ -124,12 +143,12 @@ public class CustomSoundControl extends SoundControl{
                 }else{
                     if(current == null){
                         if(alwaysPlayMusic()){
-                            playRandom();
+                            playByMode();
                         }else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
                             //chance to play it per interval
                             if (Mathf.chance(musicChance)) {
                                 lastPlayed = Time.millis();
-                                playRandom();
+                                playByMode();
                             }
                         }
                     }else if(fade < 1f && musicLoader.allInGameMusic.contains(current)){
@@ -141,6 +160,24 @@ public class CustomSoundControl extends SoundControl{
         }
 
         updateLoops();
+    }
+
+    public void playByMode(){
+        if(mode == MusicMode.seq){
+            if(musicLoader.allInGameMusic.indexOf(lastRandomPlayed) < 1){
+                playRandom();
+            }else{
+                int nextIndex = musicLoader.allInGameMusic.indexOf(lastRandomPlayed) + 1 < musicLoader.allInGameMusic.size ? musicLoader.allInGameMusic.indexOf(lastRandomPlayed) + 1 : 0;
+                playOnce(musicLoader.allInGameMusic.get(nextIndex));
+            }
+        }else if(mode == MusicMode.loop){
+            if(lastRandomPlayed != null) playOnce(lastRandomPlayed);
+            else playRandom();
+        }else if(mode == MusicMode.shuf){
+            playOnce(musicLoader.allInGameMusic.random(lastRandomPlayed));
+        }else if(mode == MusicMode.normal){
+            playRandom();
+        }
     }
 
     @Override
