@@ -132,7 +132,7 @@ public class ContentManager {
     }
 
     private void overrideRule(){
-        if(!enabled) return;
+        if(!enabled || net.client()) return;
         if(state.isCampaign()){
             if(state.rules.bannedBlocks.size > 0){
                 var blocks = state.rules.bannedBlocks;

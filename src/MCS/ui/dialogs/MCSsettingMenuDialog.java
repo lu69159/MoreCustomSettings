@@ -69,10 +69,18 @@ public class MCSsettingMenuDialog {
             if(b){
                 ui.campaignRules = new CustomCampaignRulesDialog();
                 spawner = new CustomWaveSpawner();
+                if(state.isCampaign() && !net.client()){
+                    rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
+                    Call.setRules(state.rules);
+                }
             }
             else{
                 ui.campaignRules = new CampaignRulesDialog();
                 spawner = new WaveSpawner();
+                if(state.isCampaign() && !net.client()){
+                    state.getPlanet().campaignRules.apply(state.getPlanet(), state.rules);
+                    Call.setRules(state.rules);
+                }
             }
         });
 
