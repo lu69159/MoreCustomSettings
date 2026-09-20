@@ -37,7 +37,7 @@ public class CustomMusicLoader{
     public CustomMusicLoader(){
         loadFolder();
         Events.run(EventType.WorldLoadEvent.class, () -> {
-            if(isFoo && !replacedFoo){
+            if(isFoo && !replacedFoo && settings.getBool("enableCustomMusic", false)){
                 loadCustom();
                 replacedFoo = true;
             }
