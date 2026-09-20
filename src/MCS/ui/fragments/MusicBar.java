@@ -113,7 +113,7 @@ public class MusicBar{
                     var sound = (CustomSoundControl)control.sound;
                     sound.mode = MusicMode.values()[(sound.mode.ordinal() + 1) % MusicMode.values().length];
                     settings.put("MCS-musicMode", sound.mode.name());
-                }).tooltip(true, t -> {
+                }).tooltip(t -> {
                     t.label(() -> ((CustomSoundControl)control.sound).mode.toolTip());
                 })
                 .update(b -> b.getStyle().imageUp = ((CustomSoundControl)control.sound).mode.icon).left().padRight(10f);;
