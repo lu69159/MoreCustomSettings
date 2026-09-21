@@ -1,13 +1,11 @@
-<center>
+<p align="center"><img src="./preview/socialPreview.png" alt="MoreCustomSettings"/></p>
 
-![MoreCustomSettings](./preview/socialPreview.png)
-
-![GitHub Stars](https://img.shields.io/github/stars/lu69159/MoreCustomSettings?label=Star%20our%20mod!)
-![GitHub Downloads](https://img.shields.io/github/downloads/lu69159/MoreCustomSettings/total?)
-![GitHub Release](https://img.shields.io/github/v/release/lu69159/MoreCustomSettings?include_prereleases&sort=date)
-[![Discord](https://img.shields.io/badge/join%20our%20discord-white?logo=discord)](https://discord.com/channels/391020510269669376/1507830700362043453)
-
-</center>
+<p align="center">
+  <img src="https://img.shields.io/github/stars/lu69159/MoreCustomSettings?label=Star%20our%20mod!" alt="GitHub Stars"/>
+  <img src="https://img.shields.io/github/downloads/lu69159/MoreCustomSettings/total?" alt="GitHub Downloads"/>
+  <img src="https://img.shields.io/github/v/release/lu69159/MoreCustomSettings?include_prereleases&sort=date" alt="GitHub Release"/>
+  <a href="https://discord.com/channels/391020510269669376/1507830700362043453"><img src="https://img.shields.io/badge/join%20our%20discord-white?logo=discord" alt="Discord"/></a>
+</p>
 
 ***
 # More Custom Settings
