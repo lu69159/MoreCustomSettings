@@ -115,7 +115,7 @@ public class ContentManagerDialog extends BaseDialog{
         }).width(2*w + 5f).left().growY();
 
         cont.table(right -> {
-            right.add(Core.bundle.get("database")).row();
+            right.add(Core.bundle.format("database", Pal.accent)).row();
             right.image().color(Pal.accent).height(3.0F).left().fillX().padBottom(5.0F).row();
             right.pane(data -> {
                 showPlanetDataBase(choosePlanet, data);

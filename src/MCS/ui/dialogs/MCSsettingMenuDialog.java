@@ -65,11 +65,11 @@ public class MCSsettingMenuDialog {
                     rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
                     Call.setRules(state.rules);
                 }
-            }
-            else{
+            }else{
                 ui.campaignRules = new CampaignRulesDialog();
                 spawner = new WaveSpawner();
                 if(state.isCampaign() && !net.client()){
+                    new CustomCampaignRules(state.getPlanet()).apply(state.getPlanet(), state.rules);//TEST
                     state.getPlanet().campaignRules.apply(state.getPlanet(), state.rules);
                     Call.setRules(state.rules);
                 }
