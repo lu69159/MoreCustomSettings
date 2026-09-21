@@ -171,7 +171,7 @@ public class CustomSoundControl extends SoundControl{
                 playOnce(musicLoader.allInGameMusic.get(nextIndex));
             }
         }else if(mode == MusicMode.loop){
-            if(lastRandomPlayed != null) playOnce(lastRandomPlayed);
+            if(lastRandomPlayed != null && musicLoader.allInGameMusic.contains(lastRandomPlayed)) playOnce(lastRandomPlayed);
             else playRandom();
         }else if(mode == MusicMode.shuf){
             playOnce(musicLoader.allInGameMusic.random(lastRandomPlayed));
