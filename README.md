@@ -1,5 +1,4 @@
 <p align="center"><img src="./preview/socialPreview.png" alt="MoreCustomSettings"/></p>
-
 <p align="center">
   <img src="https://img.shields.io/github/stars/lu69159/MoreCustomSettings?label=Star%20our%20mod!" alt="GitHub Stars"/>
   <img src="https://img.shields.io/github/downloads/lu69159/MoreCustomSettings/total?" alt="GitHub Downloads"/>
@@ -8,6 +7,7 @@
 </p>
 
 ***
+
 # More Custom Settings
 - Custom Campaign Difficulty
   - Allows customizing enemy/player team health, build speed multipliers, etc.
@@ -53,13 +53,21 @@
   - 支持自定义警告文本
 
 - 未来会添加更多功能...
+
 ***
-![preview1](./preview/preview1.png)
-![preview2](./preview/preview2.png)
-![preview3](./preview/preview3.png)
-![preview4](./preview/preview4.png)
-![preview5](./preview/preview5.png)
-![preview6](./preview/preview6.png)
+
+<p align="center">
+  <img src="./preview/preview1.png" alt="preview1"/>
+  <img src="./preview/preview2.png" alt="preview2"/>
+  <img src="./preview/preview3.png" alt="preview3"/>
+</p>
+<p align="center">
+  <img src="./preview/preview4.png" alt="preview4"/>
+  <img src="./preview/preview5.png" alt="preview5"/>
+  <img src="./preview/preview6.png" alt="preview6"/>
+</p>
+
 ***
+
 ### - Submit mod bugs or feature requests via Issues
 ### - 在Issues提交模组的bug或者希望实现的功能
