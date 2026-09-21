@@ -66,7 +66,7 @@ public abstract class musicBase {
                         }
                     }
 
-                    String sanitized = musicLoader.realString(artist + "-" + name);
+                    String sanitized = musicLoader.realString(artist + " - " + name);
 
                     if(!dir.exists()) musicLoader.loadFolder();
                     dir.child(sanitized + "__" + data.length + "." + ext).writeBytes(data);
