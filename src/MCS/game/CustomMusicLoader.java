@@ -63,6 +63,7 @@ public class CustomMusicLoader{
     }
 
     public void loadCustom(){
+        if(headless) return;
         loadFolder();
         loadMusic(ambient, ambientMusic);
         loadMusic(dark, darkMusic);
