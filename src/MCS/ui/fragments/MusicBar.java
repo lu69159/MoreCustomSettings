@@ -1,16 +1,17 @@
 package MCS.ui.fragments;
 
-import MCS.game.enumClass.MusicMode;
+import MCS.game.CustomSoundControl;
+import MCS.game.enumClass.*;
 import arc.Events;
 import arc.scene.*;
 import arc.scene.event.*;
 import arc.scene.ui.*;
-import arc.scene.ui.layout.Scl;
-import arc.scene.ui.layout.Table;
+import arc.scene.ui.layout.*;
+import arc.util.*;
+import mindustry.core.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
-import MCS.game.CustomSoundControl;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
@@ -33,19 +34,42 @@ public class MusicBar{
         });
     }
 
+    private boolean shouldUseSlider(){
+        return control.sound.getCurrent() != null && musicLoader.allInGameMusic.contains(control.sound.getCurrent());
+    }
+
     public void build(Group parent){
         ImageButton moveButton = new ImageButton(Icon.move, Styles.clearNonei);
         moveButton.touchable = Touchable.enabled;
 
+        Slider disabledMusicSlider = new Slider(0f, 0f, 0.1f, false);
+        disabledMusicSlider.visible(() -> !shouldUseSlider());
+
+        Slider musicSlider = new Slider(0f, shouldUseSlider() ? control.sound.getCurrent().getLength() : 0f, 0.1f, false);
+        musicSlider.moved(value -> {
+            if(control.sound.getCurrent() != null) control.sound.getCurrent().setPosition(value);
+        });
+        musicSlider.update(() -> {
+            musicSlider.setRange(0f, shouldUseSlider() ? control.sound.getCurrent().getLength() : 0f);
+            musicSlider.setValue(shouldUseSlider() ? control.sound.getCurrent().getPosition() : 0f, false);
+        });
+        musicSlider.visible(this::shouldUseSlider);
+
+        Label musicTimeLabel = new Label(() -> musicSlider.visible ? UI.formatTime(musicSlider.getValue() * 60f) : UI.formatTime(0));
+        musicTimeLabel.setAlignment(Align.center);
+        musicTimeLabel.setStyle(Styles.outlineLabel);
+        musicTimeLabel.touchable = Touchable.disabled;
+
         float barScl = settings.getInt("musicBarScl", 100)/100f;
         Table musicBarTable = new Table(){{
             setWidth(barScl * Scl.scl(510f));
-            setHeight(barScl * Scl.scl(100f));
+            setHeight(barScl * Scl.scl(150f));
             x = barX < 0 ? settings.getFloat("MCS-musicBarX",graphics.getWidth() / 4f)  : barX;
             y = barY < 0 ? settings.getFloat("MCS-musicBarY",graphics.getHeight() * 7/8f) : barY;
             background(Styles.black3);
             labelWrap(() -> control.sound.getCurrent() == null ? ((CustomSoundControl)control.sound).getLastRandomPlayed() == null ?
-                    "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).growX().left().row();
+                    "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).padLeft(10f).padRight(10f).growX().left().row();
+            stack(disabledMusicSlider, musicSlider, musicTimeLabel).padLeft(10f).padRight(10f).growX().row();
             table(buttons -> {
                 buttons.defaults().size(barScl * 60f);
 
