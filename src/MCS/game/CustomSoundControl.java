@@ -141,17 +141,17 @@ public class CustomSoundControl extends SoundControl{
                         }
                     }
                 }else{
-                    if(current == null){
-                        if(alwaysPlayMusic()){
+                    if(alwaysPlayMusic()){
+                        if(current == null) playByMode();
+                    }
+                    else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
+                        //chance to play it per interval
+                        if (Mathf.chance(musicChance)) {
+                            lastPlayed = Time.millis();
                             playByMode();
-                        }else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
-                            //chance to play it per interval
-                            if (Mathf.chance(musicChance)) {
-                                lastPlayed = Time.millis();
-                                playByMode();
-                            }
                         }
-                    }else if(fade < 1f && musicLoader.allInGameMusic.contains(current)){
+                    }
+                    else if(fade < 1f && current != null && musicLoader.allInGameMusic.contains(current)){
                         fade = Mathf.clamp(fade + Time.delta / foutTime);
                         current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
                     }
