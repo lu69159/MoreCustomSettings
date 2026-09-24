@@ -151,7 +151,8 @@ public class CustomSoundControl extends SoundControl{
                             playByMode();
                         }
                     }
-                    else if(fade < 1f && current != null && musicLoader.allInGameMusic.contains(current)){
+
+                    if(fade < 1f && current != null && musicLoader.allInGameMusic.contains(current)){
                         fade = Mathf.clamp(fade + Time.delta / foutTime);
                         current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
                     }
