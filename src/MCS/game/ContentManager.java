@@ -343,7 +343,7 @@ public class ContentManager {
         }
 
         public boolean shouldBeLoaded(UnlockableContent u){
-            return !(u instanceof Block b) || (b.buildVisibility != BuildVisibility.hidden && b.buildVisibility != BuildVisibility.editorOnly && b.buildVisibility != BuildVisibility.sandboxOnly && b.buildVisibility != BuildVisibility.debugOnly);
+            return !u.isPatchContent() && (!(u instanceof Block b) || (b.buildVisibility != BuildVisibility.hidden && b.buildVisibility != BuildVisibility.editorOnly && b.buildVisibility != BuildVisibility.sandboxOnly && b.buildVisibility != BuildVisibility.debugOnly));
         }
     }
 }
