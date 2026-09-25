@@ -221,106 +221,11 @@ public class MCSsettingMenuDialog {
         }
     }
 
-    private void rebuildMusicList(){
-        musicListDialog.cont.clearChildren();
-        musicListDialog.cont.pane(t -> {
-            t.add("@importMusic.ambient").color(Pal.accent).padTop(10).left().row();
-            boolean found = false;
-            for(var f : musicLoader.ambient.seq()){
-                if(musicLoader.isMusic(f)){
-                    t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(musicLoader.getName(f)).left().fillX().expandX();
-                        mt.button("@delete", Icon.trashSmall, () -> {
-                            f.delete();
-                            musicLoader.load();
-                            MCSui.musicBar.reload();
-                            rebuildMusicList();
-                        }).padLeft(10);
-                    }).growX().left().row();
-                    found = true;
-                }
-            }
-            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
-
-            t.add("@importMusic.dark").color(Pal.accent).padTop(10).left().row();
-            found = false;
-            for(var f : musicLoader.dark.seq()){
-                if(musicLoader.isMusic(f)){
-                    t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(musicLoader.getName(f)).left().fillX().expandX();
-                        mt.button("@delete", Icon.trashSmall, () -> {
-                            f.delete();
-                            musicLoader.load();
-                            MCSui.musicBar.reload();
-                            rebuildMusicList();
-                        }).padLeft(10);
-                    }).growX().left().row();
-                    found = true;
-                }
-            }
-            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
-
-            t.add("@importMusic.boss").color(Pal.accent).padTop(10).left().row();
-            found = false;
-            for(var f : musicLoader.boss.seq()){
-                if(musicLoader.isMusic(f)){
-                    t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(musicLoader.getName(f)).left().fillX().expandX();
-                        mt.button("@delete", Icon.trashSmall, () -> {
-                            f.delete();
-                            musicLoader.load();
-                            MCSui.musicBar.reload();
-                            rebuildMusicList();
-                        }).padLeft(10);
-                    }).growX().left().row();
-                    found = true;
-                }
-            }
-            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
-
-            //MENU & EDITOR MUSIC
-            t.add("@importMusic.menu").color(Pal.accent).padTop(10).left().row();
-            found = false;
-            for(var f : musicLoader.musicFolder.seq()){
-                if(musicLoader.isMusic(f) && f.nameWithoutExtension().split("__", 2)[0].equals("menu")){
-                    t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(settings.getString("MCSmenuMusicName", "unknown music")).left().fillX().expandX();
-                        mt.button("@delete", Icon.trashSmall, () -> {
-                            f.delete();
-                            settings.remove("MCSmenuMusicName");
-                            musicLoader.menuMusic = null;
-                            musicLoader.load();
-                            rebuildMusicList();
-                        }).padLeft(10);
-                    }).growX().left().row();
-                    found = true;
-                }
-            }
-            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
-
-            t.add("@importMusic.editor").color(Pal.accent).padTop(10).left().row();
-            found = false;
-            for(var f : musicLoader.musicFolder.seq()){
-                if(musicLoader.isMusic(f) && f.nameWithoutExtension().split("__", 2)[0].equals("editor")){
-                    t.table(Styles.grayPanel, mt -> {
-                        mt.labelWrap(settings.getString("MCSeditorMusicName", "unknown music")).left().fillX().expandX();
-                        mt.button("@delete", Icon.trashSmall, () -> {
-                            f.delete();
-                            settings.remove("MCSeditorMusicName");
-                            musicLoader.editorMusic = null;
-                            musicLoader.load();
-                            rebuildMusicList();
-                        }).padLeft(10);
-                    }).growX().left().row();
-                    found = true;
-                }
-            }
-            if(!found) t.add("@musicList.empty").padLeft(10).left().row();
-
-            //planetMusic
-            t.add("@importMusic.planet").color(Pal.accent).padTop(10).left().row();
+    private void seqMusicList(Table t, String name){
+        t.add("@importMusic." + name).color(Pal.accent).padTop(10f).left().row();
+        boolean found = false;
+        if(name.equals("planet")){
             t.image().color(Pal.accent).height(3).left().fillX().padBottom(3).row();
-
             for(var p : content.planets()){
                 if(!p.accessible) continue;
                 t.add("[#" + p.iconColor + "]" + Iconc.planet + p.localizedName).padTop(5).left().row();
@@ -340,7 +245,51 @@ public class MCSsettingMenuDialog {
                     t.add("@musicList.empty").padLeft(10).left().row();
                 }
             }
-
+            found = true;
+        }else if(name.equals("menu") || name.equals("editor")){
+            var m = name.equals("menu") ? musicLoader.menuMusic : musicLoader.editorMusic;
+            String settingName = name.equals("menu") ? "MCSmenuMusicName" : "MCSeditorMusicName";
+            if(m != null){
+                t.table(Styles.grayPanel, mt -> {
+                    mt.labelWrap(settings.getString(settingName, "unknown music")).left().fillX().expandX();
+                    mt.button("@delete", Icon.trashSmall, () -> {
+                        m.file.delete();
+                        settings.remove(settingName);
+                        musicLoader.editorMusic = null;
+                        musicLoader.load();
+                        rebuildMusicList();
+                    }).padLeft(10);
+                }).growX().left().row();
+                found = true;
+            }
+        }else{
+            var seq = name.equals("ambient") ? musicLoader.ambientMusic : name.equals("dark") ? musicLoader.darkMusic : musicLoader.bossMusic;
+            if(seq.size > 0){
+                for(var m : seq){
+                    t.table(Styles.grayPanel, mt -> {
+                        mt.labelWrap(musicLoader.getName(m.file)).left().fillX().expandX();
+                        mt.button("@delete", Icon.trashSmall, () -> {
+                            m.file.delete();
+                            musicLoader.load();
+                            MCSui.musicBar.reload();
+                            rebuildMusicList();
+                        }).padLeft(10);
+                    }).growX().left().row();
+                    found = true;
+                }
+            }
+        }
+        if(!found) t.add("@musicList.empty").padLeft(10).left().row();
+    }
+    private void rebuildMusicList(){
+        musicListDialog.cont.clearChildren();
+        musicListDialog.cont.pane(t -> {
+            seqMusicList(t, "ambient");
+            seqMusicList(t, "dark");
+            seqMusicList(t, "boss");
+            seqMusicList(t, "menu");
+            seqMusicList(t, "editor");
+            seqMusicList(t, "planet");
         }).width(graphics.getWidth() / Scl.scl() * 0.75f).growY(); //.growX().growY();
     }
 
