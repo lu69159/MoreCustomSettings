@@ -120,7 +120,7 @@ public abstract class musicBase {
                     if(!folder.exists()) musicLoader.loadFolder();
 
                     for(var f : folder.seq()){
-                        if(musicLoader.getName(f).equals(inputName)) f.delete();
+                        if(musicLoader.getFileName(f).equals(inputName)) f.delete();
                     }
                     folder.child(musicLoader.realString(inputName) + "__" + data.length + "." + ext).writeBytes(data);
 

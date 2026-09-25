@@ -68,7 +68,7 @@ public class MusicBar{
             y = barY < 0 ? settings.getFloat("MCS-musicBarY",graphics.getHeight() * 7/8f) : barY;
             background(Styles.black3);
             labelWrap(() -> control.sound.getCurrent() == null ? ((CustomSoundControl)control.sound).getLastRandomPlayed() == null ?
-                    "@empty" : musicLoader.getName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getName(control.sound.getCurrent().file)).padLeft(10f).padRight(10f).growX().left().row();
+                    "@empty" : musicLoader.getFileName(((CustomSoundControl)control.sound).getLastRandomPlayed().file) : musicLoader.getFileName(control.sound.getCurrent().file)).padLeft(10f).padRight(10f).growX().left().row();
             stack(disabledMusicSlider, musicSlider, musicTimeLabel).padLeft(10f).padRight(10f).growX().row();
             table(buttons -> {
                 buttons.defaults().size(barScl * 60f);
@@ -166,7 +166,7 @@ public class MusicBar{
                 list.background(Styles.black5);
                 boolean found = false;
                 for(var music : musicLoader.allInGameMusic){
-                    String name = musicLoader.getName(music.file);
+                    String name = musicLoader.getFileName(music.file);
                     list.table(Styles.none, mt -> {
                         mt.labelWrap(name).left().fillX().expandX();
                         mt.button(Icon.play, Styles.clearNonei, () -> {
