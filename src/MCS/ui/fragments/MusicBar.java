@@ -42,7 +42,7 @@ public class MusicBar{
         ImageButton moveButton = new ImageButton(Icon.move, Styles.clearNonei);
         moveButton.touchable = Touchable.enabled;
 
-        Slider disabledMusicSlider = new Slider(0f, 0f, 0.1f, false);
+        Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false);
         disabledMusicSlider.visible(() -> !shouldUseSlider());
 
         Slider musicSlider = new Slider(0f, shouldUseSlider() ? control.sound.getCurrent().getLength() : 0f, 0.1f, false);
@@ -51,7 +51,7 @@ public class MusicBar{
         });
         musicSlider.update(() -> {
             musicSlider.setRange(0f, shouldUseSlider() ? control.sound.getCurrent().getLength() : 0f);
-            musicSlider.setValue(shouldUseSlider() ? control.sound.getCurrent().getPosition() : 0f, false);
+            if(!musicSlider.isDragging()) musicSlider.setValue(shouldUseSlider() ? control.sound.getCurrent().getPosition() : 0f, false);
         });
         musicSlider.visible(this::shouldUseSlider);
 
