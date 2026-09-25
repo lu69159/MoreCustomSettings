@@ -3,6 +3,7 @@ package MCS.ui.fragments;
 import MCS.game.CustomSoundControl;
 import MCS.game.enumClass.*;
 import arc.Events;
+import arc.input.KeyCode;
 import arc.scene.*;
 import arc.scene.event.*;
 import arc.scene.ui.*;
@@ -47,7 +48,7 @@ public class MusicBar{
 
         Slider musicSlider = new Slider(0f, shouldUseSlider() ? control.sound.getCurrent().getLength() : 0f, 0.1f, false);
         musicSlider.moved(value -> {
-            if(control.sound.getCurrent() != null) control.sound.getCurrent().setPosition(value);
+            if(control.sound.getCurrent() != null && !musicSlider.isDragging()) control.sound.getCurrent().setPosition(value);
         });
         musicSlider.update(() -> {
             musicSlider.setRange(0f, shouldUseSlider() ? control.sound.getCurrent().getLength() : 0f);
