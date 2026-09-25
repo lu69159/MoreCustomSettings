@@ -3,7 +3,6 @@ package MCS.ui.fragments;
 import MCS.game.CustomSoundControl;
 import MCS.game.enumClass.*;
 import arc.Events;
-import arc.input.KeyCode;
 import arc.scene.*;
 import arc.scene.event.*;
 import arc.scene.ui.*;
