@@ -221,7 +221,7 @@ public class CustomMusicLoader{
 
     public void moveMusic(Fi from, String musicFi, boolean isCopied){
         if(importMusicFromFi(Seq.with(from).toArray(), musicFi,false, isCopied)){
-            ui.showInfo("@importMusic.moved");
+            ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
             load();
             MCSui.musicBar.reload();
         }
@@ -255,7 +255,7 @@ public class CustomMusicLoader{
 
     public void moveNamedMusic(Fi from, String inputName, boolean isCopied){
         if(importNamedMusicFromFi(Seq.with(from).toArray(), inputName, false, isCopied)){
-            ui.showInfo("@importMusic.moved");
+            ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
             load();
         }
     }
