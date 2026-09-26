@@ -24,9 +24,8 @@ public class MusicBar{
 
     //TODO：build方法拆分为buildBar和buildList(很多时候rebuild只需要重加载list)
     public MusicBar(){
-        Events.on(EventType.WorldLoadEvent.class, e -> {
-            rebuild();
-        });
+        Events.run(EventType.WorldLoadEvent.class, this::rebuild);
+        Events.run(EventType.ResizeEvent.class, this::rebuild);
     }
 
     private boolean shouldUseSlider(){
