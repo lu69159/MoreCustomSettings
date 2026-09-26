@@ -22,9 +22,10 @@ public class MusicBar{
     private float barX = -1f, barY = -1f;
     private Table bar, list;
 
+    //TODO：build方法拆分为buildBar和buildList(很多时候rebuild只需要重加载list)
     public MusicBar(){
         Events.on(EventType.WorldLoadEvent.class, e -> {
-            reload();
+            rebuild();
         });
     }
 
@@ -212,7 +213,7 @@ public class MusicBar{
         parent.addChild(musicListTable);
     }
 
-    public void reload(){
+    public void rebuild(){
         app.post(() -> {
             ui.hudGroup.removeChild(bar);
             ui.hudGroup.removeChild(list);

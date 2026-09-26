@@ -74,7 +74,7 @@ public abstract class musicBase {
                     Core.app.post(() -> {
                         ui.loadfrag.hide();
                         musicLoader.load();
-                        MCSui.musicBar.reload();
+                        MCSui.musicBar.rebuild();
                         ui.showInfo("@musicSquare.downloaded");
                     });
                 }catch(Throwable e){
