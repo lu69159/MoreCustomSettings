@@ -18,19 +18,13 @@ import static mindustry.Vars.*;
 import static MCS.main.*;
 
 public class MusicBar{
-    public boolean posted = false;
     public boolean openList = false;
     private float barX = -1f, barY = -1f;
     private Table bar, list;
 
     public MusicBar(){
         Events.on(EventType.WorldLoadEvent.class, e -> {
-            if(!posted){
-                app.post(() -> {
-                    build(ui.hudGroup);
-                });
-                posted = true;
-            }
+            reload();
         });
     }
 
@@ -219,13 +213,12 @@ public class MusicBar{
     }
 
     public void reload(){
-        if(posted){
-            app.post(() -> {
-                ui.hudGroup.removeChild(bar);
-                ui.hudGroup.removeChild(list);
-                build(ui.hudGroup);
-            });
-        }
+        app.post(() -> {
+            ui.hudGroup.removeChild(bar);
+            ui.hudGroup.removeChild(list);
+            build(ui.hudGroup);
+        });
+
     }
 
     public void reset(){
