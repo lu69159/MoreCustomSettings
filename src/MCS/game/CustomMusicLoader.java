@@ -48,7 +48,7 @@ public class CustomMusicLoader{
             }else{
                 reset();
             }
-            MCSui.musicBar.reload();
+            MCSui.musicBar.rebuild();
         });
         Events.on(ImportMusicEvent.class, e -> {
             if(e.music == null){
@@ -218,11 +218,32 @@ public class CustomMusicLoader{
         loadFolder();
     }
 
+    public void renameMusic(Music m ,String newName){
+        try{
+            if(m == menuMusic) settings.put("MCSmenuMusicName", newName);
+            else if(m == editorMusic) settings.put("MCSeditorMusicName", newName);
+            else{
+                boolean[] isPlanetMusic = { false };
+                planetMusicMap.each((planet, music) -> {
+                    if(music == m){
+                        settings.put("MCSplanetMusicName-" + planet.name, newName);
+                        isPlanetMusic[0] = true;
+                    }
+                });
+                if(isPlanetMusic[0]) return;
+                m.file.moveTo(m.file.parent().child(realString(newName) + "__" + m.file.length() + "." + m.file.extension()));
+                loadCustom();
+            }
+        }catch(Exception e){
+            ui.showException(e);
+        }
+    }
+
     public void moveMusic(Fi from, String musicFi, boolean isCopied){
         if(importMusicFromFi(Seq.with(from).toArray(), musicFi,false, isCopied)){
             ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
             load();
-            MCSui.musicBar.reload();
+            MCSui.musicBar.rebuild();
         }
     }
     public void importMusic(String musicFi){
@@ -230,7 +251,7 @@ public class CustomMusicLoader{
             if(importMusicFromFi(files, musicFi, true, true)){
                 ui.showInfo("@importMusic.imported");
                 load();
-                MCSui.musicBar.reload();
+                MCSui.musicBar.rebuild();
             }
         });
     }
