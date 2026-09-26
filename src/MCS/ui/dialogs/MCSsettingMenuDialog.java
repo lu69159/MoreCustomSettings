@@ -29,7 +29,7 @@ public class MCSsettingMenuDialog {
 
     public MCSsettingMenuDialog(){
         Events.on(MusicImportDialogShowEvent.class, e -> {
-            new MusicImportDialog((e.from == null ? "@importMusic" : e.isCopied ? "@musicList.copy" : "musicList.move"), e.from, e.isCopied).show();
+            new MusicImportDialog((e.from == null ? "@importMusic" : e.isCopied ? "@musicList.copy" : "@musicList.move"), e.from, e.isCopied).show();
         });
     }
 
