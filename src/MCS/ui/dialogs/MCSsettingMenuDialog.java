@@ -11,6 +11,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
+import mindustry.game.EventType;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -170,6 +171,7 @@ public class MCSsettingMenuDialog {
             control.sound.ambientMusic.clear();
             control.sound.darkMusic.clear();
             control.sound.bossMusic.clear();
+            removeListeners(EventType.WaveEvent.class, "mindustry.audio.SoundControl");
             control.sound = new CustomSoundControl(){{
                 ambientMusic = a;
                 bossMusic = b;
@@ -309,6 +311,31 @@ public class MCSsettingMenuDialog {
             field.setAccessible(true);
             field.setBoolean(table, value);
         }catch(Throwable ignored) {}
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> void removeListeners(Class<T> eventType, String keyWord){
+        try{
+            var eventsField = Events.class.getDeclaredField("events");
+            eventsField.setAccessible(true);
+            ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
+            events.each((type, listeners) -> {
+                if(type.equals(eventType)){
+                    for(var listener : listeners){
+                        if(listener.toString().lastIndexOf(keyWord) != -1){
+                            if(listeners.remove(listener)){
+                                Log.info("成功移除" + keyWord + "的事件监听");
+                            }else{
+                                Log.info("未能移除" + keyWord + "的事件监听");
+                            }
+                        }
+
+                    }
+                }
+            });
+        }catch(Exception e){
+            Log.err("TEST error");
+        }
     }
 
     /**

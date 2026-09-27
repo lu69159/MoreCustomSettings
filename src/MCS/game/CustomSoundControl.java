@@ -182,25 +182,36 @@ public class CustomSoundControl extends SoundControl{
     }
 
     @Override
-    public void playRandom(){
-        Seq<Music> bossSeq, darkSeq, ambientSeq;
-        if(settings.getBool("enableCustomMusic", false)){
-            bossSeq = bossMusic;
-            darkSeq = darkMusic;
-            ambientSeq = ambientMusic;
+    protected Seq<Music> getAmbientMusic() {
+        if(enabledCustomMusic()){
+            return ambientMusic;
+        }else if(state.rules.ambientMusic != null){
+            return state.rules.ambientMusic.map(MusicContainer::get).removeAll(m -> m == null);
         }else{
-            bossSeq = getBossMusic();
-            darkSeq = getDarkMusic();
-            ambientSeq = getAmbientMusic();
-        }
-        if(state.boss() != null){
-            playOnce(bossSeq.random(lastRandomPlayed));
-        }else if (isDark()){
-            playOnce(darkSeq.random(lastRandomPlayed));
-        }else{
-            playOnce(ambientSeq.random(lastRandomPlayed));
+            return state.getPlanet() != null && state.getPlanet().ambientMusic != null ? state.getPlanet().ambientMusic : ambientMusic;
         }
     }
+    @Override
+    protected Seq<Music> getDarkMusic() {
+        if(enabledCustomMusic()){
+            return darkMusic;
+        }else if(state.rules.darkMusic != null){
+            return state.rules.darkMusic.map(MusicContainer::get).removeAll(m -> m == null);
+        }else{
+            return state.getPlanet() != null && state.getPlanet().darkMusic != null ? state.getPlanet().darkMusic : darkMusic;
+        }
+    }
+    @Override
+    protected Seq<Music> getBossMusic() {
+        if(enabledCustomMusic()){
+            return bossMusic;
+        }else if(state.rules.darkMusic != null){
+            return state.rules.darkMusic.map(MusicContainer::get).removeAll(m -> m == null);
+        }else{
+            return state.getPlanet() != null && state.getPlanet().darkMusic != null ? state.getPlanet().darkMusic : bossMusic;
+        }
+    }
+
     @Nullable
     public Music getLastRandomPlayed(){
         return lastRandomPlayed;
