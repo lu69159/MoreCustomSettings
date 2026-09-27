@@ -7,8 +7,6 @@ import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.audio.*;
-import mindustry.content.*;
-import mindustry.game.*;
 import mindustry.gen.Musics;
 
 import static arc.Core.settings;
@@ -22,16 +20,6 @@ public class CustomSoundControl extends SoundControl{
 
     public CustomSoundControl(){
         mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
-        Events.on(EventType.WaveEvent.class, e -> Time.run(Mathf.random(3f, 8f) * 60f, () -> {
-            if(!state.rules.disableMusic){
-                boolean boss = state.rules.spawns.contains((group) -> group.getSpawned(state.wave - 2) > 0 && group.effect == StatusEffects.boss);
-                if(boss && !settings.getBool("instantChangeBossMusic", false)){
-                    playOnce((enabledCustomMusic() ? bossMusic : getBossMusic()).random(lastRandomPlayed));
-                }else if(Mathf.chance(musicWaveChance)){
-                    playRandom();
-                }
-            }
-        }));
         Events.on(MCSeventType.MusicBarChangeEvent.class, e -> {
             if(e.enabled){
                 mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
