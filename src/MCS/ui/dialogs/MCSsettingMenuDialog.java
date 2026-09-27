@@ -317,7 +317,7 @@ public class MCSsettingMenuDialog {
     private static <T> void removeListeners(Class<T> eventType, String keyWord){
         if(isFoo) return;
         try{
-            var eventsField = Events.class.getDeclaredField("events");
+            Field eventsField = Events.class.getDeclaredField("events");
             eventsField.setAccessible(true);
             ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
             events.each((type, listeners) -> {
