@@ -22,7 +22,7 @@ public class CustomSoundControl extends SoundControl{
 
     public CustomSoundControl(){
         mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
-        Events.on(EventType.WaveEvent.class, e -> Time.run(Mathf.random(5f, 8f) * 60f, () -> {
+        Events.on(EventType.WaveEvent.class, e -> Time.run(Mathf.random(3f, 8f) * 60f, () -> {
             if(!state.rules.disableMusic){
                 boolean boss = state.rules.spawns.contains((group) -> group.getSpawned(state.wave - 2) > 0 && group.effect == StatusEffects.boss);
                 if(boss && !settings.getBool("instantChangeBossMusic", false)){
