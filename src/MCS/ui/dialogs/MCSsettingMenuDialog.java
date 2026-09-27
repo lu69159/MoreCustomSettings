@@ -11,7 +11,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
-import mindustry.game.EventType;
+import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -315,6 +315,7 @@ public class MCSsettingMenuDialog {
 
     @SuppressWarnings("unchecked")
     private static <T> void removeListeners(Class<T> eventType, String keyWord){
+        if(isFoo) return;
         try{
             var eventsField = Events.class.getDeclaredField("events");
             eventsField.setAccessible(true);
@@ -323,18 +324,15 @@ public class MCSsettingMenuDialog {
                 if(type.equals(eventType)){
                     for(var listener : listeners){
                         if(listener.toString().lastIndexOf(keyWord) != -1){
-                            if(listeners.remove(listener)){
-                                Log.info("成功移除" + keyWord + "的事件监听");
-                            }else{
-                                Log.info("未能移除" + keyWord + "的事件监听");
+                            if(!listeners.remove(listener)){
+                                ui.showException(new Exception("Failed to remove listener of " + keyWord));
                             }
                         }
-
                     }
                 }
             });
         }catch(Exception e){
-            Log.err("TEST error");
+            ui.showException(e);
         }
     }
 
