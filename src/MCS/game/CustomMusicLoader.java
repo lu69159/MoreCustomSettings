@@ -346,6 +346,7 @@ public class CustomMusicLoader{
         }
     }
     public String realFileName(Fi file){
+        if(file == null) return "";
         if(pattern.matcher(file.nameWithoutExtension()).find()){
             return "encodeName_" + encodeName(file.nameWithoutExtension()) + "__" + file.length() + "." + file.extension();
         }else{
@@ -353,6 +354,7 @@ public class CustomMusicLoader{
         }
     }
     public String getFileName(Fi file){
+        if(file == null) return ""; //神秘FOO怎么启动也触发这玩意儿
         String realName = file.nameWithoutExtension();
         int index = realName.lastIndexOf("__");
         if(index < 0) return realName;
@@ -361,6 +363,7 @@ public class CustomMusicLoader{
         return decodeName(realName.substring(("encodeName_").length(), index));
     }
     public String getMusicName(Fi file){
+        if(file == null) return "";
         String name = getFileName(file);
         if(file.parent().equals(musicFolder)) return settings.getString(name.equals("menu") ? "MCSmenuMusicName" : "MCSeditorMusicName", "unknown music");
         else if(file.parent().equals(planets)) return settings.getString("MCSplanetMusicName-" + name, "unknown music");
