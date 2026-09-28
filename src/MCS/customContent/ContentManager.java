@@ -1,6 +1,6 @@
 package MCS.customContent;
 
-import MCS.enumClass.*;
+import MCS.MCS_EventType;
 import arc.*;
 import arc.files.*;
 import arc.struct.*;

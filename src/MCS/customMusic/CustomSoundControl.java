@@ -1,6 +1,6 @@
 package MCS.customMusic;
 
-import MCS.enumClass.*;
+import MCS.MCS_EventType;
 import arc.*;
 import arc.audio.*;
 import arc.files.*;
@@ -31,7 +31,7 @@ public class CustomSoundControl extends SoundControl{
     public CustomSoundControl(){
         mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
         musicLoader = new CustomMusicLoader(this);
-        reloadAllInGameMusic();
+        Time.runTask(30f, this::reloadAllInGameMusic);
 
         Events.on(MCS_EventType.MusicBarChangeEvent.class, e -> {
             if(e.enabled){

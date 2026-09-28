@@ -35,6 +35,8 @@ public abstract class MusicSeq{
     }
 
     public void loadCustom(){
+        namedMusic = null;
+        musics.clear();
         try{
             if(isNamed){
                 for(Fi file : folder.seq()){
@@ -48,7 +50,6 @@ public abstract class MusicSeq{
                     }
                 }
             }else{
-                musics.clear();
                 for(Fi file : folder.seq()){
                     if(isMusic(file)){
                         musics.add(new Music(file){

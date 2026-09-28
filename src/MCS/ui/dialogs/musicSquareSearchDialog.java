@@ -42,7 +42,7 @@ public class musicSquareSearchDialog extends BaseDialog {
             resource.allResults.clear();
             resultTable.clear();
             var sound = (CustomSoundControl)control.sound;
-            sound.musicLoader.tmp.delete();
+            sound.musicLoader.tmp.deleteDirectory();
             sound.musicLoader.tmp.mkdirs();
         });
     }
@@ -207,25 +207,23 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackDownload(musicBase.Track t){
-        var musicFolder = ((CustomSoundControl)control.sound).musicLoader.musicFolder;
-
         BaseDialog dialog = new BaseDialog("@musicSquare.selectCategory");
         dialog.addCloseButton();
         dialog.cont.table(Tex.button, bt -> {
             bt.defaults().size(200f, 60f).left();
             bt.button("@importMusic.ambient", Styles.flatt, () -> {
                 dialog.hide();
-                t.download(musicFolder.child("a"));
+                t.download("a");
             });
             bt.row();
             bt.button("@importMusic.dark", Styles.flatt, () -> {
                 dialog.hide();
-                t.download(musicFolder.child("d"));
+                t.download("d");
             });
             bt.row();
             bt.button("@importMusic.boss", Styles.flatt, () -> {
                 dialog.hide();
-                t.download(musicFolder.child("b"));
+                t.download("b");
             });
             bt.row();
             bt.button("@importMusic.menu", Styles.flatt, () -> {

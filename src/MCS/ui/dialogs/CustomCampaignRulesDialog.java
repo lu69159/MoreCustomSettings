@@ -1,6 +1,8 @@
 package MCS.ui.dialogs;
 
 import MCS.customDifficulty.CustomCampaignRules;
+import MCS.customDifficulty.CustomDifficulty;
+import MCS.customDifficulty.RuleTeam;
 import arc.*;
 import arc.func.*;
 import arc.scene.ui.*;
@@ -13,7 +15,6 @@ import mindustry.type.*;
 import mindustry.world.meta.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import MCS.enumClass.*;
 
 import static mindustry.Vars.*;
 import static mindustry.game.EventType.*;

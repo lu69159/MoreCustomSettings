@@ -1,4 +1,4 @@
-package MCS.enumClass;
+package MCS;
 
 import arc.audio.Music;
 import arc.util.Nullable;
@@ -56,4 +56,5 @@ public class MCS_EventType {
             this.isNamed = isNamed;
         }
     }
+    public static class RebuildMusicListEvent{}
 }

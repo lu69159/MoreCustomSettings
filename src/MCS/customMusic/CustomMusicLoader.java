@@ -7,7 +7,7 @@ import arc.struct.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 
-import static MCS.enumClass.MCS_EventType.*;
+import static MCS.MCS_EventType.*;
 import static MCS.customMusic.MusicTools.*;
 import static MCS.main.*;
 import static arc.Core.settings;
@@ -33,8 +33,8 @@ public class CustomMusicLoader {
             else importNamedMusic(name);
         });
         Events.on(MoveMusicEvent.class, e -> {
-            if(e.isNamed) moveNamedMusic(e.music.file, e.name, e.isCopied);
-            else moveMusic(e.music.file, e.name, e.isCopied);
+            if(e.isNamed) moveNamedMusic(e.music.file, e.name, e.isCopied, false);
+            else moveMusic(e.music.file, e.name, e.isCopied, false);
         });
     }
 
@@ -47,7 +47,7 @@ public class CustomMusicLoader {
         };
         editor = new MusicSeq("editor", musicFolder, sound.editorMusic){
             @Override
-            public void setMusics(boolean isCustom) {
+            public void setMusics(boolean isCustom){
                 sound.editorMusic = getNamedMusic(isCustom);
             }
         };
@@ -70,6 +70,7 @@ public class CustomMusicLoader {
             }
         };
 
+        sound.planetMusicMap.clear();
         for(var p : content.planets()){
             planets.add(new MusicSeq(p.name, musicFolder.child("planets"), sound.planetMusicMap.get(p)){
                 @Override
@@ -81,18 +82,36 @@ public class CustomMusicLoader {
     }
 
     public void reload(String name){
-        if(name.equals("planets")){
+        if(name.equals("a")){
+            ambient.loadCustom();
+        }else if(name.equals("d")){
+            dark.loadCustom();
+        }else if(name.equals("b")){
+            boss.loadCustom();
+        }else if(name.equals("planets") || content.planets().find(p -> p.name.equals(name)) != null){
+            sound.planetMusicMap.clear();
             for(var m : planets){
                 m.loadCustom();
             }
         }else{
             var seq = Seq.with(menu, editor, ambient, dark, boss).find(ms -> ms.name.equals(name));
-            if(seq == null){
-                ui.showException(new Exception("找不到对应名称的音乐组"));
-                return;
-            }
-            seq.loadCustom();
+            if(seq != null) seq.loadCustom();
+            else ui.showException(new Exception("找不到对应名称的音乐组"));
         }
+        sound.reloadAllInGameMusic();
+    }
+    public void reloadAll(){
+        menu.loadCustom();
+        editor.loadCustom();
+        ambient.loadCustom();
+        dark.loadCustom();
+        boss.loadCustom();
+
+        sound.planetMusicMap.clear();
+        for(var p : planets){
+            p.loadCustom();
+        }
+        sound.reloadAllInGameMusic();
     }
 
     public void set(boolean isCustom){
@@ -107,29 +126,18 @@ public class CustomMusicLoader {
     }
 
     public void delete(){
-        musicFolder.delete();
+        musicFolder.deleteDirectory();
         init();
-    }
-
-    public boolean isSameMusic(Music current, Music music, boolean getFromSetting){
-        if(current == null || music == null) return false;
-        if(current == music) return true;
-        if(getFromSetting){
-            if(settings.getString("MCSplanetMusicName-" + getFileName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getFileName(music.file), "unknown music")) && current.file.length() == music.file.length()){
-                music = current;
-                return true;
-            }
-        }else{
-            return getFileName(current.file).equals(getFileName(music.file)) && current.file.length() == music.file.length();
-        }
-
-        return false;
     }
 
     public void renameMusic(Music m, String newName){
         try{
-            if(getFileName(m.file).equals("menu")) settings.put("MCSmenuMusicName", newName);
-            else if(getFileName(m.file).equals("editor")) settings.put("MCSeditorMusicName", newName);
+            if(getFileName(m.file).equals("menu")){
+                settings.put("MCSmenuMusicName", newName);
+            }
+            else if(getFileName(m.file).equals("editor")){
+                settings.put("MCSeditorMusicName", newName);
+            }
             else{
                 boolean[] isPlanetMusic = { false };
                 planets.each(p -> {
@@ -141,25 +149,28 @@ public class CustomMusicLoader {
                 if(isPlanetMusic[0]) return;
 
                 m.file.moveTo(m.file.parent().child(encodeString(newName) + "__" + m.file.length() + "." + m.file.extension()));
-                set(enabledCustomMusic());
+                reload(m.file.parent().name());
+                MCSui.musicBar.rebuild();
+                Events.fire(new RebuildMusicListEvent());
             }
         }catch(Exception e){
             ui.showException(e);
         }
     }
 
-    public void moveMusic(Fi from, String folderName, boolean isCopied){
+    public void moveMusic(Fi from, String folderName, boolean isCopied, boolean isDownloaded){
         if(importMusicFromFi(Seq.with(from).toArray(), folderName,false, isCopied)){
-            ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
-            set(enabledCustomMusic());
+            if(!isDownloaded) ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
+            reloadAll();
             MCSui.musicBar.rebuild();
+            Events.fire(new RebuildMusicListEvent());
         }
     }
     public void importMusic(String musicFi){
         FileChooser.open("ogg", "mp3").submitMulti(files -> {
             if(importMusicFromFi(files, musicFi, true, true)){
                 ui.showInfo("@importMusic.imported");
-                set(enabledCustomMusic());
+                reload(musicFi);
                 MCSui.musicBar.rebuild();
             }
         });
@@ -182,17 +193,18 @@ public class CustomMusicLoader {
         return successImported;
     }
 
-    public void moveNamedMusic(Fi from, String inputName, boolean isCopied){
+    public void moveNamedMusic(Fi from, String inputName, boolean isCopied, boolean isDownloaded){
         if(importNamedMusicFromFi(Seq.with(from).toArray(), inputName, false, isCopied)){
-            ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
-            set(enabledCustomMusic());
+            if(!isDownloaded) ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
+            reloadAll();
+            Events.fire(new RebuildMusicListEvent());
         }
     }
     public void importNamedMusic(String inputName){
         FileChooser.open("ogg", "mp3").submitMulti(files -> {
             if(importNamedMusicFromFi(files, inputName, true, true)){
                 ui.showInfo("@importMusic.imported");
-                set(enabledCustomMusic());
+                reload(inputName);
             }
         });
     }
@@ -235,5 +247,15 @@ public class CustomMusicLoader {
         if(file.parent().equals(musicFolder)) return settings.getString(name.equals("menu") ? "MCSmenuMusicName" : "MCSeditorMusicName", "unknown music");
         else if(file.parent().equals(musicFolder.child("planets"))) return settings.getString("MCSplanetMusicName-" + name, "unknown music");
         else return name;
+    }
+
+    public MusicSeq getMusicSeq(String name){
+        var seq1 = Seq.with(menu, editor, ambient, dark, boss).find(s -> s.name.equals(name));
+        if(seq1 != null) return seq1;
+        else{
+            var seq2 = planets.find(s -> s.name.equals(name));
+            if(seq2 != null) return seq2;
+            else return null;
+        }
     }
 }

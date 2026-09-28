@@ -1,4 +1,4 @@
-package MCS.enumClass;
+package MCS.customMusic;
 
 import arc.Core;
 import arc.scene.style.*;

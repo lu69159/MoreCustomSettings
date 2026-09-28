@@ -1,4 +1,4 @@
-package MCS.enumClass;
+package MCS.customDifficulty;
 
 import arc.Core;
 

@@ -1,7 +1,7 @@
 package MCS.ui.fragments;
 
 import MCS.customMusic.CustomSoundControl;
-import MCS.enumClass.*;
+import MCS.customMusic.MusicMode;
 import arc.Events;
 import arc.scene.*;
 import arc.scene.event.*;

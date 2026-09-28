@@ -18,8 +18,7 @@ import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
 import static MCS.main.*;
-import static MCS.customMusic.MusicTools.*;
-import static MCS.enumClass.MCS_EventType.*;
+import static MCS.MCS_EventType.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.Vars.*;
@@ -32,6 +31,9 @@ public class MCS_SettingMenuDialog {
     public MCS_SettingMenuDialog(){
         Events.on(MusicImportDialogShowEvent.class, e -> {
             new MusicImportDialog((e.from == null ? "@importMusic" : e.isCopied ? "@musicList.copy" : "@musicList.move"), e.from, e.isImported, e.isCopied).show();
+        });
+        Events.run(RebuildMusicListEvent.class, () -> {
+            if(musicListDialog.isShown()) rebuildMusicList();
         });
     }
 
@@ -57,6 +59,7 @@ public class MCS_SettingMenuDialog {
         t.pref(new ButtonSetting("@clearMusic", Icon.trash,
                 () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> {
                     sound.musicLoader.delete();
+                    settings.put("enableCustomMusic", false);
                     MCSui.musicBar.rebuild();
                 })
         ));
@@ -183,16 +186,14 @@ public class MCS_SettingMenuDialog {
     }
 
     private void buildMusicButtons(Table t, Music m, Runnable r){
-        t.labelWrap(((CustomSoundControl)control.sound).musicLoader.getMusicName(m.file)).height(32f).left().fillX().expandX();
-        if(enabledCustomMusic()){
-            t.button("@musicList.rename", Icon.pencilSmall, () -> new MusicRenameDialog("@musicList.rename", m).show()).padLeft(10);
-            t.button("@musicList.move", Icon.moveSmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false, false))).padLeft(10);
-            t.button("@musicList.copy", Icon.copySmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false, true))).padLeft(10);
-            t.button("@delete", Icon.trashSmall, r).padLeft(10);
-        }
+        t.labelWrap(((CustomSoundControl)control.sound).musicLoader.getMusicName(m.file)).left().fillX().expandX();
+        t.button("@musicList.rename", Icon.pencilSmall, () -> new MusicRenameDialog("@musicList.rename", m).show()).padLeft(10);
+        t.button("@musicList.move", Icon.moveSmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false, false))).padLeft(10);
+        t.button("@musicList.copy", Icon.copySmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false, true))).padLeft(10);
+        t.button("@delete", Icon.trashSmall, r).padLeft(10);
     }
     private void buildMusicList(Table t, String name){
-        var sound = (CustomSoundControl)control.sound;
+        var musicLoader = ((CustomSoundControl)control.sound).musicLoader;
 
         t.add("@importMusic." + name).color(Pal.accent).padTop(10f).left().row();
         boolean found = false;
@@ -201,14 +202,13 @@ public class MCS_SettingMenuDialog {
             for(var p : content.planets()){
                 if(!p.accessible) continue;
                 t.add("[#" + p.iconColor + "]" + Iconc.planet + p.localizedName).padTop(5).left().row();
-                if(sound.planetMusicMap.get(p) != null){
+                if(musicLoader.getMusicSeq(p.name).namedMusic != null){
                     t.table(Styles.grayPanel, mt -> {
-                        var m = sound.planetMusicMap.get(p);
+                        var m = musicLoader.getMusicSeq(p.name).namedMusic;
                         buildMusicButtons(mt, m, () -> {
                             settings.remove("MCSplanetMusicName-" + p.name);
                             m.file.delete();
-                            sound.planetMusicMap.remove(p);
-                            sound.musicLoader.reload("planets");
+                            musicLoader.reload("planets");
                             rebuildMusicList();
                         });
                     }).growX().left().row();
@@ -218,27 +218,27 @@ public class MCS_SettingMenuDialog {
             }
             found = true;
         }else if(name.equals("menu") || name.equals("editor")){
-            var m = new Music[]{ name.equals("menu") ? sound.menuMusic : sound.editorMusic };
+            var m = new Music[]{ musicLoader.getMusicSeq(name).namedMusic };
             String settingName = name.equals("menu") ? "MCSmenuMusicName" : "MCSeditorMusicName";
             if(m[0] != null){
                 t.table(Styles.grayPanel, mt -> {
                     buildMusicButtons(mt, m[0], () -> {
                         settings.remove(settingName);
                         m[0].file.delete();
-                        sound.musicLoader.reload(name);
+                        musicLoader.reload(name);
                         rebuildMusicList();
                     });
                 }).growX().left().row();
                 found = true;
             }
         }else{
-            var seq = name.equals("ambient") ? sound.ambientMusic : name.equals("dark") ? sound.darkMusic : sound.bossMusic;
+            var seq = musicLoader.getMusicSeq(name).musics;
             if(seq.size > 0){
                 for(var m : seq){
                     t.table(Styles.grayPanel, mt -> {
                         buildMusicButtons(mt, m, () -> {
                             m.file.delete();
-                            sound.musicLoader.reload(name);
+                            musicLoader.reload(name);
                             MCSui.musicBar.rebuild();
                             rebuildMusicList();
                         });
@@ -415,7 +415,6 @@ public class MCS_SettingMenuDialog {
                 t.field(sound.musicLoader.getMusicName(music.file), s -> tmpMusicName = s).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
                 t.button("@confirm", Icon.ok, () -> {
                     sound.musicLoader.renameMusic(music, tmpMusicName);
-                    MCSui.menu.rebuildMusicList();
                     MCSui.musicBar.rebuild();
                     hide();
                 }).padLeft(10f);
