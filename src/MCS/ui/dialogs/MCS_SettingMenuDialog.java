@@ -175,9 +175,15 @@ public class MCS_SettingMenuDialog {
             control.sound.bossMusic.clear();
             removeAllListeners("mindustry.audio.SoundControl");
             control.sound = new CustomSoundControl(){{
-                ambientMusic = a;
-                bossMusic = b;
-                darkMusic = d;
+                if(enabledCustomMusic()){
+                    ambientMusic = musicLoader.ambientMusic;
+                    bossMusic = musicLoader.bossMusic;
+                    darkMusic = musicLoader.darkMusic;
+                }else{
+                    ambientMusic = a;
+                    bossMusic = b;
+                    darkMusic = d;
+                }
             }};
         }catch(Exception ex){
             throw new RuntimeException(ex);
@@ -385,7 +391,7 @@ public class MCS_SettingMenuDialog {
                         Events.fire(new ImportNamedMusicEvent(from, planet.name, isCopied));
                         planetMusicListDialog.hide();
                         hide();
-                    }).disabled(b -> from != null && musicLoader.getFileName(from.file).equals(planet.name));
+                    }).disabled(b -> from != null && musicLoader.getMusicName(from.file).equals(planet.name));
                     t.row();
                 }
             });
@@ -398,12 +404,12 @@ public class MCS_SettingMenuDialog {
                 t.button("@importMusic.menu", Styles.flatt, () -> {
                     Events.fire(new ImportNamedMusicEvent(from, "menu", isCopied));
                     hide();
-                }).disabled(b -> from != null && musicLoader.getFileName(from.file).equals("menu"));
+                }).disabled(b -> from != null && musicLoader.getMusicName(from.file).equals("menu"));
                 t.row();
                 t.button("@importMusic.editor", Styles.flatt, () -> {
                     Events.fire(new ImportNamedMusicEvent(from, "editor", isCopied));
                     hide();
-                }).disabled(b -> from != null && musicLoader.getFileName(from.file).equals("editor"));
+                }).disabled(b -> from != null && musicLoader.getMusicName(from.file).equals("editor"));
                 t.row();
                 t.button("@importMusic.planet", Styles.flatt, () -> planetMusicListDialog.show());
                 t.row();

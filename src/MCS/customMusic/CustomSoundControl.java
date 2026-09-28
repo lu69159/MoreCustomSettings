@@ -3,6 +3,7 @@ package MCS.customMusic;
 import MCS.enumClass.*;
 import arc.*;
 import arc.audio.*;
+import arc.files.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
@@ -11,6 +12,7 @@ import mindustry.gen.Musics;
 
 import static arc.Core.settings;
 import static mindustry.Vars.*;
+import static mindustry.game.EventType.*;
 import static MCS.main.*;
 
 public class CustomSoundControl extends SoundControl{
@@ -161,6 +163,21 @@ public class CustomSoundControl extends SoundControl{
         }
 
         updateLoops();
+    }
+
+    @Override
+    protected void reload(){
+        current = null;
+        fade = 0f;
+
+        for(var sound : Core.assets.getAll(Sound.class, new Seq<>())){
+            var file = Fi.get(Core.assets.getAssetFileName(sound));
+            if(file.parent().name().equals("ui")){
+                sound.setBus(uiBus);
+            }
+        }
+
+        Events.fire(new MusicRegisterEvent());
     }
 
     public void playByMode(){

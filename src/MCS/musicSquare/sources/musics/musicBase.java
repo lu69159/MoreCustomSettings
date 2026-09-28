@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 
+import static MCS.customMusic.MusicNameTools.*;
 import static mindustry.Vars.*;
 import static MCS.main.*;
 
@@ -66,7 +67,7 @@ public abstract class musicBase {
                         }
                     }
 
-                    String sanitized = musicLoader.realString(artist + " - " + name);
+                    String sanitized = encodeString(artist + " - " + name);
 
                     if(!dir.exists()) musicLoader.loadFolder();
                     dir.child(sanitized + "__" + data.length + "." + ext).writeBytes(data);
@@ -120,9 +121,9 @@ public abstract class musicBase {
                     if(!folder.exists()) musicLoader.loadFolder();
 
                     for(var f : folder.seq()){
-                        if(musicLoader.getFileName(f).equals(inputName)) f.delete();
+                        if(getFileName(f).equals(inputName)) f.delete();
                     }
-                    folder.child(musicLoader.realString(inputName) + "__" + data.length + "." + ext).writeBytes(data);
+                    folder.child(encodeString(inputName) + "__" + data.length + "." + ext).writeBytes(data);
 
                     Core.app.post(() -> {
                         ui.loadfrag.hide();

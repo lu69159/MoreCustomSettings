@@ -15,6 +15,7 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.regex.*;
 
+import static MCS.customMusic.MusicNameTools.*;
 import static MCS.main.*;
 import static MCS.enumClass.MCSeventType.*;
 import static arc.Core.settings;
@@ -31,17 +32,8 @@ public class CustomMusicLoader{
     public @Nullable Music editorMusic;
     public ObjectMap<Planet, Music> planetMusicMap = new ObjectMap<>();
 
-    private boolean replacedFoo = false;
-    private final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
-
     public CustomMusicLoader(){
         loadFolder();
-        Events.run(EventType.WorldLoadEvent.class, () -> {
-            if(isFoo && !replacedFoo && settings.getBool("enableCustomMusic", false)){
-                loadCustom();
-                replacedFoo = true;
-            }
-        });
         Events.on(CustomMusicChangeEvent.class, e -> {
             if(e.enabled){
                 loadCustom();
@@ -231,7 +223,7 @@ public class CustomMusicLoader{
                     }
                 });
                 if(isPlanetMusic[0]) return;
-                m.file.moveTo(m.file.parent().child(realString(newName) + "__" + m.file.length() + "." + m.file.extension()));
+                m.file.moveTo(m.file.parent().child(encodeString(newName) + "__" + m.file.length() + "." + m.file.extension()));
                 loadCustom();
             }
         }catch(Exception e){
@@ -262,7 +254,7 @@ public class CustomMusicLoader{
                 Fi folder = Core.settings.getDataDirectory().child("MCS-music").child(musicFi);
                 if(!folder.exists()) folder.mkdirs();
 
-                Fi to = folder.child(isImport ? realFileName(fi) : realString(getMusicName(fi)) + "__" + fi.length() + "." + fi.extension());
+                Fi to = folder.child(isImport ? encodeFileName(fi) : encodeString(getMusicName(fi)) + "__" + fi.length() + "." + fi.extension());
                 if(isImport || isCopied) fi.copyTo(to);
                 else fi.moveTo(to);
                 successImported = true;
@@ -302,7 +294,7 @@ public class CustomMusicLoader{
                 }
 
                 String settingName = inputName.equals("menu") ? "MCSmenuMusicName" : inputName.equals("editor") ? "MCSeditorMusicName" : "MCSplanetMusicName-" + inputName;
-                Fi to = folder.child(realString(inputName) + "__" + fi.length() + "." + fi.extension());
+                Fi to = folder.child(encodeString(inputName) + "__" + fi.length() + "." + fi.extension());
                 if(isImport){
                     Core.settings.put(settingName, fi.nameWithoutExtension());
                     fi.copyTo(to);
@@ -337,49 +329,11 @@ public class CustomMusicLoader{
 
         return false;
     }
-
-    public String realString(String nameWithoutExtension){
-        if(pattern.matcher(nameWithoutExtension).find()){
-            return "encodeName_" + encodeName(nameWithoutExtension);
-        }else{
-            return nameWithoutExtension;
-        }
-    }
-    public String realFileName(Fi file){
-        if(file == null) return "";
-        if(pattern.matcher(file.nameWithoutExtension()).find()){
-            return "encodeName_" + encodeName(file.nameWithoutExtension()) + "__" + file.length() + "." + file.extension();
-        }else{
-            return file.nameWithoutExtension() + "__" + file.length() + "." + file.extension();
-        }
-    }
-    public String getFileName(Fi file){
-        if(file == null) return ""; //神秘FOO怎么启动也触发这玩意儿
-        String realName = file.nameWithoutExtension();
-        int index = realName.lastIndexOf("__");
-        if(index < 0) return realName;
-        if(!realName.startsWith("encodeName_")) return realName.substring(0, index);
-
-        return decodeName(realName.substring(("encodeName_").length(), index));
-    }
     public String getMusicName(Fi file){
         if(file == null) return "";
         String name = getFileName(file);
         if(file.parent().equals(musicFolder)) return settings.getString(name.equals("menu") ? "MCSmenuMusicName" : "MCSeditorMusicName", "unknown music");
         else if(file.parent().equals(planets)) return settings.getString("MCSplanetMusicName-" + name, "unknown music");
         else return name;
-    }
-
-    private String encodeName(String input){
-        if(input == null) return null;
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(input.getBytes(StandardCharsets.UTF_8));
-    }
-    private String decodeName(String input){
-        if(input == null || input.length() <= 1) return input;
-        try{
-            return new String(Base64.getUrlDecoder().decode(input), StandardCharsets.UTF_8);
-        }catch(IllegalArgumentException ignore){
-            return input;
-        }
     }
 }
