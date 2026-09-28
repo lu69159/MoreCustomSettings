@@ -20,6 +20,20 @@ public class MusicTools {
         return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
     }
 
+    public static boolean isSameMusic(Music current, Music music, boolean replace){
+        if(current == null || music == null) return false;
+        if(current == music) return true;
+        if(replace){
+            if(settings.getString("MCSplanetMusicName-" + getFileName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getFileName(music.file), "unknown music")) && current.file.length() == music.file.length()){
+                music = current;
+                return true;
+            }
+        }else{
+            return getFileName(current.file).equals(getFileName(music.file)) && current.file.length() == music.file.length();
+        }
+
+        return false;
+    }
 
     public static String encodeString(String nameWithoutExtension){
         if(pattern.matcher(nameWithoutExtension).find()){

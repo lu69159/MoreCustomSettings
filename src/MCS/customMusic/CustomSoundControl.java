@@ -100,9 +100,8 @@ public class CustomSoundControl extends SoundControl{
             silenced = false;
             if(ui.planet.isShown()){
                 if(enabledCustomMusic() && planetMusicMap.get(ui.planet.state.planet) != null){
-                    boolean same = planetMusicMap.get(ui.planet.state.planet).equals(current);
+                    boolean same = isSameMusic(current, planetMusicMap.get(ui.planet.state.planet), true);
                     if(current != null && same){
-                        if(planetMusicMap.get(ui.planet.state.planet) != current) planetMusicMap.put(ui.planet.state.planet, current);
                         play(current);
                     }else{
                         play(planetMusicMap.get(ui.planet.state.planet));
