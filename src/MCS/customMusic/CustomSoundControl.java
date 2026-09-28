@@ -31,7 +31,7 @@ public class CustomSoundControl extends SoundControl{
     public CustomSoundControl(){
         mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
         musicLoader = new CustomMusicLoader(this);
-        Time.runTask(30f, this::reloadAllInGameMusic);
+        reloadAllInGameMusic();
 
         Events.on(MCS_EventType.MusicBarChangeEvent.class, e -> {
             if(e.enabled){
@@ -100,8 +100,9 @@ public class CustomSoundControl extends SoundControl{
             silenced = false;
             if(ui.planet.isShown()){
                 if(enabledCustomMusic() && planetMusicMap.get(ui.planet.state.planet) != null){
-                    boolean same = isSameMusic(current, planetMusicMap.get(ui.planet.state.planet), true);
+                    boolean same = planetMusicMap.get(ui.planet.state.planet).equals(current);
                     if(current != null && same){
+                        if(planetMusicMap.get(ui.planet.state.planet) != current) planetMusicMap.put(ui.planet.state.planet, current);
                         play(current);
                     }else{
                         play(planetMusicMap.get(ui.planet.state.planet));
@@ -196,30 +197,24 @@ public class CustomSoundControl extends SoundControl{
     protected Seq<Music> getAmbientMusic() {
         if(enabledCustomMusic()){
             return ambientMusic;
-        }else if(state.rules.ambientMusic != null){
-            return state.rules.ambientMusic.map(MusicContainer::get).removeAll(m -> m == null);
         }else{
-            return state.getPlanet() != null && state.getPlanet().ambientMusic != null ? state.getPlanet().ambientMusic : ambientMusic;
+            return super.getAmbientMusic();
         }
     }
     @Override
     protected Seq<Music> getDarkMusic() {
         if(enabledCustomMusic()){
             return darkMusic;
-        }else if(state.rules.darkMusic != null){
-            return state.rules.darkMusic.map(MusicContainer::get).removeAll(m -> m == null);
         }else{
-            return state.getPlanet() != null && state.getPlanet().darkMusic != null ? state.getPlanet().darkMusic : darkMusic;
+            return super.getDarkMusic();
         }
     }
     @Override
     protected Seq<Music> getBossMusic() {
         if(enabledCustomMusic()){
             return bossMusic;
-        }else if(state.rules.darkMusic != null){
-            return state.rules.darkMusic.map(MusicContainer::get).removeAll(m -> m == null);
         }else{
-            return state.getPlanet() != null && state.getPlanet().darkMusic != null ? state.getPlanet().darkMusic : bossMusic;
+            return super.getBossMusic();
         }
     }
 
@@ -261,7 +256,7 @@ public class CustomSoundControl extends SoundControl{
         allInGameMusic.clear();
         Seq<Music> tmp = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
         for(var m : tmp){
-            if(!allInGameMusic.contains(music -> getFileName(m.file).equals(getFileName(music.file)) && m.file.length() == music.file.length())){
+            if(!allInGameMusic.contains(music -> music.equals(m))){
                 allInGameMusic.add(m);
             }
         }

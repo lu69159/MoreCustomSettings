@@ -25,11 +25,6 @@ public class MusicBar{
         Events.run(EventType.ResizeEvent.class, this::rebuild);
     }
 
-    private boolean shouldUseSlider(){
-        var sound = (CustomSoundControl)control.sound;
-        return sound.getCurrent() != null && sound.allInGameMusic.contains(sound.getCurrent());
-    }
-
     public void build(Group parent){
         var sound = (CustomSoundControl)control.sound;
 
@@ -37,17 +32,17 @@ public class MusicBar{
         moveButton.touchable = Touchable.enabled;
 
         Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false);
-        disabledMusicSlider.visible(() -> !shouldUseSlider());
+        disabledMusicSlider.visible(() -> sound.getCurrent() == null);
 
-        Slider musicSlider = new Slider(0f, shouldUseSlider() ? sound.getCurrent().getLength() : 0f, 0.1f, false);
+        Slider musicSlider = new Slider(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength(), 0.1f, false);
         musicSlider.moved(value -> {
             if(sound.getCurrent() != null && !musicSlider.isDragging()) sound.getCurrent().setPosition(value);
         });
         musicSlider.update(() -> {
-            musicSlider.setRange(0f, shouldUseSlider() ? sound.getCurrent().getLength() : 0f);
-            if(!musicSlider.isDragging()) musicSlider.setValue(shouldUseSlider() ? sound.getCurrent().getPosition() : 0f, false);
+            musicSlider.setRange(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength());
+            if(!musicSlider.isDragging()) musicSlider.setValue(sound.getCurrent() == null ? 0f : sound.getCurrent().getPosition(), false);
         });
-        musicSlider.visible(this::shouldUseSlider);
+        musicSlider.visible(() -> sound.getCurrent() != null);
 
         Label musicTimeLabel = new Label(() -> musicSlider.visible ? UI.formatTime(musicSlider.getValue() * 60f) : UI.formatTime(0));
         musicTimeLabel.setAlignment(Align.center);

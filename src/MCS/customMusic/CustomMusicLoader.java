@@ -151,8 +151,8 @@ public class CustomMusicLoader {
                 m.file.moveTo(m.file.parent().child(encodeString(newName) + "__" + m.file.length() + "." + m.file.extension()));
                 reload(m.file.parent().name());
                 MCSui.musicBar.rebuild();
-                Events.fire(new RebuildMusicListEvent());
             }
+            Events.fire(new RebuildMusicListEvent());
         }catch(Exception e){
             ui.showException(e);
         }
