@@ -1,13 +1,39 @@
 package MCS.customMusic;
 
-import arc.files.Fi;
+import arc.audio.*;
+import arc.files.*;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.regex.Pattern;
+import java.nio.charset.*;
+import java.util.*;
+import java.util.regex.*;
 
-public class MusicNameTools {
+import static arc.Core.settings;
+
+public class MusicTools {
     private static final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
+
+    public static boolean enabledCustomMusic(){
+        return settings.getBool("enableCustomMusic", false);
+    }
+
+    public static boolean isMusic(Fi fi){
+        return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
+    }
+
+    public static boolean isSameMusic(Music current, Music music, boolean getFromSetting){
+        if(current == null || music == null) return false;
+        if(current == music) return true;
+        if(getFromSetting){
+            if(settings.getString("MCSplanetMusicName-" + getFileName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getFileName(music.file), "unknown music")) && current.file.length() == music.file.length()){
+                music = current;
+                return true;
+            }
+        }else{
+            return getFileName(current.file).equals(getFileName(music.file)) && current.file.length() == music.file.length();
+        }
+
+        return false;
+    }
 
     public static String encodeString(String nameWithoutExtension){
         if(pattern.matcher(nameWithoutExtension).find()){

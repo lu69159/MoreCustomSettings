@@ -8,20 +8,31 @@ import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.audio.*;
-import mindustry.gen.Musics;
+import mindustry.gen.*;
+import mindustry.type.*;
 
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 import static mindustry.game.EventType.*;
 import static MCS.main.*;
+import static MCS.customMusic.MusicTools.*;
 
 public class CustomSoundControl extends SoundControl{
     public boolean preview = false;
     public @Nullable Music previewMusic;
     public MusicMode mode;
 
+    public Seq<Music> allInGameMusic = new Seq<>();
+    public @Nullable Music menuMusic, editorMusic;
+    public ObjectMap<Planet, Music> planetMusicMap = new ObjectMap<>();
+
+    public CustomMusicLoader musicLoader;
+
     public CustomSoundControl(){
         mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
+        musicLoader = new CustomMusicLoader(this);
+        reloadAllInGameMusic();
+
         Events.on(MCSeventType.MusicBarChangeEvent.class, e -> {
             if(e.enabled){
                 mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
@@ -30,16 +41,15 @@ public class CustomSoundControl extends SoundControl{
                 mode = MusicMode.normal;
             }
         });
-        Events.run(MCSeventType.CustomMusicChangeEvent.class, () -> {
+        Events.on(MCSeventType.CustomMusicChangeEvent.class, e -> {
+            musicLoader.set(e.enabled);
             if(current != null){
                 current.stop();
                 current = null;
             }
+            reloadAllInGameMusic();
+            MCSui.musicBar.rebuild();
         });
-    }
-
-    public boolean enabledCustomMusic(){
-        return settings.getBool("enableCustomMusic", false);
     }
 
     @Override
@@ -89,33 +99,33 @@ public class CustomSoundControl extends SoundControl{
         }else if(state.isMenu()){
             silenced = false;
             if(ui.planet.isShown()){
-                if(enabledCustomMusic() && musicLoader.planetMusicMap.get(ui.planet.state.planet) != null){
-                    boolean same = musicLoader.isSameMusic(current, musicLoader.planetMusicMap.get(ui.planet.state.planet), true);
+                if(enabledCustomMusic() && planetMusicMap.get(ui.planet.state.planet) != null){
+                    boolean same = isSameMusic(current, planetMusicMap.get(ui.planet.state.planet), true);
                     if(current != null && same){
                         play(current);
                     }else{
-                        play(musicLoader.planetMusicMap.get(ui.planet.state.planet));
+                        play(planetMusicMap.get(ui.planet.state.planet));
                     }
                 }else{
                     play(ui.planet.state.planet.launchMusic);
                 }
             }else if(ui.editor.isShown()){
-                if(enabledCustomMusic() && musicLoader.editorMusic != null){
-                    play(musicLoader.editorMusic);
+                if(enabledCustomMusic() && editorMusic != null){
+                    play(editorMusic);
                 }else{
                     play(Musics.editor);
                 }
             }else{
-                if(enabledCustomMusic() && musicLoader.menuMusic != null){
-                    play(musicLoader.menuMusic);
+                if(enabledCustomMusic() && menuMusic != null){
+                    play(menuMusic);
                 }else{
                     play(Musics.menu);
                 }
             }
         }else if(state.rules.editor){
             silenced = false;
-            if(enabledCustomMusic() && musicLoader.editorMusic != null){
-                play(musicLoader.editorMusic);
+            if(enabledCustomMusic() && editorMusic != null){
+                play(editorMusic);
             }else{
                 play(Musics.editor);
             }
@@ -125,26 +135,24 @@ public class CustomSoundControl extends SoundControl{
 
             if(!state.rules.disableMusic){
                 if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null){
-                    var m = enabledCustomMusic() ? bossMusic : getBossMusic();
-
                     if(current == null){
-                        var bm = m.random(lastRandomPlayed);
+                        var bm = getBossMusic().random(lastRandomPlayed);
                         playOnce(bm);
                         if(current == bm) silenced = true;
-                    }else if(!m.contains(current)){
+                    }else if(!getBossMusic().contains(current)){
                         fade = Mathf.clamp(fade - Time.delta / foutTime);
                         current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
                         if(fade <= 0.01f){
                             current.stop();
                             current = null;
-                            var bm = m.random(lastRandomPlayed);
+                            var bm = getBossMusic().random(lastRandomPlayed);
                             playOnce(bm);
                             if(current == bm) silenced = true;
                         }
                     }
                 }else{
                     if(alwaysPlayMusic()){
-                        if(current == null) playByMode();
+                        playByMode();
                     }
                     else if(Time.timeSinceMillis(lastPlayed) > 1000 * musicInterval / 60f) {
                         //chance to play it per interval
@@ -154,7 +162,7 @@ public class CustomSoundControl extends SoundControl{
                         }
                     }
 
-                    if(fade < 1f && current != null && musicLoader.allInGameMusic.contains(current)){
+                    if(fade < 1f && current != null && allInGameMusic.contains(current)){
                         fade = Mathf.clamp(fade + Time.delta / foutTime);
                         current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
                     }
@@ -165,34 +173,20 @@ public class CustomSoundControl extends SoundControl{
         updateLoops();
     }
 
-    @Override
-    protected void reload(){
-        current = null;
-        fade = 0f;
-
-        for(var sound : Core.assets.getAll(Sound.class, new Seq<>())){
-            var file = Fi.get(Core.assets.getAssetFileName(sound));
-            if(file.parent().name().equals("ui")){
-                sound.setBus(uiBus);
-            }
-        }
-
-        Events.fire(new MusicRegisterEvent());
-    }
-
     public void playByMode(){
+        if(current != null) return;
         if(mode == MusicMode.seq){
-            if(musicLoader.allInGameMusic.indexOf(lastRandomPlayed) < 1){
+            if(allInGameMusic.indexOf(lastRandomPlayed) < 1){
                 playRandom();
             }else{
-                int nextIndex = musicLoader.allInGameMusic.indexOf(lastRandomPlayed) + 1 < musicLoader.allInGameMusic.size ? musicLoader.allInGameMusic.indexOf(lastRandomPlayed) + 1 : 0;
-                playOnce(musicLoader.allInGameMusic.get(nextIndex));
+                int nextIndex = allInGameMusic.indexOf(lastRandomPlayed) + 1 < allInGameMusic.size ? allInGameMusic.indexOf(lastRandomPlayed) + 1 : 0;
+                playOnce(allInGameMusic.get(nextIndex));
             }
         }else if(mode == MusicMode.loop){
-            if(lastRandomPlayed != null && musicLoader.allInGameMusic.contains(lastRandomPlayed)) playOnce(lastRandomPlayed);
+            if(lastRandomPlayed != null && allInGameMusic.contains(lastRandomPlayed)) playOnce(lastRandomPlayed);
             else playRandom();
         }else if(mode == MusicMode.shuf){
-            playOnce(musicLoader.allInGameMusic.random(lastRandomPlayed));
+            playOnce(allInGameMusic.random(lastRandomPlayed));
         }else if(mode == MusicMode.normal){
             playRandom();
         }
@@ -246,5 +240,31 @@ public class CustomSoundControl extends SoundControl{
             current = null;
             previewMusic = null;
         }
+    }
+
+    @Override
+    protected void reload(){
+        current = null;
+        fade = 0f;
+
+        for(var sound : Core.assets.getAll(Sound.class, new Seq<>())){
+            var file = Fi.get(Core.assets.getAssetFileName(sound));
+            if(file.parent().name().equals("ui")){
+                sound.setBus(uiBus);
+            }
+        }
+
+        Events.fire(new MusicRegisterEvent());
+    }
+
+    public void reloadAllInGameMusic(){
+        allInGameMusic.clear();
+        Seq<Music> tmp = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
+        for(var m : tmp){
+            if(!allInGameMusic.contains(music -> getFileName(m.file).equals(getFileName(music.file)) && m.file.length() == music.file.length())){
+                allInGameMusic.add(m);
+            }
+        }
+        allInGameMusic.sortComparing(music -> getFileName(music.file));
     }
 }

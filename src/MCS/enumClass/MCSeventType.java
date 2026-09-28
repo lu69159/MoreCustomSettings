@@ -25,34 +25,35 @@ public class MCSeventType{
     public static class MusicImportDialogShowEvent{
         public @Nullable Music from;
         public boolean isCopied;
+        public boolean isImported;
+
         public MusicImportDialogShowEvent(){
-            this(null, true);
+            this(null, true, true);
         }
-        public MusicImportDialogShowEvent(@Nullable Music from, boolean isCopied){
+        public MusicImportDialogShowEvent(@Nullable Music from, boolean isImported, boolean isCopied){
             this.from = from;
+            this.isImported = isImported;
             this.isCopied = isCopied;
         }
     }
     public static class ImportMusicEvent{
-        @Nullable public Music music;
-        public String musicFi;
-        public boolean isCopied;
+        public String name;
 
-        public ImportMusicEvent(Music music, String musicFi, boolean isCopied){
-            this.music = music;
-            this.musicFi = musicFi;
-            this.isCopied = isCopied;
+        public ImportMusicEvent(String name){
+            this.name = name;
         }
     }
-    public static class ImportNamedMusicEvent{
+    public static class MoveMusicEvent {
         @Nullable public Music music;
-        public String inputName;
+        public String name;
         public boolean isCopied;
+        public boolean isNamed;
 
-        public ImportNamedMusicEvent(Music music, String inputName, boolean isCopied){
+        public MoveMusicEvent(Music music, String name, boolean isCopied, boolean isNamed){
             this.music = music;
-            this.inputName = inputName;
+            this.name = name;
             this.isCopied = isCopied;
+            this.isNamed = isNamed;
         }
     }
 }

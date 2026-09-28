@@ -1,5 +1,6 @@
 package MCS.musicSquare.sources.musics;
 
+import MCS.customMusic.CustomSoundControl;
 import arc.*;
 import arc.files.*;
 import arc.struct.*;
@@ -8,7 +9,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
 
-import static MCS.customMusic.MusicNameTools.*;
+import static MCS.customMusic.MusicTools.*;
 import static mindustry.Vars.*;
 import static MCS.main.*;
 
@@ -51,6 +52,8 @@ public abstract class musicBase {
         public void download(Fi dir){
             if(!isSafeUrl(url)) return;
 
+            var sound = (CustomSoundControl)control.sound;
+
             ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
 
             Http.get(url, res -> {
@@ -69,12 +72,11 @@ public abstract class musicBase {
 
                     String sanitized = encodeString(artist + " - " + name);
 
-                    if(!dir.exists()) musicLoader.loadFolder();
                     dir.child(sanitized + "__" + data.length + "." + ext).writeBytes(data);
 
                     Core.app.post(() -> {
                         ui.loadfrag.hide();
-                        musicLoader.load();
+                        sound.musicLoader.reload(dir.name().equals("a") ? "ambient" : dir.name().equals("d") ? "dark" : "boss");
                         MCSui.musicBar.rebuild();
                         ui.showInfo("@musicSquare.downloaded");
                     });
@@ -93,6 +95,8 @@ public abstract class musicBase {
         public void downloadNamed(String inputName){
             if(!isSafeUrl(url)) return;
 
+            var sound = (CustomSoundControl)control.sound;
+
             ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
 
             Http.get(url, res -> {
@@ -109,16 +113,20 @@ public abstract class musicBase {
                         }
                     }
 
+                    String outputName;
+
                     if(inputName.equals("menu")){
                         Core.settings.put("MCSmenuMusicName", artist + " - " + this.name);
+                        outputName = inputName;
                     }else if(inputName.equals("editor")){
                         Core.settings.put("MCSeditorMusicName", artist + " - " + this.name);
+                        outputName = inputName;
                     }else{
                         Core.settings.put("MCSplanetMusicName-" + inputName, artist + " - " + this.name);
+                        outputName = "planets";
                     }
 
-                    Fi folder = (!inputName.equals("menu") && !inputName.equals("editor")) ? musicLoader.planets : musicLoader.musicFolder;
-                    if(!folder.exists()) musicLoader.loadFolder();
+                    Fi folder = (!inputName.equals("menu") && !inputName.equals("editor")) ? sound.musicLoader.musicFolder.child("planets") : sound.musicLoader.musicFolder;
 
                     for(var f : folder.seq()){
                         if(getFileName(f).equals(inputName)) f.delete();
@@ -127,7 +135,7 @@ public abstract class musicBase {
 
                     Core.app.post(() -> {
                         ui.loadfrag.hide();
-                        musicLoader.load();
+                        sound.musicLoader.reload(outputName);
                         ui.showInfo("@musicSquare.downloaded");
                     });
                 }catch(Throwable e){

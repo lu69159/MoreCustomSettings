@@ -41,10 +41,9 @@ public class musicSquareSearchDialog extends BaseDialog {
             word = "";
             resource.allResults.clear();
             resultTable.clear();
-            if(musicLoader.tmp.exists()){
-                musicLoader.tmp.deleteDirectory();
-                musicLoader.tmp.mkdirs();
-            }
+            var sound = (CustomSoundControl)control.sound;
+            sound.musicLoader.tmp.delete();
+            sound.musicLoader.tmp.mkdirs();
         });
     }
 
@@ -155,7 +154,8 @@ public class musicSquareSearchDialog extends BaseDialog {
     private void trackPreviewListening(musicBase.Track t){
         if(t.url == null || !musicBase.isSafeUrl(t.url)) return;
         previewingUrl = t.url;
-        if(!musicLoader.tmp.exists()) musicLoader.tmp.mkdirs();
+
+        var sound = (CustomSoundControl)control.sound;
 
         Http.get(t.url, res -> {
             try{
@@ -171,7 +171,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                     }
                 }
 
-                Fi file = musicLoader.tmp.child("preview." + ext);
+                Fi file = sound.musicLoader.tmp.child("preview." + ext);
                 file.writeBytes(data);
                 if(file.length() == 0){
                     Core.app.post(() -> ui.showInfo("Downloaded file is empty"));
@@ -184,7 +184,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                             @Override
                             public void setLooping(boolean isLooping){}
                         };
-                        ((CustomSoundControl)control.sound).playPreView(music);
+                        sound.playPreView(music);
                     }catch(Exception ex){
                         ui.showException(ex);
                     }
@@ -207,23 +207,25 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackDownload(musicBase.Track t){
+        var musicFolder = ((CustomSoundControl)control.sound).musicLoader.musicFolder;
+
         BaseDialog dialog = new BaseDialog("@musicSquare.selectCategory");
         dialog.addCloseButton();
         dialog.cont.table(Tex.button, bt -> {
             bt.defaults().size(200f, 60f).left();
             bt.button("@importMusic.ambient", Styles.flatt, () -> {
                 dialog.hide();
-                t.download(musicLoader.ambient);
+                t.download(musicFolder.child("a"));
             });
             bt.row();
             bt.button("@importMusic.dark", Styles.flatt, () -> {
                 dialog.hide();
-                t.download(musicLoader.dark);
+                t.download(musicFolder.child("d"));
             });
             bt.row();
             bt.button("@importMusic.boss", Styles.flatt, () -> {
                 dialog.hide();
-                t.download(musicLoader.boss);
+                t.download(musicFolder.child("b"));
             });
             bt.row();
             bt.button("@importMusic.menu", Styles.flatt, () -> {

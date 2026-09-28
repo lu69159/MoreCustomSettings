@@ -2,9 +2,8 @@ package MCS.ui.dialogs;
 
 import java.lang.reflect.*;
 
-import MCS.customDifficulty.CustomCampaignRules;
-import MCS.customDifficulty.CustomWaveSpawner;
-import MCS.customMusic.CustomSoundControl;
+import MCS.customDifficulty.*;
+import MCS.customMusic.*;
 import arc.*;
 import arc.audio.*;
 import arc.func.*;
@@ -20,6 +19,7 @@ import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
 import static MCS.main.*;
+import static MCS.customMusic.MusicTools.*;
 import static MCS.enumClass.MCSeventType.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
@@ -32,11 +32,13 @@ public class MCS_SettingMenuDialog {
 
     public MCS_SettingMenuDialog(){
         Events.on(MusicImportDialogShowEvent.class, e -> {
-            new MusicImportDialog((e.from == null ? "@importMusic" : e.isCopied ? "@musicList.copy" : "@musicList.move"), e.from, e.isCopied).show();
+            new MusicImportDialog((e.from == null ? "@importMusic" : e.isCopied ? "@musicList.copy" : "@musicList.move"), e.from, e.isImported, e.isCopied).show();
         });
     }
 
     public Cons<SettingsTable> settingBuilder = t -> {
+        var sound = (CustomSoundControl)control.sound;
+
         t.pref(new TitleSetting("@settingtitle.music"));
 
         t.checkPref("instantChangeBossMusic", false);
@@ -46,13 +48,16 @@ public class MCS_SettingMenuDialog {
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> Events.fire(new MusicImportDialogShowEvent())));
         if(!mobile){
             t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
-                if (!musicLoader.musicFolder.exists()) musicLoader.loadFolder();
-                app.openFolder(musicLoader.musicFolder.absolutePath());
+                try{
+                    app.openFolder(sound.musicLoader.musicFolder.absolutePath());
+                }catch(Exception e){
+                    ui.showException(e);
+                }
             }));
         }
         t.pref(new ButtonSetting("@clearMusic", Icon.trash,
                 () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> {
-                    musicLoader.delete();
+                    sound.musicLoader.delete();
                     MCSui.musicBar.rebuild();
                 })
         ));
@@ -163,46 +168,33 @@ public class MCS_SettingMenuDialog {
 
         contentManagerDialog = new ContentManagerDialog("@contentManager");
 
+        if(settings.getBool("enablecustomcampaigndifficulty")){
+            ui.campaignRules = new CustomCampaignRulesDialog();
+            spawner = new CustomWaveSpawner();
+        }
+
         try{
             var icon = Core.atlas.find("mcs-setting");
             icon.scale = 0.2f;
             ui.settings.addCategory(bundle.get("morecustomsettings"), new TextureRegionDrawable(icon).tint(Pal.accent), settingBuilder);
             replaceResetButton();
-
-            Seq<Music> a = new Seq<>(control.sound.ambientMusic), b = new Seq<>(control.sound.bossMusic), d = new Seq<>(control.sound.darkMusic);
-            control.sound.ambientMusic.clear();
-            control.sound.darkMusic.clear();
-            control.sound.bossMusic.clear();
-            removeAllListeners("mindustry.audio.SoundControl");
-            control.sound = new CustomSoundControl(){{
-                if(enabledCustomMusic()){
-                    ambientMusic = musicLoader.ambientMusic;
-                    bossMusic = musicLoader.bossMusic;
-                    darkMusic = musicLoader.darkMusic;
-                }else{
-                    ambientMusic = a;
-                    bossMusic = b;
-                    darkMusic = d;
-                }
-            }};
         }catch(Exception ex){
             throw new RuntimeException(ex);
-        }
-
-        if(settings.getBool("enablecustomcampaigndifficulty")){
-            ui.campaignRules = new CustomCampaignRulesDialog();
-            spawner = new CustomWaveSpawner();
         }
     }
 
     private void buildMusicButtons(Table t, Music m, Runnable r){
-        t.labelWrap(musicLoader.getMusicName(m.file)).left().fillX().expandX();
-        t.button("@musicList.rename", Icon.pencilSmall, () -> new MusicRenameDialog("@musicList.rename", m).show()).padLeft(10);
-        t.button("@musicList.move", Icon.moveSmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false))).padLeft(10);
-        t.button("@musicList.copy", Icon.copySmall, () -> Events.fire(new MusicImportDialogShowEvent(m, true))).padLeft(10);
-        t.button("@delete", Icon.trashSmall, r).padLeft(10);
+        t.labelWrap(((CustomSoundControl)control.sound).musicLoader.getMusicName(m.file)).height(32f).left().fillX().expandX();
+        if(enabledCustomMusic()){
+            t.button("@musicList.rename", Icon.pencilSmall, () -> new MusicRenameDialog("@musicList.rename", m).show()).padLeft(10);
+            t.button("@musicList.move", Icon.moveSmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false, false))).padLeft(10);
+            t.button("@musicList.copy", Icon.copySmall, () -> Events.fire(new MusicImportDialogShowEvent(m, false, true))).padLeft(10);
+            t.button("@delete", Icon.trashSmall, r).padLeft(10);
+        }
     }
     private void buildMusicList(Table t, String name){
+        var sound = (CustomSoundControl)control.sound;
+
         t.add("@importMusic." + name).color(Pal.accent).padTop(10f).left().row();
         boolean found = false;
         if(name.equals("planet")){
@@ -210,14 +202,14 @@ public class MCS_SettingMenuDialog {
             for(var p : content.planets()){
                 if(!p.accessible) continue;
                 t.add("[#" + p.iconColor + "]" + Iconc.planet + p.localizedName).padTop(5).left().row();
-                if(musicLoader.planetMusicMap.get(p) != null){
+                if(sound.planetMusicMap.get(p) != null){
                     t.table(Styles.grayPanel, mt -> {
-                        var m = musicLoader.planetMusicMap.get(p);
+                        var m = sound.planetMusicMap.get(p);
                         buildMusicButtons(mt, m, () -> {
                             settings.remove("MCSplanetMusicName-" + p.name);
                             m.file.delete();
-                            musicLoader.planetMusicMap.remove(p);
-                            musicLoader.load();
+                            sound.planetMusicMap.remove(p);
+                            sound.musicLoader.reload("planets");
                             rebuildMusicList();
                         });
                     }).growX().left().row();
@@ -227,27 +219,27 @@ public class MCS_SettingMenuDialog {
             }
             found = true;
         }else if(name.equals("menu") || name.equals("editor")){
-            var m = new Music[]{ name.equals("menu") ? musicLoader.menuMusic : musicLoader.editorMusic };
+            var m = new Music[]{ name.equals("menu") ? sound.menuMusic : sound.editorMusic };
             String settingName = name.equals("menu") ? "MCSmenuMusicName" : "MCSeditorMusicName";
             if(m[0] != null){
                 t.table(Styles.grayPanel, mt -> {
                     buildMusicButtons(mt, m[0], () -> {
                         settings.remove(settingName);
                         m[0].file.delete();
-                        musicLoader.load();
+                        sound.musicLoader.reload(name);
                         rebuildMusicList();
                     });
                 }).growX().left().row();
                 found = true;
             }
         }else{
-            var seq = name.equals("ambient") ? musicLoader.ambientMusic : name.equals("dark") ? musicLoader.darkMusic : musicLoader.bossMusic;
+            var seq = name.equals("ambient") ? sound.ambientMusic : name.equals("dark") ? sound.darkMusic : sound.bossMusic;
             if(seq.size > 0){
                 for(var m : seq){
                     t.table(Styles.grayPanel, mt -> {
                         buildMusicButtons(mt, m, () -> {
                             m.file.delete();
-                            musicLoader.load();
+                            sound.musicLoader.reload(name);
                             MCSui.musicBar.rebuild();
                             rebuildMusicList();
                         });
@@ -288,7 +280,7 @@ public class MCS_SettingMenuDialog {
                         }
                     }
 
-                    musicLoader.reset();
+                    ((CustomSoundControl)control.sound).musicLoader.set(false);
                     rulesMap.reset();
                     MCSui.reset();
 
@@ -321,40 +313,23 @@ public class MCS_SettingMenuDialog {
         }catch(Throwable ignored){}
     }
 
-    @SuppressWarnings("unchecked")
-    private static void removeAllListeners(String keyWord){
-        if(isFoo) return;
-        try{
-            Field eventsField = Events.class.getDeclaredField("events");
-            eventsField.setAccessible(true);
-            ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
-            events.each((type, listeners) -> {
-                for(var listener : listeners){
-                    if(listener.toString().lastIndexOf(keyWord) != -1){
-                        if(!listeners.remove(listener)){
-                            ui.showException(new Exception("Failed to remove listener of " + keyWord));
-                        }
-                    }
-                }
-            });
-        }catch(Exception e){
-            ui.showException(e);
-        }
-    }
-
     /**
      * Dialogs
      */
     public static class MusicImportDialog extends BaseDialog{
         @Nullable Music from;
+        boolean isImported;
         boolean isCopied;
         BaseDialog musicInGameDialog, planetMusicListDialog;
 
-        public MusicImportDialog(String title, Music from, boolean isCopied) {
+        public MusicImportDialog(String title, Music from, boolean isImported, boolean isCopied) {
             super(title);
             this.from = from;
+            this.isImported = isImported;
             this.isCopied = isCopied;
             addCloseButton();
+
+            var sound = (CustomSoundControl)control.sound;
 
             musicInGameDialog = new BaseDialog(title);
             musicInGameDialog.addCloseButton();
@@ -362,19 +337,25 @@ public class MCS_SettingMenuDialog {
                 t.defaults().size(200f, 60f).left();
 
                 t.button("@importMusic.ambient", Styles.flatt, () -> {
-                    Events.fire(new ImportMusicEvent(from,"a", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("a"));
+                    else Events.fire(new MoveMusicEvent(from,"a", isCopied, false));
+
                     musicInGameDialog.hide();
                     hide();
                 }).disabled(b -> from != null && from.file.parent().name().equals("a"));
                 t.row();
                 t.button("@importMusic.dark", Styles.flatt, () -> {
-                    Events.fire(new ImportMusicEvent(from,"d", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("d"));
+                    else Events.fire(new MoveMusicEvent(from,"d", isCopied, false));
+
                     musicInGameDialog.hide();
                     hide();
                 }).disabled(b -> from != null && from.file.parent().name().equals("d"));
                 t.row();
                 t.button("@importMusic.boss", Styles.flatt, () -> {
-                    Events.fire(new ImportMusicEvent(from,"b", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("b"));
+                    else Events.fire(new MoveMusicEvent(from,"b", isCopied, false));
+
                     musicInGameDialog.hide();
                     hide();
                 }).disabled(b -> from != null && from.file.parent().name().equals("b"));
@@ -388,10 +369,12 @@ public class MCS_SettingMenuDialog {
                 for(var planet : content.planets()){
                     if(!planet.accessible) continue;
                     t.button(planet.localizedName, Icon.planet.tint(planet.iconColor), () -> {
-                        Events.fire(new ImportNamedMusicEvent(from, planet.name, isCopied));
+                        if(isImported) Events.fire(new ImportMusicEvent(planet.name));
+                        else Events.fire(new MoveMusicEvent(from, planet.name, isCopied, true));
+
                         planetMusicListDialog.hide();
                         hide();
-                    }).disabled(b -> from != null && musicLoader.getMusicName(from.file).equals(planet.name));
+                    }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals(planet.name));
                     t.row();
                 }
             });
@@ -402,14 +385,16 @@ public class MCS_SettingMenuDialog {
                 t.button("@importMusic.inGame", Styles.flatt, () -> musicInGameDialog.show());
                 t.row();
                 t.button("@importMusic.menu", Styles.flatt, () -> {
-                    Events.fire(new ImportNamedMusicEvent(from, "menu", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("menu"));
+                    else Events.fire(new MoveMusicEvent(from, "menu", isCopied, true));
                     hide();
-                }).disabled(b -> from != null && musicLoader.getMusicName(from.file).equals("menu"));
+                }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals("menu"));
                 t.row();
                 t.button("@importMusic.editor", Styles.flatt, () -> {
-                    Events.fire(new ImportNamedMusicEvent(from, "editor", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("editor"));
+                    else Events.fire(new MoveMusicEvent(from, "editor", isCopied, true));
                     hide();
-                }).disabled(b -> from != null && musicLoader.getMusicName(from.file).equals("editor"));
+                }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals("editor"));
                 t.row();
                 t.button("@importMusic.planet", Styles.flatt, () -> planetMusicListDialog.show());
                 t.row();
@@ -424,11 +409,13 @@ public class MCS_SettingMenuDialog {
             super(title);
             this.music = music;
 
+            var sound = (CustomSoundControl)control.sound;
+
             buttons.defaults().size(105f, 64f);
             cont.table(t -> {
-                t.field(musicLoader.getMusicName(music.file), s -> tmpMusicName = s).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
+                t.field(sound.musicLoader.getMusicName(music.file), s -> tmpMusicName = s).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
                 t.button("@confirm", Icon.ok, () -> {
-                    musicLoader.renameMusic(music, tmpMusicName);
+                    sound.musicLoader.renameMusic(music, tmpMusicName);
                     MCSui.menu.rebuildMusicList();
                     MCSui.musicBar.rebuild();
                     hide();
