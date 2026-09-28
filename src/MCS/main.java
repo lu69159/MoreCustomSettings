@@ -2,8 +2,6 @@ package MCS;
 
 import MCS.game.*;
 import MCS.ui.*;
-import MCS.ui.dialogs.*;
-import MCS.ui.fragments.*;
 import arc.Events;
 import arc.files.*;
 import mindustry.mod.*;
@@ -16,7 +14,7 @@ public class main extends Mod{
     public static PlanetCustomRulesMap rulesMap;
     public static CustomMusicLoader musicLoader;
     public static ContentManager contentManager;
-    public static MCSUI MCSui;
+    public static MCS_UI MCSui;
 
     public static boolean isFoo = false;
 
@@ -24,7 +22,7 @@ public class main extends Mod{
         musicLoader = new CustomMusicLoader();
         rulesMap = new PlanetCustomRulesMap();
         contentManager = new ContentManager();
-        MCSui = new MCSUI();
+        MCSui = new MCS_UI();
 
         Events.run(ClientLoadEvent.class, () -> {
             isFoo();

@@ -3,13 +3,13 @@ package MCS.ui;
 import MCS.ui.dialogs.*;
 import MCS.ui.fragments.*;
 
-public class MCSUI{
-    public MCSsettingMenuDialog menu;
+public class MCS_UI {
+    public MCS_SettingMenuDialog menu;
     public CustomAttackFrag attacked;
     public MusicBar musicBar;
 
-    public MCSUI(){
-        menu = new MCSsettingMenuDialog();
+    public MCS_UI(){
+        menu = new MCS_SettingMenuDialog();
         attacked = new CustomAttackFrag();
         musicBar = new MusicBar();
     }

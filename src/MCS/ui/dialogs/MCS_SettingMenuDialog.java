@@ -22,12 +22,12 @@ import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.Vars.*;
 
-public class MCSsettingMenuDialog {
+public class MCS_SettingMenuDialog {
     private BaseDialog blockStringDialog, unitStringDialog, musicListDialog;
     private musicSquareSearchDialog musicSearchDialog;
     private ContentManagerDialog contentManagerDialog;
 
-    public MCSsettingMenuDialog(){
+    public MCS_SettingMenuDialog(){
         Events.on(MusicImportDialogShowEvent.class, e -> {
             new MusicImportDialog((e.from == null ? "@importMusic" : e.isCopied ? "@musicList.copy" : "@musicList.move"), e.from, e.isCopied).show();
         });
@@ -309,7 +309,7 @@ public class MCSsettingMenuDialog {
             Field field = SettingsTable.class.getDeclaredField("isRebuilding");
             field.setAccessible(true);
             field.setBoolean(table, value);
-        }catch(Throwable ignored) {}
+        }catch(Throwable ignored){}
     }
 
     @SuppressWarnings("unchecked")
@@ -338,8 +338,8 @@ public class MCSsettingMenuDialog {
      */
     public static class MusicImportDialog extends BaseDialog{
         @Nullable Music from;
-        private boolean isCopied;
-        private static BaseDialog musicInGameDialog, planetMusicListDialog;
+        boolean isCopied;
+        BaseDialog musicInGameDialog, planetMusicListDialog;
 
         public MusicImportDialog(String title, Music from, boolean isCopied) {
             super(title);
