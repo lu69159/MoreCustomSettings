@@ -1,8 +1,6 @@
 package MCS.ui.dialogs;
 
-import MCS.customDifficulty.CustomCampaignRules;
-import MCS.customDifficulty.CustomDifficulty;
-import MCS.customDifficulty.RuleTeam;
+import MCS.customDifficulty.*;
 import arc.*;
 import arc.func.*;
 import arc.scene.ui.*;

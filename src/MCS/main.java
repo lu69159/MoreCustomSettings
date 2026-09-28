@@ -8,7 +8,6 @@ import arc.Events;
 import arc.files.*;
 import arc.func.*;
 import arc.struct.*;
-import arc.util.Log;
 import mindustry.mod.*;
 import java.lang.reflect.*;
 
