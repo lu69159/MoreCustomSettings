@@ -7,7 +7,7 @@ import arc.struct.*;
 import mindustry.gen.*;
 import mindustry.ui.*;
 
-import static MCS.enumClass.MCSeventType.*;
+import static MCS.enumClass.MCS_EventType.*;
 import static MCS.customMusic.MusicTools.*;
 import static MCS.main.*;
 import static arc.Core.settings;

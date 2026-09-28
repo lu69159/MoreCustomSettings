@@ -3,7 +3,7 @@ package MCS.enumClass;
 import arc.audio.Music;
 import arc.util.Nullable;
 
-public class MCSeventType{
+public class MCS_EventType {
     public static class MusicBarChangeEvent {
         public boolean enabled;
         public MusicBarChangeEvent(boolean enabled){

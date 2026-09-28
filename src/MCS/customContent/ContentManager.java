@@ -33,7 +33,7 @@ public class ContentManager {
     public ContentManager(){
         Events.on(EventType.SectorLaunchEvent.class, e -> overrideRule());
         Events.on(EventType.SaveLoadEvent.class, e -> overrideRule());
-        Events.on(MCSeventType.ContentManagerChangeEvent.class, e -> {
+        Events.on(MCS_EventType.ContentManagerChangeEvent.class, e -> {
             enabled = e.enabled;
             if(e.enabled){
                 reloadData();

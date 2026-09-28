@@ -10,7 +10,6 @@ import arc.func.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
-import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
 import mindustry.gen.*;
@@ -20,7 +19,7 @@ import mindustry.ui.dialogs.*;
 
 import static MCS.main.*;
 import static MCS.customMusic.MusicTools.*;
-import static MCS.enumClass.MCSeventType.*;
+import static MCS.enumClass.MCS_EventType.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.Vars.*;

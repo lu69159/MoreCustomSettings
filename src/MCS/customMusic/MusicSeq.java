@@ -10,9 +10,9 @@ import static MCS.customMusic.MusicTools.*;
 import static mindustry.Vars.*;
 
 public abstract class MusicSeq{
-    public final String name;
-    public Fi folder;
-    public Seq<Music> originalMusics;
+    final String name;
+    Fi folder;
+    Seq<Music> originalMusics;
     boolean isNamed;
 
     public @Nullable Music namedMusic;

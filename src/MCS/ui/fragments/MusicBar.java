@@ -15,14 +15,12 @@ import mindustry.ui.*;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
-import static MCS.main.*;
 
 public class MusicBar{
     public boolean openList = false;
     private float barX = -1f, barY = -1f;
     private Table bar, list;
 
-    //TODO：build方法拆分为buildBar和buildList(很多时候rebuild只需要重加载list)
     public MusicBar(){
         Events.run(EventType.WorldLoadEvent.class, this::rebuild);
         Events.run(EventType.ResizeEvent.class, this::rebuild);

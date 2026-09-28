@@ -33,7 +33,7 @@ public class CustomSoundControl extends SoundControl{
         musicLoader = new CustomMusicLoader(this);
         reloadAllInGameMusic();
 
-        Events.on(MCSeventType.MusicBarChangeEvent.class, e -> {
+        Events.on(MCS_EventType.MusicBarChangeEvent.class, e -> {
             if(e.enabled){
                 mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
             }else{
@@ -41,7 +41,7 @@ public class CustomSoundControl extends SoundControl{
                 mode = MusicMode.normal;
             }
         });
-        Events.on(MCSeventType.CustomMusicChangeEvent.class, e -> {
+        Events.on(MCS_EventType.CustomMusicChangeEvent.class, e -> {
             musicLoader.set(e.enabled);
             if(current != null){
                 current.stop();
