@@ -1,4 +1,4 @@
-package MCS.game.enumClass;
+package MCS.enumClass;
 
 import arc.audio.Music;
 import arc.util.Nullable;

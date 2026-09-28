@@ -1,6 +1,6 @@
-package MCS.game;
+package MCS.customMusic;
 
-import MCS.game.enumClass.*;
+import MCS.enumClass.*;
 import arc.*;
 import arc.audio.*;
 import arc.math.*;

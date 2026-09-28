@@ -1,4 +1,4 @@
-package MCS.game;
+package MCS.customDifficulty;
 
 import arc.Events;
 import arc.func.*;

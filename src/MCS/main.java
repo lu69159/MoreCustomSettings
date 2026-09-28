@@ -1,6 +1,8 @@
 package MCS;
 
-import MCS.game.*;
+import MCS.customContent.*;
+import MCS.customDifficulty.*;
+import MCS.customMusic.*;
 import MCS.ui.*;
 import arc.Events;
 import arc.files.*;

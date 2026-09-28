@@ -1,10 +1,10 @@
-package MCS.game;
+package MCS.customDifficulty;
 
 import mindustry.Vars;
 import mindustry.game.*;
 import mindustry.gen.Groups;
 import mindustry.type.Planet;
-import MCS.game.enumClass.*;
+import MCS.enumClass.*;
 
 public class CustomCampaignRules extends CampaignRules {
     public CustomTeamRules enemy;

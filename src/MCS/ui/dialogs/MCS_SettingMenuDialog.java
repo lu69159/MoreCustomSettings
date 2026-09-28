@@ -1,7 +1,10 @@
 package MCS.ui.dialogs;
 
 import java.lang.reflect.*;
-import MCS.game.*;
+
+import MCS.customDifficulty.CustomCampaignRules;
+import MCS.customDifficulty.CustomWaveSpawner;
+import MCS.customMusic.CustomSoundControl;
 import arc.*;
 import arc.audio.*;
 import arc.func.*;
@@ -17,7 +20,7 @@ import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
 import static MCS.main.*;
-import static MCS.game.enumClass.MCSeventType.*;
+import static MCS.enumClass.MCSeventType.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.Vars.*;

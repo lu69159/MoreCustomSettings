@@ -1,6 +1,6 @@
-package MCS.game;
+package MCS.customContent;
 
-import MCS.game.enumClass.*;
+import MCS.enumClass.*;
 import arc.*;
 import arc.files.*;
 import arc.struct.*;

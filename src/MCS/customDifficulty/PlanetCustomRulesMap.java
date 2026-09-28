@@ -1,8 +1,8 @@
-package MCS.game;
+package MCS.customDifficulty;
 
 import arc.struct.*;
 import mindustry.type.Planet;
-import MCS.game.enumClass.CustomDifficulty;
+import MCS.enumClass.CustomDifficulty;
 
 import static arc.Core.settings;
 import static mindustry.Vars.content;

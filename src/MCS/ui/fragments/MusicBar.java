@@ -1,7 +1,7 @@
 package MCS.ui.fragments;
 
-import MCS.game.CustomSoundControl;
-import MCS.game.enumClass.*;
+import MCS.customMusic.CustomSoundControl;
+import MCS.enumClass.*;
 import arc.Events;
 import arc.scene.*;
 import arc.scene.event.*;

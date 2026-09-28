@@ -1,6 +1,6 @@
 package MCS.ui.dialogs;
 
-import MCS.game.enumClass.ContentManageMode;
+import MCS.enumClass.ContentManageMode;
 import arc.Core;
 import arc.graphics.*;
 import arc.graphics.g2d.TextureRegion;

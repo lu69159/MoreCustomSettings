@@ -1,4 +1,4 @@
-package MCS.game;
+package MCS.customMusic;
 
 import arc.Core;
 import arc.Events;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import static MCS.main.*;
-import static MCS.game.enumClass.MCSeventType.*;
+import static MCS.enumClass.MCSeventType.*;
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 
