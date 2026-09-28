@@ -11,7 +11,6 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import mindustry.ai.*;
-import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
@@ -171,7 +170,7 @@ public class MCSsettingMenuDialog {
             control.sound.ambientMusic.clear();
             control.sound.darkMusic.clear();
             control.sound.bossMusic.clear();
-            removeListeners(EventType.WaveEvent.class, "mindustry.audio.SoundControl");
+            removeAllListeners("mindustry.audio.SoundControl");
             control.sound = new CustomSoundControl(){{
                 ambientMusic = a;
                 bossMusic = b;
@@ -314,19 +313,17 @@ public class MCSsettingMenuDialog {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> void removeListeners(Class<T> eventType, String keyWord){
+    private static void removeAllListeners(String keyWord){
         if(isFoo) return;
         try{
             Field eventsField = Events.class.getDeclaredField("events");
             eventsField.setAccessible(true);
             ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
             events.each((type, listeners) -> {
-                if(type.equals(eventType)){
-                    for(var listener : listeners){
-                        if(listener.toString().lastIndexOf(keyWord) != -1){
-                            if(!listeners.remove(listener)){
-                                ui.showException(new Exception("Failed to remove listener of " + keyWord));
-                            }
+                for(var listener : listeners){
+                    if(listener.toString().lastIndexOf(keyWord) != -1){
+                        if(!listeners.remove(listener)){
+                            ui.showException(new Exception("Failed to remove listener of " + keyWord));
                         }
                     }
                 }
