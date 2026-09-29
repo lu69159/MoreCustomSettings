@@ -50,25 +50,27 @@ public class main extends Mod{
         control.sound.ambientMusic.clear();
         control.sound.darkMusic.clear();
         control.sound.bossMusic.clear();
-        removeAllListeners("mindustry.audio.SoundControl");
+        removeAllListeners(ClientLoadEvent.class, "mindustry.audio.SoundControl");
+        removeAllListeners(ResetEvent.class, "mindustry.audio.SoundControl");
+        removeAllListeners(WaveEvent.class, "mindustry.audio.SoundControl");
         control.sound = new CustomSoundControl();
     }
 
 
     @SuppressWarnings("unchecked")
-    private static void removeAllListeners(String keyWord){
+    private static void removeAllListeners(Class<?> eventType, String keyWord){
         if(isFoo) return;
         try{
             Field eventsField = Events.class.getDeclaredField("events");
             eventsField.setAccessible(true);
             ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
-            events.each((type, listeners) -> {
-                for(var listener : listeners){
-                    if(listener.toString().lastIndexOf(keyWord) != -1){
-                        listeners.remove(listener);
-                    }
+
+            for(var listener : events.get(eventType)){
+                if(listener.getClass().getName().startsWith(keyWord + "$$")){
+                    events.remove(listener);
                 }
-            });
+            }
+            eventsField.setAccessible(false);
         }catch(Exception e){
             ui.showException(e);
         }
