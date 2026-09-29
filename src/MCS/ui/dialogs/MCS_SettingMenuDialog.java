@@ -44,7 +44,7 @@ public class MCS_SettingMenuDialog {
 
         t.checkPref("instantChangeBossMusic", false);
         t.checkPref("enableMusicBar", false, b -> Events.fire(new MusicBarChangeEvent(b)));
-        t.sliderPref("musicBarScl",100, 50, 200, 5, i -> i + "%", changed -> MCSui.musicBar.rebuild());
+        t.sliderPref("musicBarScl",100, 50, 200, 5, i -> i + "%", changed -> Events.fire(new RebuildMusicBarEvent()));
         t.checkPref("enableCustomMusic", false, b -> Events.fire(new CustomMusicChangeEvent(b)));
         t.pref(new ButtonSetting("@importMusic", Icon.play, () -> Events.fire(new MusicImportDialogShowEvent())));
         if(!mobile){
@@ -60,7 +60,8 @@ public class MCS_SettingMenuDialog {
                 () -> ui.showConfirm("@clearMusic", "@clearMusic.confirm", () -> {
                     sound.musicLoader.delete();
                     settings.put("enableCustomMusic", false);
-                    MCSui.musicBar.rebuild();
+                    Events.fire(new CustomMusicChangeEvent(false));
+                    Events.fire(new RebuildMusicBarEvent());
                 })
         ));
         t.pref(new ButtonSetting("@musicList", Icon.list, () -> musicListDialog.show()));
@@ -239,7 +240,7 @@ public class MCS_SettingMenuDialog {
                         buildMusicButtons(mt, m, () -> {
                             m.file.delete();
                             musicLoader.reload(name);
-                            MCSui.musicBar.rebuild();
+                            Events.fire(new RebuildMusicBarEvent());
                             rebuildMusicList();
                         });
                     }).growX().left().row();
@@ -337,7 +338,7 @@ public class MCS_SettingMenuDialog {
 
                 t.button("@importMusic.ambient", Styles.flatt, () -> {
                     if(isImported) Events.fire(new ImportMusicEvent("a"));
-                    else Events.fire(new MoveMusicEvent(from,"a", isCopied, false));
+                    else Events.fire(new MoveMusicEvent(from,"a", isCopied));
 
                     musicInGameDialog.hide();
                     hide();
@@ -345,7 +346,7 @@ public class MCS_SettingMenuDialog {
                 t.row();
                 t.button("@importMusic.dark", Styles.flatt, () -> {
                     if(isImported) Events.fire(new ImportMusicEvent("d"));
-                    else Events.fire(new MoveMusicEvent(from,"d", isCopied, false));
+                    else Events.fire(new MoveMusicEvent(from,"d", isCopied));
 
                     musicInGameDialog.hide();
                     hide();
@@ -353,7 +354,7 @@ public class MCS_SettingMenuDialog {
                 t.row();
                 t.button("@importMusic.boss", Styles.flatt, () -> {
                     if(isImported) Events.fire(new ImportMusicEvent("b"));
-                    else Events.fire(new MoveMusicEvent(from,"b", isCopied, false));
+                    else Events.fire(new MoveMusicEvent(from,"b", isCopied));
 
                     musicInGameDialog.hide();
                     hide();
@@ -369,7 +370,7 @@ public class MCS_SettingMenuDialog {
                     if(!planet.accessible) continue;
                     t.button(planet.localizedName, Icon.planet.tint(planet.iconColor), () -> {
                         if(isImported) Events.fire(new ImportMusicEvent(planet.name));
-                        else Events.fire(new MoveMusicEvent(from, planet.name, isCopied, true));
+                        else Events.fire(new MoveMusicEvent(from, planet.name, isCopied));
 
                         planetMusicListDialog.hide();
                         hide();
@@ -385,13 +386,13 @@ public class MCS_SettingMenuDialog {
                 t.row();
                 t.button("@importMusic.menu", Styles.flatt, () -> {
                     if(isImported) Events.fire(new ImportMusicEvent("menu"));
-                    else Events.fire(new MoveMusicEvent(from, "menu", isCopied, true));
+                    else Events.fire(new MoveMusicEvent(from, "menu", isCopied));
                     hide();
                 }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals("menu"));
                 t.row();
                 t.button("@importMusic.editor", Styles.flatt, () -> {
                     if(isImported) Events.fire(new ImportMusicEvent("editor"));
-                    else Events.fire(new MoveMusicEvent(from, "editor", isCopied, true));
+                    else Events.fire(new MoveMusicEvent(from, "editor", isCopied));
                     hide();
                 }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals("editor"));
                 t.row();
@@ -415,7 +416,6 @@ public class MCS_SettingMenuDialog {
                 t.field(sound.musicLoader.getMusicName(music.file), s -> tmpMusicName = s).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
                 t.button("@confirm", Icon.ok, () -> {
                     sound.musicLoader.renameMusic(music, tmpMusicName);
-                    MCSui.musicBar.rebuild();
                     hide();
                 }).padLeft(10f);
                 t.button("@back", Icon.left, this::hide).padLeft(10f);

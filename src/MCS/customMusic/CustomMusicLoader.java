@@ -9,7 +9,6 @@ import mindustry.ui.*;
 
 import static MCS.MCS_EventType.*;
 import static MCS.customMusic.MusicTools.*;
-import static MCS.main.*;
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 
@@ -27,15 +26,8 @@ public class CustomMusicLoader {
         tmp = musicFolder.child("tmp");
         tmp.mkdirs();
 
-        Events.on(ImportMusicEvent.class, e -> {
-            var name = e.name;
-            if(name.equals("a") || name.equals("d") || name.equals("b")) importMusic(name);
-            else importNamedMusic(name);
-        });
-        Events.on(MoveMusicEvent.class, e -> {
-            if(e.isNamed) moveNamedMusic(e.music.file, e.name, e.isCopied, false);
-            else moveMusic(e.music.file, e.name, e.isCopied, false);
-        });
+        Events.on(ImportMusicEvent.class, e -> importMusic(e.name));
+        Events.on(MoveMusicEvent.class, e -> moveMusic(e.music.file, e.name, e.isCopied, false));
     }
 
     public void init(){
@@ -150,32 +142,47 @@ public class CustomMusicLoader {
 
                 m.file.moveTo(m.file.parent().child(encodeString(newName) + "__" + m.file.length() + "." + m.file.extension()));
                 reload(m.file.parent().name());
-                MCSui.musicBar.rebuild();
+                Events.fire(new RebuildMusicBarEvent());
             }
             Events.fire(new RebuildMusicListEvent());
         }catch(Exception e){
             ui.showException(e);
         }
     }
-
-    public void moveMusic(Fi from, String folderName, boolean isCopied, boolean isDownloaded){
-        if(importMusicFromFi(Seq.with(from).toArray(), folderName,false, isCopied)){
+    public void moveMusic(Fi from, String name, boolean isCopied, boolean isDownloaded){
+        boolean done = false;
+        if(name.equals("a") || name.equals("d") || name.equals("b")){
+            if(importMusicFromFi(Seq.with(from).toArray(), name,false, isCopied)) done = true;
+        }else{
+            if(importNamedMusicFromFi(Seq.with(from).toArray(), name, false, isCopied)) done = true;
+        }
+        if(done){
             if(!isDownloaded) ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
             reloadAll();
-            MCSui.musicBar.rebuild();
+            Events.fire(new RebuildMusicBarEvent());
             Events.fire(new RebuildMusicListEvent());
         }
     }
-    public void importMusic(String musicFi){
-        FileChooser.open("ogg", "mp3").submitMulti(files -> {
-            if(importMusicFromFi(files, musicFi, true, true)){
-                ui.showInfo("@importMusic.imported");
-                reload(musicFi);
-                MCSui.musicBar.rebuild();
-            }
-        });
+    public void importMusic(String name){
+        if(name.equals("a") || name.equals("d") || name.equals("b")){
+            FileChooser.open("ogg", "mp3").submitMulti(files -> {
+                if(importMusicFromFi(files, name, true, true)){
+                    ui.showInfo("@importMusic.imported");
+                    reload(name);
+                    Events.fire(new RebuildMusicBarEvent());
+                }
+            });
+        }else{
+            FileChooser.open("ogg", "mp3").submitMulti(files -> {
+                if(importNamedMusicFromFi(files, name, true, true)){
+                    ui.showInfo("@importMusic.imported");
+                    reload(name);
+                }
+            });
+        }
     }
-    public boolean importMusicFromFi(Fi[] files, String folderName, boolean isImport, boolean isCopied){
+
+    private boolean importMusicFromFi(Fi[] files, String folderName, boolean isImport, boolean isCopied){
         boolean successImported = false;
         for(var fi : files){
             try{
@@ -192,23 +199,7 @@ public class CustomMusicLoader {
         }
         return successImported;
     }
-
-    public void moveNamedMusic(Fi from, String inputName, boolean isCopied, boolean isDownloaded){
-        if(importNamedMusicFromFi(Seq.with(from).toArray(), inputName, false, isCopied)){
-            if(!isDownloaded) ui.showInfo(isCopied ? "@importMusic.copied" : "@importMusic.moved");
-            reloadAll();
-            Events.fire(new RebuildMusicListEvent());
-        }
-    }
-    public void importNamedMusic(String inputName){
-        FileChooser.open("ogg", "mp3").submitMulti(files -> {
-            if(importNamedMusicFromFi(files, inputName, true, true)){
-                ui.showInfo("@importMusic.imported");
-                reload(inputName);
-            }
-        });
-    }
-    public boolean importNamedMusicFromFi(Fi[] files, String inputName, boolean isImport, boolean isCopied){
+    private boolean importNamedMusicFromFi(Fi[] files, String inputName, boolean isImport, boolean isCopied){
         boolean isPlanets = !inputName.equals("menu") && !inputName.equals("editor"),
                 successImported = false;
         Fi folder = isPlanets ? musicFolder.child("planets") : musicFolder;
@@ -237,7 +228,6 @@ public class CustomMusicLoader {
         }catch(Exception e){
             ui.showException(e);
         }
-
         return successImported;
     }
 

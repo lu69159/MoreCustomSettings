@@ -1,5 +1,6 @@
 package MCS.ui.fragments;
 
+import MCS.MCS_EventType;
 import MCS.customMusic.*;
 import arc.Events;
 import arc.scene.*;
@@ -23,6 +24,7 @@ public class MusicBar{
     public MusicBar(){
         Events.run(EventType.WorldLoadEvent.class, this::rebuild);
         Events.run(EventType.ResizeEvent.class, this::rebuild);
+        Events.run(MCS_EventType.RebuildMusicBarEvent.class, this::rebuild);
     }
 
     public void build(Group parent){
@@ -33,6 +35,7 @@ public class MusicBar{
 
         Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false);
         disabledMusicSlider.visible(() -> sound.getCurrent() == null);
+        disabledMusicSlider.touchable = Touchable.disabled;
 
         Slider musicSlider = new Slider(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength(), 0.1f, false);
         musicSlider.moved(value -> {
@@ -58,7 +61,10 @@ public class MusicBar{
             background(Styles.black3);
             labelWrap(() -> sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ?
                     "@empty" : sound.musicLoader.getMusicName(sound.getLastRandomPlayed().file) : sound.musicLoader.getMusicName(sound.getCurrent().file)).padLeft(10f).padRight(10f).growX().left().row();
-            stack(disabledMusicSlider, musicSlider, musicTimeLabel).padLeft(10f).padRight(10f).growX().row();
+            stack(disabledMusicSlider, musicSlider, musicTimeLabel).touchable(() -> {
+                if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null) return Touchable.disabled;
+                else return Touchable.childrenOnly;
+            }).padLeft(10f).padRight(10f).growX().row();
             table(buttons -> {
                 buttons.defaults().size(barScl * 60f);
 

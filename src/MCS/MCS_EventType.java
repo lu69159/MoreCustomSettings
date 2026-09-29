@@ -47,14 +47,14 @@ public class MCS_EventType {
         @Nullable public Music music;
         public String name;
         public boolean isCopied;
-        public boolean isNamed;
 
-        public MoveMusicEvent(Music music, String name, boolean isCopied, boolean isNamed){
+        public MoveMusicEvent(Music music, String name, boolean isCopied){
             this.music = music;
             this.name = name;
             this.isCopied = isCopied;
-            this.isNamed = isNamed;
         }
     }
+
     public static class RebuildMusicListEvent{}
+    public static class RebuildMusicBarEvent{}
 }

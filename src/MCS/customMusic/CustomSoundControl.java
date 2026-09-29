@@ -1,6 +1,6 @@
 package MCS.customMusic;
 
-import MCS.MCS_EventType;
+
 import arc.*;
 import arc.audio.*;
 import arc.files.*;
@@ -14,7 +14,7 @@ import mindustry.type.*;
 import static arc.Core.settings;
 import static mindustry.Vars.*;
 import static mindustry.game.EventType.*;
-import static MCS.main.*;
+import static MCS.MCS_EventType.*;
 import static MCS.customMusic.MusicTools.*;
 
 public class CustomSoundControl extends SoundControl{
@@ -33,7 +33,7 @@ public class CustomSoundControl extends SoundControl{
         musicLoader = new CustomMusicLoader(this);
         reloadAllInGameMusic();
 
-        Events.on(MCS_EventType.MusicBarChangeEvent.class, e -> {
+        Events.on(MusicBarChangeEvent.class, e -> {
             if(e.enabled){
                 mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
             }else{
@@ -41,14 +41,14 @@ public class CustomSoundControl extends SoundControl{
                 mode = MusicMode.normal;
             }
         });
-        Events.on(MCS_EventType.CustomMusicChangeEvent.class, e -> {
+        Events.on(CustomMusicChangeEvent.class, e -> {
             musicLoader.set(e.enabled);
             if(current != null){
                 current.stop();
                 current = null;
             }
             reloadAllInGameMusic();
-            MCSui.musicBar.rebuild();
+            Events.fire(new RebuildMusicBarEvent());
         });
     }
 
