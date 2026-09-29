@@ -193,8 +193,8 @@ public class CustomMusicLoader {
         }
         return successImported;
     }
-    private boolean importNamedMusicFromFi(Fi[] files, String inputName, boolean isImport, boolean isCopied){
-        boolean isPlanets = !inputName.equals("menu") && !inputName.equals("editor"),
+    private boolean importNamedMusicFromFi(Fi[] files, String fileName, boolean isImport, boolean isCopied){
+        boolean isPlanets = !fileName.equals("menu") && !fileName.equals("editor"),
                 successImported = false;
         Fi folder = isPlanets ? musicFolder.child("planets") : musicFolder;
         if(!folder.exists()) folder.mkdirs();
@@ -204,12 +204,12 @@ public class CustomMusicLoader {
         try{
             for(var f : folder.seq()){
                 if(!f.isDirectory()){
-                    if(getFileName(f).equals(inputName)) f.delete();
+                    if(getFileName(f).equals(fileName)) f.delete();
                 }
             }
 
-            String settingName = inputName.equals("menu") ? "MCSmenuMusicName" : inputName.equals("editor") ? "MCSeditorMusicName" : "MCSplanetMusicName-" + inputName;
-            Fi to = folder.child(encodeString(inputName) + "__" + fi.length() + "." + fi.extension());
+            String settingName = fileName.equals("menu") ? "MCSmenuMusicName" : fileName.equals("editor") ? "MCSeditorMusicName" : "MCSplanetMusicName-" + fileName;
+            Fi to = folder.child(encodeString(fileName) + "__" + fi.length() + "." + fi.extension());
             if(isImport){
                 Core.settings.put(settingName, fi.nameWithoutExtension());
                 fi.copyTo(to);
