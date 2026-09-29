@@ -337,24 +337,24 @@ public class MCS_SettingMenuDialog {
                 t.defaults().size(200f, 60f).left();
 
                 t.button("@importMusic.ambient", Styles.flatt, () -> {
-                    if(isImported) Events.fire(new ImportMusicEvent("a"));
-                    else Events.fire(new MoveMusicEvent(from,"a", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("ambient"));
+                    else Events.fire(new MoveMusicEvent(from,"ambient", isCopied));
 
                     musicInGameDialog.hide();
                     hide();
                 }).disabled(b -> from != null && from.file.parent().name().equals("a"));
                 t.row();
                 t.button("@importMusic.dark", Styles.flatt, () -> {
-                    if(isImported) Events.fire(new ImportMusicEvent("d"));
-                    else Events.fire(new MoveMusicEvent(from,"d", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("dark"));
+                    else Events.fire(new MoveMusicEvent(from,"dark", isCopied));
 
                     musicInGameDialog.hide();
                     hide();
                 }).disabled(b -> from != null && from.file.parent().name().equals("d"));
                 t.row();
                 t.button("@importMusic.boss", Styles.flatt, () -> {
-                    if(isImported) Events.fire(new ImportMusicEvent("b"));
-                    else Events.fire(new MoveMusicEvent(from,"b", isCopied));
+                    if(isImported) Events.fire(new ImportMusicEvent("boss"));
+                    else Events.fire(new MoveMusicEvent(from,"boss", isCopied));
 
                     musicInGameDialog.hide();
                     hide();

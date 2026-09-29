@@ -74,13 +74,7 @@ public class CustomMusicLoader {
     }
 
     public void reload(String name){
-        if(name.equals("a")){
-            ambient.loadCustom();
-        }else if(name.equals("d")){
-            dark.loadCustom();
-        }else if(name.equals("b")){
-            boss.loadCustom();
-        }else if(name.equals("planets") || content.planets().find(p -> p.name.equals(name)) != null){
+        if(name.equals("planets") || content.planets().find(p -> p.name.equals(name)) != null){
             sound.planetMusicMap.clear();
             for(var m : planets){
                 m.loadCustom();
@@ -88,7 +82,7 @@ public class CustomMusicLoader {
         }else{
             var seq = Seq.with(menu, editor, ambient, dark, boss).find(ms -> ms.name.equals(name));
             if(seq != null) seq.loadCustom();
-            else ui.showException(new Exception("找不到对应名称的音乐组"));
+            else ui.showException(new Exception("Failed to reload: Not such musicSeq found"));
         }
         sound.reloadAllInGameMusic();
     }
@@ -151,8 +145,8 @@ public class CustomMusicLoader {
     }
     public void moveMusic(Fi from, String name, boolean isCopied, boolean isDownloaded){
         boolean done = false;
-        if(name.equals("a") || name.equals("d") || name.equals("b")){
-            if(importMusicFromFi(Seq.with(from).toArray(), name,false, isCopied)) done = true;
+        if(name.equals("ambient") || name.equals("dark") || name.equals("boss")){
+            if(importMusicFromFi(Seq.with(from).toArray(), getFolderName(name),false, isCopied)) done = true;
         }else{
             if(importNamedMusicFromFi(Seq.with(from).toArray(), name, false, isCopied)) done = true;
         }
@@ -164,9 +158,9 @@ public class CustomMusicLoader {
         }
     }
     public void importMusic(String name){
-        if(name.equals("a") || name.equals("d") || name.equals("b")){
+        if(name.equals("ambient") || name.equals("dark") || name.equals("boss")){
             FileChooser.open("ogg", "mp3").submitMulti(files -> {
-                if(importMusicFromFi(files, name, true, true)){
+                if(importMusicFromFi(files, getFolderName(name), true, true)){
                     ui.showInfo("@importMusic.imported");
                     reload(name);
                     Events.fire(new RebuildMusicBarEvent());

@@ -35,6 +35,10 @@ public class MusicTools {
         return false;
     }
 
+    public static String getFolderName(String name){
+        return name.equals("ambient") ? "a" : name.equals("dark") ? "d" : name.equals("boss") ? "b" : name;
+    }
+
     public static String encodeString(String nameWithoutExtension){
         if(pattern.matcher(nameWithoutExtension).find()){
             return "encodeName_" + encodeName(nameWithoutExtension);

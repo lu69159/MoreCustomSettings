@@ -1,6 +1,5 @@
 package MCS.musicSquare.sources.musics;
 
-import MCS.MCS_EventType;
 import MCS.customMusic.CustomSoundControl;
 import arc.*;
 import arc.files.*;
@@ -49,7 +48,7 @@ public abstract class musicBase {
         public String artist;
         public String name;
 
-        public void download(Cons<Fi> done){
+        public void downloadToTmp(Cons<Fi> done){
             if(!isSafeUrl(url)) ui.showException(new Throwable("Not found usable url."));
 
             var sound = (CustomSoundControl)control.sound;
@@ -77,21 +76,8 @@ public abstract class musicBase {
             }));
         }
 
-        public void download(String folderName){
-            download(fi -> {
-                var sound = (CustomSoundControl)control.sound;
-                sound.musicLoader.moveMusic(fi, folderName, false, true);
-                Core.app.post(() -> {
-                    ui.loadfrag.hide();
-                    sound.musicLoader.reload(folderName);
-                    ui.showInfo("@musicSquare.downloaded");
-                    Events.fire(new MCS_EventType.RebuildMusicBarEvent());
-                });
-            });
-        }
-
-        public void downloadNamed(String name){
-            download(fi -> {
+        public void download(String name){
+            downloadToTmp(fi -> {
                 var sound = (CustomSoundControl)control.sound;
                 sound.musicLoader.moveMusic(fi, name, false, true);
                 Core.app.post(() -> {

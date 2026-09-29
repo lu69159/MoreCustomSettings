@@ -213,27 +213,27 @@ public class musicSquareSearchDialog extends BaseDialog {
             bt.defaults().size(200f, 60f).left();
             bt.button("@importMusic.ambient", Styles.flatt, () -> {
                 dialog.hide();
-                t.download("a");
+                t.download("ambient");
             });
             bt.row();
             bt.button("@importMusic.dark", Styles.flatt, () -> {
                 dialog.hide();
-                t.download("d");
+                t.download("dark");
             });
             bt.row();
             bt.button("@importMusic.boss", Styles.flatt, () -> {
                 dialog.hide();
-                t.download("b");
+                t.download("boss");
             });
             bt.row();
             bt.button("@importMusic.menu", Styles.flatt, () -> {
                 dialog.hide();
-                t.downloadNamed("menu");
+                t.download("menu");
             });
             bt.row();
             bt.button("@importMusic.editor", Styles.flatt, () -> {
                 dialog.hide();
-                t.downloadNamed("editor");
+                t.download("editor");
             });
             bt.row();
             bt.button("@importMusic.planet", Styles.flatt, () -> {
@@ -246,7 +246,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                         table.button(planet.localizedName, Icon.planet.tint(planet.iconColor), () -> {
                             planets.hide();
                             dialog.hide();
-                            t.downloadNamed(planet.name);
+                            t.download(planet.name);
                         });
                         table.row();
                     }
