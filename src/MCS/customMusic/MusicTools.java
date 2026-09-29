@@ -24,12 +24,12 @@ public class MusicTools {
         if(current == null || music == null) return false;
         if(current == music) return true;
         if(replace){
-            if(settings.getString("MCSplanetMusicName-" + getFileName(current.file), "unknown music").equals(settings.getString("MCSplanetMusicName-" + getFileName(music.file), "unknown music")) && current.file.length() == music.file.length()){
+            if(current.getLength() == music.getLength()){
                 music = current;
                 return true;
             }
         }else{
-            return getFileName(current.file).equals(getFileName(music.file)) && current.file.length() == music.file.length();
+            return current.getLength() == music.getLength();
         }
 
         return false;
@@ -51,7 +51,7 @@ public class MusicTools {
         }
     }
     public static String getFileName(Fi file){
-        if(file == null) return ""; //神秘FOO怎么启动也触发这玩意儿
+        if(file == null) return ""; //DAMN FOO,吃饱撑给音乐file搞成null
         String realName = file.nameWithoutExtension();
         int index = realName.lastIndexOf("__");
         if(index < 0) return realName;

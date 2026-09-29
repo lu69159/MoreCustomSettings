@@ -100,8 +100,7 @@ public class CustomSoundControl extends SoundControl{
             silenced = false;
             if(ui.planet.isShown()){
                 if(enabledCustomMusic() && planetMusicMap.get(ui.planet.state.planet) != null){
-                    boolean same = isSameMusic(current, planetMusicMap.get(ui.planet.state.planet), true);
-                    if(current != null && same){
+                    if(current != null && isSameMusic(current, planetMusicMap.get(ui.planet.state.planet), true)){
                         play(current);
                     }else{
                         play(planetMusicMap.get(ui.planet.state.planet));
@@ -255,7 +254,7 @@ public class CustomSoundControl extends SoundControl{
         allInGameMusic.clear();
         Seq<Music> tmp = Seq.withArrays(ambientMusic, darkMusic, bossMusic);
         for(var m : tmp){
-            if(!allInGameMusic.contains(music -> music.equals(m))){
+            if(!allInGameMusic.contains(music -> isSameMusic(m, music, false))){
                 allInGameMusic.add(m);
             }
         }

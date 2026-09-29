@@ -50,7 +50,7 @@ public class main extends Mod{
         control.sound.ambientMusic.clear();
         control.sound.darkMusic.clear();
         control.sound.bossMusic.clear();
-        //removeAllListeners("mindustry.audio.SoundControl$$");
+        removeAllListeners("mindustry.audio.SoundControl");
         control.sound = new CustomSoundControl();
     }
 
