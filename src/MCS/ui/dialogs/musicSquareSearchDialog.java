@@ -12,13 +12,13 @@ import arc.input.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
+import arc.struct.*;
 import arc.util.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
-import static MCS.main.*;
 import static mindustry.Vars.*;
 
 public class musicSquareSearchDialog extends BaseDialog {
@@ -28,6 +28,8 @@ public class musicSquareSearchDialog extends BaseDialog {
     private String word = "";
     String previewingUrl = "";
     Image loadingSpinner;
+    private final Seq<Texture> coverTextures = new Seq<>();
+    private int coverGeneration;
 
     public musicSquareSearchDialog() {
         super("@musicSquare.search");
@@ -41,6 +43,7 @@ public class musicSquareSearchDialog extends BaseDialog {
             word = "";
             resource.allResults.clear();
             resultTable.clear();
+            clearCoverTextures();
             var sound = (CustomSoundControl)control.sound;
             sound.musicLoader.tmp.deleteDirectory();
             sound.musicLoader.tmp.mkdirs();
@@ -74,6 +77,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void loading(){
+        clearCoverTextures();
         resultTable.clear();
         resultTable.top().left();
         resultTable.add(Core.bundle.get("loading")).pad(20);
@@ -93,6 +97,14 @@ public class musicSquareSearchDialog extends BaseDialog {
                 trackShow(t);
             }
         }
+    }
+
+    private void clearCoverTextures(){
+        coverGeneration++;
+        for(Texture texture : coverTextures){
+            texture.dispose();
+        }
+        coverTextures.clear();
     }
 
     private void trackShow(musicBase.Track t){
@@ -132,19 +144,32 @@ public class musicSquareSearchDialog extends BaseDialog {
             }
 
             if(t.pic != null && !t.pic.isEmpty() && musicBase.isSafeUrl(t.pic)){
+                int generation = coverGeneration;
+
                 Http.get(t.pic, res -> {
                     try{
                         byte[] data = res.getResult();
+
                         Core.app.post(() -> {
+                            if(generation != coverGeneration) return;
+
+                            Pixmap pix = null;
+                            Texture tex = null;
                             try{
-                                Pixmap pix = new Pixmap(data);
-                                Texture tex = new Texture(pix);
-                                pix.dispose();
+                                pix = new Pixmap(data);
+                                tex = new Texture(pix);
                                 cover.setDrawable(new TextureRegionDrawable(new TextureRegion(tex)));
-                            }catch(Exception ignored){}
+                                coverTextures.add(tex);
+                                tex = null;
+                            }catch(Exception e){
+                                cover.setDrawable(Core.atlas.find("error"));
+                            }finally{
+                                if(pix != null) pix.dispose();
+                                if(tex != null) tex.dispose();
+                            }
                         });
                     }catch(Exception e){
-                        cover.setDrawable(Core.atlas.find("error"));
+                        Core.app.post(() -> cover.setDrawable(Core.atlas.find("error")));
                     }
                 }, e -> {});
             }
