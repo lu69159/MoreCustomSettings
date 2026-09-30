@@ -2,14 +2,6 @@ package MCS.ui.dialogs;
 
 import java.lang.reflect.*;
 
-import MCS.MCS_EventType.ContentManagerChangeEvent;
-import MCS.MCS_EventType.CustomMusicChangeEvent;
-import MCS.MCS_EventType.ImportMusicEvent;
-import MCS.MCS_EventType.MoveMusicEvent;
-import MCS.MCS_EventType.MusicBarChangeEvent;
-import MCS.MCS_EventType.MusicImportDialogShowEvent;
-import MCS.MCS_EventType.RebuildMusicBarEvent;
-import MCS.MCS_EventType.RebuildMusicListEvent;
 import MCS.customDifficulty.*;
 import MCS.customMusic.*;
 import arc.*;
@@ -20,13 +12,10 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import mindustry.ai.*;
-import mindustry.game.EventType.TileOverlayChangeEvent;
-import mindustry.game.EventType.WorldLoadEvent;
 import mindustry.gen.*;
 import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
-import mindustry.ui.dialogs.SettingsMenuDialog.SettingsTable;
 
 import static MCS.main.*;
 import static MCS.MCS_EventType.*;
