@@ -483,14 +483,14 @@ public class MCS_SettingMenuDialog {
         @Override
         public void add(SettingsTable table) {
             table.add(new Table(t -> {
-                t.button(Icon.github, new ImageButton.ImageButtonStyle(), () -> {
+                t.button("@starmcs", Icon.github, Styles.cleart, () -> {
                     String url = "https://github.com/lu69159/MoreCustomSettings";
                     if (!app.openURI(url)) {
                         ui.showInfoFade("@linkfail");
                         app.setClipboardText(url);
                     }
                 });
-            })).row();
+            })).padTop(10f).padLeft(10f).row();
         }
     }
 }
