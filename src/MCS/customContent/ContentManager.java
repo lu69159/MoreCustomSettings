@@ -160,7 +160,7 @@ public class ContentManager {
             }
             if(state.rules.bannedUnits.size > 0){
                 var units = state.rules.bannedUnits;
-                if(state.rules.blockWhitelist){
+                if(state.rules.unitWhitelist){
                     for(var u : content.units()){
                         if(u.shownPlanets.contains(state.getPlanet())){
                             units.add(u);
