@@ -4,7 +4,7 @@ import MCS.customContent.*;
 import MCS.customDifficulty.*;
 import MCS.customMusic.*;
 import MCS.ui.*;
-import arc.Events;
+import arc.*;
 import arc.files.*;
 import arc.func.*;
 import arc.struct.*;
@@ -50,27 +50,31 @@ public class main extends Mod{
         control.sound.ambientMusic.clear();
         control.sound.darkMusic.clear();
         control.sound.bossMusic.clear();
-        removeAllListeners(ClientLoadEvent.class, "mindustry.audio.SoundControl");
-        removeAllListeners(ResetEvent.class, "mindustry.audio.SoundControl");
-        removeAllListeners(WaveEvent.class, "mindustry.audio.SoundControl");
+        removeListener(ClientLoadEvent.class, "mindustry.audio.SoundControl");
+        removeListener(ResetEvent.class, "mindustry.audio.SoundControl");
+        removeListener(WaveEvent.class, "mindustry.audio.SoundControl");
         control.sound = new CustomSoundControl();
     }
 
 
     @SuppressWarnings("unchecked")
-    private static void removeAllListeners(Class<?> eventType, String keyWord){
+    private static void removeListener(Class<?> eventType, String keyWord){
         if(isFoo) return;
         try{
             Field eventsField = Events.class.getDeclaredField("events");
             eventsField.setAccessible(true);
             ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
 
-            for(var listener : events.get(eventType)){
+            Seq<Cons<?>> targets = new Seq<>(), current = events.get(eventType);
+            if(current == null) return;
+
+            for(var listener : current){
                 if(listener.getClass().getName().startsWith(keyWord + "$$")){
-                    events.remove(listener);
+                    targets.add(listener);
                 }
             }
-            eventsField.setAccessible(false);
+
+            Core.app.post(() -> current.removeAll(targets));
         }catch(Exception e){
             ui.showException(e);
         }
