@@ -142,7 +142,7 @@ public class ContentManager {
     private void overrideRule(){
         if(!enabled || net.client()) return;
         if(state.isCampaign()){
-            if(state.rules.bannedBlocks.size > 0){
+            if(state.rules.bannedBlocks.size > 0 || state.rules.blockWhitelist){
                 var blocks = state.rules.bannedBlocks;
                 if(state.rules.blockWhitelist){
                     for(var b : content.blocks()){
@@ -158,7 +158,7 @@ public class ContentManager {
                     }
                 }
             }
-            if(state.rules.bannedUnits.size > 0){
+            if(state.rules.bannedUnits.size > 0 || state.rules.unitWhitelist){
                 var units = state.rules.bannedUnits;
                 if(state.rules.unitWhitelist){
                     for(var u : content.units()){

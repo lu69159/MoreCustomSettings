@@ -56,9 +56,11 @@ public class main extends Mod{
         control.sound = new CustomSoundControl();
     }
 
-
+    /**
+     * tool functions
+     */
     @SuppressWarnings("unchecked")
-    private static void removeListener(Class<?> eventType, String keyWord){
+    public static void removeListener(Class<?> eventType, String keyWord){
         if(isFoo) return;
         try{
             Field eventsField = Events.class.getDeclaredField("events");
@@ -69,7 +71,7 @@ public class main extends Mod{
             if(current == null) return;
 
             for(var listener : current){
-                if(listener.getClass().getName().startsWith(keyWord + "$$")){
+                if(listener.getClass().getName().startsWith(keyWord)){
                     targets.add(listener);
                 }
             }

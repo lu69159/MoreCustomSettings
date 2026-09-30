@@ -21,6 +21,7 @@ import static MCS.main.*;
 import static MCS.MCS_EventType.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
+import static mindustry.game.EventType.*;
 import static mindustry.Vars.*;
 
 public class MCS_SettingMenuDialog {
@@ -72,6 +73,8 @@ public class MCS_SettingMenuDialog {
         t.checkPref("enablecustomcampaigndifficulty", false, b -> {
             if(b){
                 ui.campaignRules = new CustomCampaignRulesDialog();
+                removeListener(WorldLoadEvent.class, "mindustry.ai.WaveSpawner");
+                removeListener(TileOverlayChangeEvent.class, "mindustry.ai.WaveSpawner");
                 spawner = new CustomWaveSpawner();
                 if(state.isCampaign() && !net.client()){
                     rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
@@ -79,6 +82,8 @@ public class MCS_SettingMenuDialog {
                 }
             }else{
                 ui.campaignRules = new CampaignRulesDialog();
+                removeListener(WorldLoadEvent.class, "MCS.customDifficulty.CustomWaveSpawner");
+                removeListener(TileOverlayChangeEvent.class, "MCS.customDifficulty.CustomWaveSpawner");
                 spawner = new WaveSpawner();
                 if(state.isCampaign() && !net.client()){
                     new CustomCampaignRules(state.getPlanet()).apply(state.getPlanet(), state.rules);//TEST
