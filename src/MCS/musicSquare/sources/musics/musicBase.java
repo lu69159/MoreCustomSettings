@@ -52,6 +52,7 @@ public abstract class musicBase {
         private static String extension(byte[] d){
             if(d.length < 12) return "";
             int b0 = d[0] & 0xFF, b1 = d[1] & 0xFF;
+<<<<<<< HEAD
             if(b0 == 'I' && b1 == 'D' && d[2] == '3') return "mp3";       // ID3
             if(b0 == 0xFF && (b1 & 0xE0) == 0xE0) return "mp3";            // MPEG
             if(b0 == 'O' && b1 == 'g' && d[2] == 'g' && d[3] == 'S') return "ogg";
@@ -62,6 +63,15 @@ public abstract class musicBase {
         }
         public static boolean isUsableExtension(byte[] d){
             return extension(d).equals("mp3") || extension(d).equals("ogg") || extension(d).equals("flac") || extension(d).equals("wav");
+=======
+            if(b0 == 'I' && b1 == 'D' && d[2] == '3') return "mp3";       // ID3 标签: MP3
+            if(b0 == 0xFF && (b1 & 0xE0) == 0xE0) return "mp3";            // MPEG 帧同步: MP3
+            if(b0 == 'O' && b1 == 'g' && d[2] == 'g' && d[3] == 'S') return "ogg"; //OGG
+            else return "";
+        }
+        public static boolean isUsableExtension(byte[] d){
+            return extension(d).equals("mp3") || extension(d).equals("ogg");
+>>>>>>> 3268ea3064d8b73a313afa143f7b7d1a6b57b58f
         }
 
         public void downloadToTmp(Cons<Fi> done, Cons<Throwable> err, boolean isPreview){
