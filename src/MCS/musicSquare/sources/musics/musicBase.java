@@ -49,7 +49,7 @@ public abstract class musicBase {
         public String name;
 
 
-        private static String extension(byte[] d){
+        private static String extension(byte[] d){ //1
             if(d.length < 12) return "";
             int b0 = d[0] & 0xFF, b1 = d[1] & 0xFF;
             if(b0 == 'I' && b1 == 'D' && d[2] == '3') return "mp3";       // ID3
