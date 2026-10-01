@@ -134,7 +134,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                     }else{
                         trackPreviewListening(t);
                     }
-                }).update(i -> i.setChecked(t.url.equals(previewingUrl))).size(38f);
+                }).checked(b -> t.url.equals(previewingUrl)).size(38f);
                 row.button(Icon.download, Styles.clearNonei, () -> {
                     trackDownload(t);
                 }).size(38f);
@@ -177,53 +177,27 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackPreviewListening(musicBase.Track t){
-        if(t.url == null || !musicBase.isSafeUrl(t.url)) return;
+        if(!musicBase.isSafeUrl(t.url)) return;
         previewingUrl = t.url;
 
         var sound = (CustomSoundControl)control.sound;
 
-        Http.get(t.url, res -> {
-            try{
-                byte[] data = res.getResult();
-
-                String ext = "mp3";
-                String base = t.url.split("\\?")[0];
-                int dot = base.lastIndexOf('.');
-                if(dot > 0){
-                    String e = base.substring(dot + 1).toLowerCase();
-                    if(e.equals("ogg") || e.equals("mp3") || e.equals("flac") || e.equals("wav")){
-                        ext = e;
-                    }
+        t.downloadToTmp(fi -> {
+            Core.app.post(() -> {
+                try{
+                    Music music = new Music(fi){
+                        @Override
+                        public void setLooping(boolean isLooping){}
+                    };
+                    sound.playPreView(music);
+                }catch(Exception ex){
+                    ui.showException(ex);
                 }
-
-                Fi file = sound.musicLoader.tmp.child("preview." + ext);
-                file.writeBytes(data);
-                if(file.length() == 0){
-                    Core.app.post(() -> ui.showInfo("Downloaded file is empty"));
-                    return;
-                }
-
-                Core.app.post(() -> {
-                    try{
-                        Music music = new Music(file){
-                            @Override
-                            public void setLooping(boolean isLooping){}
-                        };
-                        sound.playPreView(music);
-                    }catch(Exception ex){
-                        ui.showException(ex);
-                    }
-                });
-            }catch(Exception e){
-                Core.app.post(() -> {
-                    previewingUrl = "";
-                    ui.showException(e);
-                });
-            }
-        }, error -> Core.app.post(() -> {
+            });
+        }, e -> {
             previewingUrl = "";
             ui.showInfo("@musicSquare.noAudio");
-        }));
+        }, true);
     }
 
     private void stopPreviewListening(){
