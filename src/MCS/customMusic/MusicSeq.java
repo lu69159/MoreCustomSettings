@@ -61,6 +61,7 @@ public abstract class MusicSeq{
             }
         }catch(Exception e){
             ui.showException(e);
+            Log.err(e);
         }
         setMusics(enabledCustomMusic());
     }

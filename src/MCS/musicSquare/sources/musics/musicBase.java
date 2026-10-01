@@ -48,32 +48,43 @@ public abstract class musicBase {
         public String artist;
         public String name;
 
-        public void downloadToTmp(Cons<Fi> done){
+
+        private static String extension(byte[] d){
+            if(d.length < 12) return "";
+            int b0 = d[0] & 0xFF, b1 = d[1] & 0xFF;
+            if(b0 == 'I' && b1 == 'D' && d[2] == '3') return "mp3";       // ID3
+            if(b0 == 0xFF && (b1 & 0xE0) == 0xE0) return "mp3";            // MPEG
+            if(b0 == 'O' && b1 == 'g' && d[2] == 'g' && d[3] == 'S') return "ogg";
+            if(b0 == 'f' && b1 == 'L' && d[2] == 'a' && d[3] == 'C') return "flac";
+            if(b0 == 'R' && b1 == 'I' && d[2] == 'F' && d[3] == 'F' && d[8] == 'W' && d[9] == 'A' && d[10] == 'V' && d[11] == 'E') return "wav";
+            return "";
+
+        }
+        public static boolean isUsableExtension(byte[] d){
+            return extension(d).equals("mp3") || extension(d).equals("ogg") || extension(d).equals("flac") || extension(d).equals("wav");
+        }
+
+        public void downloadToTmp(Cons<Fi> done, Cons<Throwable> err, boolean isPreview){
             if(!isSafeUrl(url)) ui.showException(new Throwable("Not found usable url."));
 
             var sound = (CustomSoundControl)control.sound;
-            ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
+            if(!isPreview) ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
             Http.get(url, res -> {
                 byte[] data = res.getResult();
 
-                String ext = "mp3";
-                String base = url.split("\\?")[0];
-                int dot = base.lastIndexOf('.');
-                if(dot > 0){
-                    String e = base.substring(dot + 1).toLowerCase();
-                    if(e.equals("ogg") || e.equals("mp3") || e.equals("flac") || e.equals("wav")){
-                        ext = e;
-                    }
+                if(!isUsableExtension(data)){
+                    if(!isPreview) ui.loadfrag.hide();
+                    ui.showInfo("@musicSquare.unusableExt");
+                    return;
                 }
+
+                String ext = extension(data);
 
                 String sanitized = encodeString(artist + " - " + name);
                 var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + data.length + "." + ext);
                 tmpMusic.writeBytes(data);
                 done.get(tmpMusic);
-            }, error -> Core.app.post(() -> {
-                ui.loadfrag.hide();
-                ui.showException(new Exception("Download error: " + error));
-            }));
+            }, err);
         }
 
         public void download(String name){
@@ -85,7 +96,10 @@ public abstract class musicBase {
                     sound.musicLoader.reload(name);
                     ui.showInfo("@musicSquare.downloaded");
                 });
-            });
+            },e -> Core.app.post(() -> {
+                ui.loadfrag.hide();
+                ui.showException(new Exception("Download error: " + e));
+            }), false);
         }
     }
 }
