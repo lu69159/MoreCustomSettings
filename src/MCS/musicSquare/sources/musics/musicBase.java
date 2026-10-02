@@ -72,7 +72,6 @@ public abstract class musicBase {
 
             var existed = sound.musicLoader.tmp.seq().find(fi -> getFileName(fi).equals(artist + " - " + name) && fi.nameWithoutExtension().lastIndexOf("__") >= 0 && fi.nameWithoutExtension().endsWith(String.valueOf(url.hashCode())));
             if(existed != null && existed.length() > 0){
-                Log.info("TEST: EXISTED");
                 done.get(existed);
                 return;
             }
