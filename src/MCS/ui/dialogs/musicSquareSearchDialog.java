@@ -31,8 +31,11 @@ public class musicSquareSearchDialog extends BaseDialog {
     private final Seq<Texture> coverTextures = new Seq<>();
     private int coverGeneration;
 
+    Drawable loading;
+
     public musicSquareSearchDialog() {
         super("@musicSquare.search");
+        loading = new TextureRegionDrawable(Core.atlas.find("mcs-loading"));
         addCloseButton();
         setFillParent(true);
         resource.onSearchBeginning = this::loading;
@@ -51,6 +54,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     public void setup() {
+        var sound = (CustomSoundControl)control.sound;
         cont.table(t -> {
             t.left();
             t.image(Icon.zoom).padRight(8f);
@@ -58,12 +62,18 @@ public class musicSquareSearchDialog extends BaseDialog {
             if(!mobile){
                 searchField.keyDown(KeyCode.enter, () -> {
                     if(!word.isEmpty()){
+                        sound.stopPreView();
+                        previewingUrl = "";
                         resource.search(word);
                     }
                 });
             }
             t.button("@searchMusic", Icon.zoom, () -> {
-                if(!word.isEmpty()) resource.search(word);
+                if(!word.isEmpty()){
+                    sound.stopPreView();
+                    previewingUrl = "";
+                    resource.search(word);
+                }
             }).size(100f, 50f);
         }).fillX().padBottom(4).row();
 
@@ -80,7 +90,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         clearCoverTextures();
         resultTable.clear();
         resultTable.top().left();
-        resultTable.add(Core.bundle.get("loading")).pad(20);
+        resultTable.add("@loading").pad(20);
         loadingSpinner = resultTable.image(Icon.settings, Pal.accent).update(i -> {
             i.rotateBy(Time.delta * 360f / 20f);
         }).size(16f).padLeft(4f).get();
@@ -108,6 +118,8 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackShow(musicBase.Track t){
+        var sound = (CustomSoundControl)control.sound;
+
         resultTable.table(Styles.grayPanel, row -> {
             row.defaults().pad(4).left();
 
@@ -128,13 +140,14 @@ public class musicSquareSearchDialog extends BaseDialog {
                 row.button(Icon.play, new ImageButton.ImageButtonStyle(Styles.clearNonei){{
                     imageUp = Icon.play;
                     imageChecked = Icon.pause;
+                    imageDisabled = loading;
                 }}, () -> {
                     if(t.url.equals(previewingUrl)){
                         stopPreviewListening();
                     }else{
                         trackPreviewListening(t);
                     }
-                }).checked(b -> t.url.equals(previewingUrl)).size(38f); //TODO：加载中按钮
+                }).checked(b -> t.url.equals(previewingUrl) && sound.isPreview()).disabled(b -> t.url.equals(previewingUrl) && !sound.isPreview()).size(38f);
                 row.button(Icon.download, Styles.clearNonei, () -> {
                     trackDownload(t);
                 }).size(38f);

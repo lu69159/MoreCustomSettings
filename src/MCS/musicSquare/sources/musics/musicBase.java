@@ -49,7 +49,7 @@ public abstract class musicBase {
         public String name;
 
 
-        private static String extension(byte[] d){
+        private String extension(byte[] d){
             if(d.length < 12) return "";
             int b0 = d[0] & 0xFF, b1 = d[1] & 0xFF;
             if(b0 == 'I' && b1 == 'D' && d[2] == '3') return "mp3";       // ID3
@@ -58,9 +58,8 @@ public abstract class musicBase {
             if(b0 == 'f' && b1 == 'L' && d[2] == 'a' && d[3] == 'C') return "flac";
             if(b0 == 'R' && b1 == 'I' && d[2] == 'F' && d[3] == 'F' && d[8] == 'W' && d[9] == 'A' && d[10] == 'V' && d[11] == 'E') return "wav";
             return "";
-
         }
-        public static boolean isUsableExtension(byte[] d){
+        private boolean isUsableExtension(byte[] d){
             return extension(d).equals("mp3") || extension(d).equals("ogg") || extension(d).equals("flac") || extension(d).equals("wav");
         }
 
