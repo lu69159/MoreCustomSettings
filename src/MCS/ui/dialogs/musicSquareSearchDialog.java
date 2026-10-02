@@ -125,16 +125,16 @@ public class musicSquareSearchDialog extends BaseDialog {
             }).width(300f).growX().padLeft(8f);
 
             if(t.url != null && !t.url.isEmpty() && musicBase.isSafeUrl(t.url)){
-                var style = new ImageButton.ImageButtonStyle(Styles.clearNonei);
-                style.imageUp = Icon.play;
-                style.imageChecked = Icon.pause;
-                row.button(Icon.play, style, () -> {
+                row.button(Icon.play, new ImageButton.ImageButtonStyle(Styles.clearNonei){{
+                    imageUp = Icon.play;
+                    imageChecked = Icon.pause;
+                }}, () -> {
                     if(t.url.equals(previewingUrl)){
                         stopPreviewListening();
                     }else{
                         trackPreviewListening(t);
                     }
-                }).checked(b -> t.url.equals(previewingUrl)).size(38f);
+                }).checked(b -> t.url.equals(previewingUrl)).size(38f); //TODO：加载中按钮
                 row.button(Icon.download, Styles.clearNonei, () -> {
                     trackDownload(t);
                 }).size(38f);

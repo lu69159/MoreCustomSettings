@@ -18,7 +18,7 @@ import static MCS.MCS_EventType.*;
 import static MCS.customMusic.MusicTools.*;
 
 public class CustomSoundControl extends SoundControl{
-    public boolean preview = false;
+    private boolean preview = false;
     public @Nullable Music previewMusic;
     public MusicMode mode;
 
@@ -233,6 +233,9 @@ public class CustomSoundControl extends SoundControl{
             current = null;
             previewMusic = null;
         }
+    }
+    public boolean isPreview(){
+        return preview;
     }
 
     @Override

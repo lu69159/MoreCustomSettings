@@ -183,7 +183,7 @@ public class CustomMusicLoader {
                 Fi folder = Core.settings.getDataDirectory().child("MCS-music").child(folderName);
                 if(!folder.exists()) folder.mkdirs();
 
-                Fi to = folder.child(isImport ? encodeFileName(fi) : encodeString(getMusicName(fi)) + "__" + fi.length() + "." + fi.extension());
+                Fi to = folder.child((isImport ? encodeFileName(fi) : encodeString(getMusicName(fi))) + "__" + fi.length() + "." + fi.extension());
                 if(isImport || isCopied) fi.copyTo(to);
                 else fi.moveTo(to);
                 successImported = true;

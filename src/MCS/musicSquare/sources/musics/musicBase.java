@@ -69,6 +69,14 @@ public abstract class musicBase {
 
             var sound = (CustomSoundControl)control.sound;
             if(!isPreview) ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
+
+            var existed = sound.musicLoader.tmp.seq().find(fi -> getFileName(fi).equals(artist + " - " + name) && fi.nameWithoutExtension().lastIndexOf("__") >= 0 && fi.nameWithoutExtension().endsWith(String.valueOf(url.hashCode())));
+            if(existed != null && existed.length() > 0){
+                Log.info("TEST: EXISTED");
+                done.get(existed);
+                return;
+            }
+
             Http.get(url, res -> {
                 byte[] data = res.getResult();
 
@@ -81,7 +89,7 @@ public abstract class musicBase {
                 String ext = extension(data);
 
                 String sanitized = encodeString(artist + " - " + name);
-                var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + data.length + "." + ext);
+                var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + url.hashCode() + "." + ext);
                 tmpMusic.writeBytes(data);
                 done.get(tmpMusic);
             }, err);
