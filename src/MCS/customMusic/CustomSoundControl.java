@@ -224,7 +224,7 @@ public class CustomSoundControl extends SoundControl{
     public void playPreView(Music music){
         if(music == null) return;
         preview = true;
-        previewMusic = music;
+        if(!isSameMusic(previewMusic, music, false)) previewMusic = music;
     }
     public void stopPreView(){
         if(preview){
