@@ -23,15 +23,16 @@ import static mindustry.Vars.*;
 
 public class musicSquareSearchDialog extends BaseDialog {
     allResources resource =  new allResources();
+    String previewingUrl = "";
+    Image loadingSpinner;
+    Drawable loading;
+
     private Table resultTable;
     private TextField searchField;
     private String word = "";
-    String previewingUrl = "";
-    Image loadingSpinner;
     private final Seq<Texture> coverTextures = new Seq<>();
     private int coverGeneration;
-
-    Drawable loading;
+    private boolean isLoading = false;
 
     public musicSquareSearchDialog() {
         super("@musicSquare.search");
@@ -61,7 +62,7 @@ public class musicSquareSearchDialog extends BaseDialog {
             searchField = t.field("", text -> word = text).growX().get();
             if(!mobile){
                 searchField.keyDown(KeyCode.enter, () -> {
-                    if(!word.isEmpty()){
+                    if(!word.isEmpty() && !isLoading){
                         sound.stopPreView();
                         previewingUrl = "";
                         resource.search(word);
@@ -69,7 +70,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 });
             }
             t.button("@searchMusic", Icon.zoom, () -> {
-                if(!word.isEmpty()){
+                if(!word.isEmpty() && !isLoading){
                     sound.stopPreView();
                     previewingUrl = "";
                     resource.search(word);
@@ -87,6 +88,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void loading(){
+        isLoading = true;
         clearCoverTextures();
         resultTable.clear();
         resultTable.top().left();
@@ -107,6 +109,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 trackShow(t);
             }
         }
+        isLoading = false;
     }
 
     private void clearCoverTextures(){
@@ -196,6 +199,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         var sound = (CustomSoundControl)control.sound;
 
         t.downloadToTmp(fi -> {
+            if(!previewingUrl.equals(t.url)) return;
             Core.app.post(() -> {
                 try{
                     Music music = new Music(fi){
