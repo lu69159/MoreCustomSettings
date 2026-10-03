@@ -96,7 +96,7 @@ public abstract class musicBase {
         public void download(String name){
             downloadToTmp(fi -> {
                 var sound = (CustomSoundControl)control.sound;
-                sound.musicLoader.moveMusic(fi, name, false, true);
+                sound.musicLoader.moveMusic(fi, name, true, true);
                 Core.app.post(() -> {
                     ui.loadfrag.hide();
                     sound.musicLoader.reload(name);
