@@ -7,9 +7,11 @@ import MCS.customMusic.*;
 import arc.*;
 import arc.audio.*;
 import arc.func.*;
+import arc.input.KeyCode;
 import arc.scene.style.*;
 import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
+import arc.scene.utils.Elem;
 import arc.util.*;
 import mindustry.ai.*;
 import mindustry.gen.*;
@@ -140,11 +142,24 @@ public class MCS_SettingMenuDialog {
         blockStringDialog = new BaseDialog("@settings");
         blockStringDialog.buttons.defaults().size(105f, 64f);
         blockStringDialog.cont.table(t -> {
-            t.field(settings.getString("blockStringMCS", bundle.get("buildAttacked")), s -> MCSui.attacked.tmpString = s).width(400f).center().padLeft(10f);
+            TextField blockField = Elem.newField(settings.getString("blockStringMCS", bundle.get("buildAttacked")), s -> MCSui.attacked.tmpString = s);
+            if(!mobile){
+                blockField.keyDown(KeyCode.enter, () -> {
+                    if(!MCSui.attacked.tmpString.isEmpty()){
+                        MCSui.attacked.blockString = MCSui.attacked.tmpString;
+                        MCSui.attacked.blockChanged = true;
+                        settings.put("blockStringMCS", MCSui.attacked.blockString);
+                    }
+                    blockStringDialog.hide();
+                });
+            }
+            t.add(blockField).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
-                MCSui.attacked.blockString = MCSui.attacked.tmpString;
-                MCSui.attacked.blockChanged = true;
-                settings.put("blockStringMCS", MCSui.attacked.blockString);
+                if(!MCSui.attacked.tmpString.isEmpty()){
+                    MCSui.attacked.blockString = MCSui.attacked.tmpString;
+                    MCSui.attacked.blockChanged = true;
+                    settings.put("blockStringMCS", MCSui.attacked.blockString);
+                }
                 blockStringDialog.hide();
             }).padLeft(10f);
             t.button("@back", Icon.left, blockStringDialog::hide).padLeft(10f);
@@ -154,11 +169,24 @@ public class MCS_SettingMenuDialog {
         unitStringDialog = new BaseDialog("@settings");
         unitStringDialog.buttons.defaults().size(105f, 64f);
         unitStringDialog.cont.table(t -> {
-            t.field(settings.getString("unitStringMCS", bundle.get("unitAttacked")), s -> MCSui.attacked.tmpString = s).width(400f).center().padLeft(10f);
+            TextField unitField = Elem.newField(settings.getString("unitStringMCS", bundle.get("unitAttacked")), s -> MCSui.attacked.tmpString = s);
+            if(!mobile){
+                unitField.keyDown(KeyCode.enter, () -> {
+                    if(!MCSui.attacked.tmpString.isEmpty()){
+                        MCSui.attacked.unitString = MCSui.attacked.tmpString;
+                        MCSui.attacked.unitEnabled = true;
+                        settings.put("unitStringMCS", MCSui.attacked.unitString);
+                    }
+                    unitStringDialog.hide();
+                });
+            }
+            t.add(unitField).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
             t.button("@confirm", Icon.ok, () -> {
-                MCSui.attacked.unitString = MCSui.attacked.tmpString;
-                MCSui.attacked.unitEnabled = true;
-                settings.put("unitStringMCS", MCSui.attacked.unitString);
+                if(!MCSui.attacked.tmpString.isEmpty()){
+                    MCSui.attacked.unitString = MCSui.attacked.tmpString;
+                    MCSui.attacked.unitEnabled = true;
+                    settings.put("unitStringMCS", MCSui.attacked.unitString);
+                }
                 unitStringDialog.hide();
             }).padLeft(10f);
             t.button("@back", Icon.left, unitStringDialog::hide).padLeft(10f);
@@ -420,9 +448,17 @@ public class MCS_SettingMenuDialog {
 
             buttons.defaults().size(105f, 64f);
             cont.table(t -> {
+                TextField renameField = Elem.newField(sound.musicLoader.getMusicName(music.file), s -> tmpMusicName = s);
+                if(!mobile){
+                    renameField.keyDown(KeyCode.enter, () -> {
+                        if(!tmpMusicName.isEmpty()) sound.musicLoader.renameMusic(music, tmpMusicName);
+                        hide();
+                    });
+                }
+                t.add(renameField).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
                 t.field(sound.musicLoader.getMusicName(music.file), s -> tmpMusicName = s).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
                 t.button("@confirm", Icon.ok, () -> {
-                    sound.musicLoader.renameMusic(music, tmpMusicName);
+                    if(!tmpMusicName.isEmpty()) sound.musicLoader.renameMusic(music, tmpMusicName);
                     hide();
                 }).padLeft(10f);
                 t.button("@back", Icon.left, this::hide).padLeft(10f);
