@@ -21,6 +21,7 @@ import mindustry.ui.dialogs.*;
 
 import static MCS.main.*;
 import static MCS.MCS_EventType.*;
+import static MCS.customMusic.MusicTools.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
 import static mindustry.game.EventType.*;
@@ -409,7 +410,7 @@ public class MCS_SettingMenuDialog {
 
                         planetMusicListDialog.hide();
                         hide();
-                    }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals(planet.name));
+                    }).disabled(b -> from != null && getFileName(from.file).equals(planet.name));
                     t.row();
                 }
             });
@@ -423,13 +424,13 @@ public class MCS_SettingMenuDialog {
                     if(isImported) Events.fire(new ImportMusicEvent("menu"));
                     else Events.fire(new MoveMusicEvent(from, "menu", isCopied));
                     hide();
-                }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals("menu"));
+                }).disabled(b -> from != null && getFileName(from.file).equals("menu"));
                 t.row();
                 t.button("@importMusic.editor", Styles.flatt, () -> {
                     if(isImported) Events.fire(new ImportMusicEvent("editor"));
                     else Events.fire(new MoveMusicEvent(from, "editor", isCopied));
                     hide();
-                }).disabled(b -> from != null && sound.musicLoader.getMusicName(from.file).equals("editor"));
+                }).disabled(b -> from != null && getFileName(from.file).equals("editor"));
                 t.row();
                 t.button("@importMusic.planet", Styles.flatt, () -> planetMusicListDialog.show());
                 t.row();
