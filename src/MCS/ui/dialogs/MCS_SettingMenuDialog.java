@@ -457,7 +457,6 @@ public class MCS_SettingMenuDialog {
                     });
                 }
                 t.add(renameField).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
-                t.field(sound.musicLoader.getMusicName(music.file), s -> tmpMusicName = s).width(Math.max(graphics.getWidth() / 3f / Scl.scl(1f), 400f / Scl.scl(1f))).center().padLeft(10f);
                 t.button("@confirm", Icon.ok, () -> {
                     if(!tmpMusicName.isEmpty()) sound.musicLoader.renameMusic(music, tmpMusicName);
                     hide();
