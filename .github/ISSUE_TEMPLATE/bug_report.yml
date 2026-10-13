@@ -3,6 +3,28 @@ description: An issue with the mod.
 labels: ["bug"]
 
 body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platforms
+      description: On what platforms do you know the bug happens
+      multiple: false
+      options:
+        - Android
+        - Windows
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Mindustry version & mod version
+      description: Which version of the mod are you using, and on which version of Mindustry are you running it?
+    validations:
+      required: true
+
   - type: textarea
     id: issue
     attributes:
