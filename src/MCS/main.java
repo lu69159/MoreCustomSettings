@@ -8,6 +8,7 @@ import arc.*;
 import arc.files.*;
 import arc.func.*;
 import arc.struct.*;
+import arc.util.Log;
 import mindustry.mod.*;
 import java.lang.reflect.*;
 
@@ -50,9 +51,7 @@ public class main extends Mod{
         control.sound.ambientMusic.clear();
         control.sound.darkMusic.clear();
         control.sound.bossMusic.clear();
-        removeListener(ClientLoadEvent.class, "mindustry.audio.SoundControl");
-        removeListener(ResetEvent.class, "mindustry.audio.SoundControl");
-        removeListener(WaveEvent.class, "mindustry.audio.SoundControl");
+        removeAllListener(control.sound.getClass().getName());
         control.sound = new CustomSoundControl();
     }
 
@@ -60,23 +59,22 @@ public class main extends Mod{
      * tool functions
      */
     @SuppressWarnings("unchecked")
-    public static void removeListener(Class<?> eventType, String keyWord){
+    public static void removeAllListener(String keyWord){
         if(isFoo) return;
         try{
             Field eventsField = Events.class.getDeclaredField("events");
             eventsField.setAccessible(true);
             ObjectMap<Object, Seq<Cons<?>>> events = (ObjectMap<Object, Seq<Cons<?>>>)eventsField.get(null);
 
-            Seq<Cons<?>> targets = new Seq<>(), current = events.get(eventType);
-            if(current == null) return;
-
-            for(var listener : current){
-                if(listener.getClass().getName().startsWith(keyWord)){
-                    targets.add(listener);
+            for(var current : events.values()){
+                Seq<Cons<?>> targets = new Seq<>();
+                for(var listener : current){
+                    if(listener.getClass().getName().startsWith(keyWord)){
+                        targets.add(listener);
+                    }
                 }
+                Core.app.post(() -> current.removeAll(targets));
             }
-
-            Core.app.post(() -> current.removeAll(targets));
         }catch(Exception e){
             ui.showException(e);
         }

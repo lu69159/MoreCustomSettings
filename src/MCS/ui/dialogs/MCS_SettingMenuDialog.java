@@ -76,8 +76,7 @@ public class MCS_SettingMenuDialog {
         t.checkPref("enablecustomcampaigndifficulty", false, b -> {
             if(b){
                 ui.campaignRules = new CustomCampaignRulesDialog();
-                removeListener(WorldLoadEvent.class, "mindustry.ai.WaveSpawner");
-                removeListener(TileOverlayChangeEvent.class, "mindustry.ai.WaveSpawner");
+                removeAllListener(spawner.getClass().getName());
                 spawner = new CustomWaveSpawner();
                 if(state.isCampaign() && !net.client()){
                     rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
@@ -85,8 +84,7 @@ public class MCS_SettingMenuDialog {
                 }
             }else{
                 ui.campaignRules = new CampaignRulesDialog();
-                removeListener(WorldLoadEvent.class, "MCS.customDifficulty.CustomWaveSpawner");
-                removeListener(TileOverlayChangeEvent.class, "MCS.customDifficulty.CustomWaveSpawner");
+                removeAllListener(spawner.getClass().getName());
                 spawner = new WaveSpawner();
                 if(state.isCampaign() && !net.client()){
                     new CustomCampaignRules(state.getPlanet()).apply(state.getPlanet(), state.rules);//TEST
@@ -207,8 +205,7 @@ public class MCS_SettingMenuDialog {
 
         if(settings.getBool("enablecustomcampaigndifficulty")){
             ui.campaignRules = new CustomCampaignRulesDialog();
-            removeListener(WorldLoadEvent.class, "mindustry.ai.WaveSpawner");
-            removeListener(TileOverlayChangeEvent.class, "mindustry.ai.WaveSpawner");
+            removeAllListener(spawner.getClass().getName());
             spawner = new CustomWaveSpawner();
         }
 
