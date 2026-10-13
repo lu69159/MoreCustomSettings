@@ -1,7 +1,6 @@
 logs/
 AGENTS.md
-TODO/
-src/MCS/test/
+test/
 /core/assets/mindustry-saves/
 /core/assets/mindustry-maps/
 /core/assets/bundles/output/
