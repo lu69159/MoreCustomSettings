@@ -24,7 +24,6 @@ import static MCS.MCS_EventType.*;
 import static MCS.customMusic.MusicTools.*;
 import static arc.Core.*;
 import static mindustry.ui.dialogs.SettingsMenuDialog.*;
-import static mindustry.game.EventType.*;
 import static mindustry.Vars.*;
 
 public class MCS_SettingMenuDialog {
@@ -50,7 +49,7 @@ public class MCS_SettingMenuDialog {
         t.checkPref("enableMusicBar", false, b -> Events.fire(new MusicBarChangeEvent(b)));
         t.sliderPref("musicBarScl",100, 50, 200, 5, i -> i + "%", changed -> Events.fire(new RebuildMusicBarEvent()));
         t.checkPref("enableCustomMusic", false, b -> Events.fire(new CustomMusicChangeEvent(b)));
-        t.pref(new ButtonSetting("@importMusic", Icon.play, () -> Events.fire(new MusicImportDialogShowEvent())));
+        t.pref(new ButtonSetting("@importMusic", "@importMusic.toolTip", Icon.play, () -> Events.fire(new MusicImportDialogShowEvent())));
         if(!mobile){
             t.pref(new ButtonSetting("@openMusicFolder", Icon.folder, () -> {
                 try{
@@ -483,19 +482,26 @@ public class MCS_SettingMenuDialog {
     public static class ButtonSetting extends SettingsTable.Setting{
         @Nullable Drawable icon;
         @Nullable Runnable onClick;
+        String tip = "";
         public ButtonSetting(String name) {
             super(name);
         }
 
         public ButtonSetting(String name, Drawable icon, Runnable onClick){
+            this(name, "", icon, onClick);
+        }
+
+        public ButtonSetting(String name, String tip, Drawable icon, Runnable onClick){
             this(name);
+            this.tip = tip;
             this.icon = icon;
             this.onClick = onClick;
         }
 
         @Override
         public void add(SettingsTable table) {
-            table.button(name, icon, onClick).marginLeft(5f).growX().row();
+            if(tip.isEmpty()) table.button(name, icon, onClick).marginLeft(5f).growX().row();
+            else table.button(name, icon, onClick).tooltip(tip, true).marginLeft(5f).growX().row();
         }
     }
 

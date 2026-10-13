@@ -34,7 +34,15 @@ public abstract class MusicSeq{
         loadCustom();
     }
 
+    public void dispose(){
+        if(namedMusic != null) namedMusic.dispose();
+        for(var m : musics){
+            m.dispose();
+        }
+    }
+
     public void loadCustom(){
+        dispose();
         namedMusic = null;
         musics.clear();
         try{

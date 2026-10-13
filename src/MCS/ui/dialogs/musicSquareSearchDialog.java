@@ -202,11 +202,12 @@ public class musicSquareSearchDialog extends BaseDialog {
             if(!previewingUrl.equals(t.url)) return;
             Core.app.post(() -> {
                 try{
-                    Music music = new Music(fi){
-                        @Override
-                        public void setLooping(boolean isLooping){}
-                    };
-                    sound.playPreView(music);
+                    sound.playPreView(
+                            new Music(fi){
+                                @Override
+                                public void setLooping(boolean isLooping){}
+                            }
+                    );
                 }catch(Exception ex){
                     ui.showException(ex);
                 }

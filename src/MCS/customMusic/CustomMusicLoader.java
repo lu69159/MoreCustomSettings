@@ -113,6 +113,15 @@ public class CustomMusicLoader {
 
     public void delete(){
         musicFolder.deleteDirectory();
+        menu.dispose();
+        editor.dispose();
+        ambient.dispose();
+        dark.dispose();
+        boss.dispose();
+        sound.planetMusicMap.clear();
+        for(var p : planets){
+            p.dispose();
+        }
         init();
     }
 
