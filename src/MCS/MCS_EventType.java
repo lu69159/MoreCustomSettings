@@ -16,6 +16,12 @@ public class MCS_EventType {
             this.enabled = enabled;
         }
     }
+    public static class MusicLogicChangeEvent{
+        public boolean enabled;
+        public MusicLogicChangeEvent(boolean enabled){
+            this.enabled = enabled;
+        }
+    }
     public static class ContentManagerChangeEvent {
         public boolean enabled;
         public ContentManagerChangeEvent(boolean enabled){

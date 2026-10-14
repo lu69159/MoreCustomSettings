@@ -7,6 +7,7 @@ import arc.util.*;
 import mindustry.gen.*;
 
 import static MCS.customMusic.MusicTools.*;
+import static arc.Core.settings;
 import static mindustry.Vars.*;
 
 public abstract class MusicSeq{
@@ -71,7 +72,7 @@ public abstract class MusicSeq{
             ui.showException(e);
             Log.err(e);
         }
-        setMusics(enabledCustomMusic());
+        setMusics(settings.getBool("enableCustomMusic", false));
     }
 
     /**

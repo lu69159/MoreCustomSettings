@@ -12,10 +12,6 @@ import static arc.Core.settings;
 public class MusicTools {
     private static final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
 
-    public static boolean enabledCustomMusic(){
-        return settings.getBool("enableCustomMusic", false);
-    }
-
     public static boolean isMusic(Fi fi){
         return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
     }

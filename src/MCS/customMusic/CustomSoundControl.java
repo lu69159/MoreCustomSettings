@@ -19,6 +19,10 @@ import static MCS.customMusic.MusicTools.*;
 
 public class CustomSoundControl extends SoundControl{
     private boolean preview = false;
+    private boolean enabled, disabledLogic;
+    private boolean fromLogic;
+    private float recentLogicTime = 0f;
+
     public @Nullable Music previewMusic;
     public MusicMode mode;
 
@@ -30,6 +34,8 @@ public class CustomSoundControl extends SoundControl{
 
     public CustomSoundControl(){
         mode = MusicMode.valueOf(settings.getString("MCS-musicMode", "normal"));
+        enabled = settings.getBool("enableCustomMusic", false);
+        disabledLogic = settings.getBool("disableLogicMusic", false);
         musicLoader = new CustomMusicLoader(this);
         reloadAllInGameMusic();
 
@@ -42,6 +48,7 @@ public class CustomSoundControl extends SoundControl{
             }
         });
         Events.on(CustomMusicChangeEvent.class, e -> {
+            enabled = e.enabled;
             musicLoader.set(e.enabled);
             if(current != null){
                 current.stop();
@@ -50,6 +57,7 @@ public class CustomSoundControl extends SoundControl{
             reloadAllInGameMusic();
             Events.fire(new RebuildMusicBarEvent());
         });
+        Events.on(MusicLogicChangeEvent.class, e -> disabledLogic = e.enabled);
     }
 
     @Override
@@ -99,7 +107,7 @@ public class CustomSoundControl extends SoundControl{
         }else if(state.isMenu()){
             silenced = false;
             if(ui.planet.isShown()){
-                if(enabledCustomMusic() && planetMusicMap.get(ui.planet.state.planet) != null){
+                if(enabled && planetMusicMap.get(ui.planet.state.planet) != null){
                     if(current != null && isSameMusic(current, planetMusicMap.get(ui.planet.state.planet), true)){
                         play(current);
                     }else{
@@ -109,13 +117,13 @@ public class CustomSoundControl extends SoundControl{
                     play(ui.planet.state.planet.launchMusic);
                 }
             }else if(ui.editor.isShown()){
-                if(enabledCustomMusic() && editorMusic != null){
+                if(enabled && editorMusic != null){
                     play(editorMusic);
                 }else{
                     play(Musics.editor);
                 }
             }else{
-                if(enabledCustomMusic() && menuMusic != null){
+                if(enabled && menuMusic != null){
                     play(menuMusic);
                 }else{
                     play(Musics.menu);
@@ -123,14 +131,14 @@ public class CustomSoundControl extends SoundControl{
             }
         }else if(state.rules.editor){
             silenced = false;
-            if(enabledCustomMusic() && editorMusic != null){
+            if(enabled && editorMusic != null){
                 play(editorMusic);
             }else{
                 play(Musics.editor);
             }
         }else{
-            //this just fades out the last track to make way for ingame music
             silence();
+            if(recentLogicTime > 0) recentLogicTime -= Time.delta; //只在游戏内时检测逻辑
 
             if(!state.rules.disableMusic){
                 if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null){
@@ -192,8 +200,28 @@ public class CustomSoundControl extends SoundControl{
     }
 
     @Override
+    public void playMusic(Music music, boolean interrupt){
+        if(disabledLogic && calledFromLogic()) return;
+        super.playMusic(music, interrupt);
+    }
+
+    private boolean calledFromLogic(){
+        if(recentLogicTime > 0) return fromLogic;
+        recentLogicTime = 60f;
+        for(StackTraceElement frame : Thread.currentThread().getStackTrace()){
+            if("mindustry.logic.LExecutor$PlayMusicI".equals(frame.getClassName())
+                    && "run".equals(frame.getMethodName())){
+                fromLogic = true;
+                return true;
+            }
+        }
+        fromLogic = false;
+        return false;
+    }
+
+    @Override
     protected Seq<Music> getAmbientMusic() {
-        if(enabledCustomMusic()){
+        if(enabled){
             return ambientMusic;
         }else{
             return super.getAmbientMusic();
@@ -201,7 +229,7 @@ public class CustomSoundControl extends SoundControl{
     }
     @Override
     protected Seq<Music> getDarkMusic() {
-        if(enabledCustomMusic()){
+        if(enabled){
             return darkMusic;
         }else{
             return super.getDarkMusic();
@@ -209,7 +237,7 @@ public class CustomSoundControl extends SoundControl{
     }
     @Override
     protected Seq<Music> getBossMusic() {
-        if(enabledCustomMusic()){
+        if(enabled){
             return bossMusic;
         }else{
             return super.getBossMusic();
