@@ -22,6 +22,7 @@ public class CustomSoundControl extends SoundControl{
     private boolean enabled, disabledLogic;
     private boolean fromLogic;
     private float recentLogicTime = 0f;
+    private @Nullable Music lastLogicMusic;
 
     public @Nullable Music previewMusic;
     public MusicMode mode;
@@ -201,12 +202,12 @@ public class CustomSoundControl extends SoundControl{
 
     @Override
     public void playMusic(Music music, boolean interrupt){
-        if(disabledLogic && calledFromLogic()) return;
+        if(disabledLogic && calledFromLogic(music)) return;
         super.playMusic(music, interrupt);
     }
 
-    private boolean calledFromLogic(){
-        if(recentLogicTime > 0) return fromLogic;
+    private boolean calledFromLogic(Music music){
+        if(recentLogicTime > 0 && music != null && music == lastLogicMusic) return fromLogic;
         recentLogicTime = 60f;
         for(StackTraceElement frame : Thread.currentThread().getStackTrace()){
             if("mindustry.logic.LExecutor$PlayMusicI".equals(frame.getClassName())
