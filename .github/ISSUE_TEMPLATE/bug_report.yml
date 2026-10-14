@@ -3,20 +3,6 @@ description: An issue with the mod.
 labels: ["bug"]
 
 body:
-  - type: dropdown
-    id: platform
-    attributes:
-      label: Platforms
-      description: On what platforms do you know the bug happens
-      multiple: false
-      options:
-        - Android
-        - Windows
-        - Linux
-        - Other
-    validations:
-      required: true
-
   - type: input
     id: version
     attributes:
@@ -40,6 +26,14 @@ body:
       description: Steps to reproduce the issue.
     validations:
       required: true
+      
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other used mods
+      description: Other mods used alongside this mod when the issue occurred.
+    validations:
+      required: false
 
   - type: textarea
     id: logs
