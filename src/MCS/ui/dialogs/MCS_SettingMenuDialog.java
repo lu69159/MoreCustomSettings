@@ -46,8 +46,8 @@ public class MCS_SettingMenuDialog {
         t.pref(new TitleSetting("@settingtitle.music"));
 
         t.checkPref("instantChangeBossMusic", false);
-        t.checkPref("enableMusicBar", false, b -> Events.fire(new MusicBarChangeEvent(b)));
         t.checkPref("disableLogicMusic", false, b -> Events.fire(new MusicLogicChangeEvent(b)));
+        t.checkPref("enableMusicBar", false, b -> Events.fire(new MusicBarChangeEvent(b)));
         t.sliderPref("musicBarScl",100, 50, 200, 5, i -> i + "%", changed -> Events.fire(new RebuildMusicBarEvent()));
         t.checkPref("enableCustomMusic", false, b -> Events.fire(new CustomMusicChangeEvent(b)));
         t.pref(new ButtonSetting("@importMusic", "@importMusic.toolTip", Icon.play, () -> Events.fire(new MusicImportDialogShowEvent())));
