@@ -79,7 +79,7 @@ public class MusicBar{
                 else return Touchable.childrenOnly;
             }).padLeft(10f).padRight(10f).growX().row();
             table(buttons -> {
-                buttons.defaults().size(barScl * Scl.scl(60f));
+                buttons.defaults().size(barScl * 60f);
 
                 buttons.button(Icon.leftOpen, Styles.clearNonei, () -> {
                     var m = sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? null : sound.getLastRandomPlayed() : sound.getCurrent();
@@ -155,7 +155,7 @@ public class MusicBar{
                 }).tooltip("@musicBar.ruleVol", true).left().padRight(10f);
 
                 buttons.add(moveButton).tooltip("@musicBar.dragToMove", true).left();
-            }).width(barScl * Scl.scl(7*60f + 6*10f)).fillY().center();
+            }).width(barScl * (7*60f + 6*10f)).fillY().center();
             visible(() -> settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
         }};
 
