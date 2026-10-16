@@ -18,6 +18,7 @@ public class CustomMusicLoader {
     public Seq<MusicSeq> planets = new Seq<>();
     final CustomSoundControl sound;
 
+    //TODO：ambient, dark, boss对应名称直接改为文件夹名，避免重复转换
     public CustomMusicLoader(CustomSoundControl sound){
         this.sound = sound;
         musicFolder = Core.settings.getDataDirectory().child("MCS-music");
@@ -246,9 +247,7 @@ public class CustomMusicLoader {
         var seq1 = Seq.with(menu, editor, ambient, dark, boss).find(s -> s.name.equals(name));
         if(seq1 != null) return seq1;
         else{
-            var seq2 = planets.find(s -> s.name.equals(name));
-            if(seq2 != null) return seq2;
-            else return null;
+            return planets.find(s -> s.name.equals(name));
         }
     }
 }

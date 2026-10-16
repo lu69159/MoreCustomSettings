@@ -181,6 +181,11 @@ public class CustomSoundControl extends SoundControl{
         updateLoops();
     }
 
+    @Override
+    protected float volumeMultiplier() {
+        return Core.settings.getInt("musicvol") / 100f * Mathf.clamp(state.rules.musicVolume, 0f, 5f);
+    }
+
     public void playByMode(){
         if(current != null) return;
         if(mode == MusicMode.seq){

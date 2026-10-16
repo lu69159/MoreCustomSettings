@@ -18,7 +18,7 @@ import static arc.Core.*;
 import static mindustry.Vars.*;
 
 public class MusicBar{
-    public boolean openList = false;
+    public boolean openList = false, openVol = false;
     private float barX = -1f, barY = -1f;
     private Table bar, list, vol;
 
@@ -39,8 +39,8 @@ public class MusicBar{
             visible(() -> sound.getCurrent() == null);
         }};
         Slider musicSlider = new Slider(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength(), 0.1f, false){{
-            moved(value -> {
-                if(sound.getCurrent() != null && !isDragging()) sound.getCurrent().setPosition(value);
+            changed(() -> {
+                if(sound.getCurrent() != null && !isDragging()) sound.getCurrent().setPosition(getValue());
             });
             update(() -> {
                 setRange(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength());
@@ -48,11 +48,18 @@ public class MusicBar{
             });
             visible(() -> sound.getCurrent() != null);
         }};
-        Slider volumeSlider = new Slider(0, 200, 1, false){{
-            moved(value -> settings.putInt("musicvol", (int)value));
-            update(() -> setValue(settings.getInt("musicvol")));
-        }};
         Label musicTimeLabel = new Label(() -> musicSlider.visible ? UI.formatTime(musicSlider.getValue() * 60f) : UI.formatTime(0)){{
+            touchable = Touchable.disabled;
+            setAlignment(Align.center);
+            setStyle(Styles.outlineLabel);
+        }};
+        Slider volSlider = new Slider(0, 500, 1, false){{
+            moved(value -> state.rules.musicVolume = ((int)value) / 100f);
+            update(() -> {
+                if(!isDragging()) setValue(state.rules.musicVolume * 100);
+            });
+        }};
+        Label volLabel = new Label(() -> (int)volSlider.getValue() + "%"){{
             touchable = Touchable.disabled;
             setAlignment(Align.center);
             setStyle(Styles.outlineLabel);
@@ -128,6 +135,7 @@ public class MusicBar{
                 }).disabled(dis -> settings.getBool("instantChangeBossMusic", false) && state.boss() != null).left().padRight(10f);
 
                 buttons.button(Icon.menu, Styles.clearNonei, () -> {
+                    openVol = false;
                     openList = !openList;
                 }).checked(chk -> openList).left().padRight(10f);
 
@@ -136,16 +144,15 @@ public class MusicBar{
                     settings.put("MCS-musicMode", sound.mode.name());
                 }).tooltip(t -> {
                     t.label(() -> sound.mode.toolTip());
-                })
-                .update(b -> b.getStyle().imageUp = sound.mode.icon).left().padRight(10f);;
+                }).update(b -> b.getStyle().imageUp = sound.mode.icon).left().padRight(10f);;
 
                 buttons.button(Icon.volumeDown, Styles.clearNonei, () -> {
-                    //TODO 每首音乐单独的倍率
-                })
-                .update(b -> {
-                    float v = settings.getInt("musicvol") * Mathf.clamp(state.rules.musicVolume);
-                    b.getStyle().imageUp = v==0 ? Icon.volumeOff : v<50 ? Icon.volumeDown : Icon.volumeUp;
-                }).left().padRight(10f);
+                    openList = false;
+                    openVol = !openVol;
+                }).checked(chk -> openVol).update(b -> {
+                    float v = state.rules.musicVolume;
+                    b.getStyle().imageUp = v==0 ? Icon.volumeOff : v<1.5f ? Icon.volumeDown : Icon.volumeUp;
+                }).tooltip("@musicBar.ruleVol", true).left().padRight(10f);
 
                 buttons.add(moveButton).tooltip("@musicBar.dragToMove", true).left();
             }).width(barScl * Scl.scl(7*60f + 6*10f)).fillY().center();
@@ -160,12 +167,18 @@ public class MusicBar{
             musicBarTable.x = parent.getWidth() - musicBarTable.getWidth();
             barX = musicBarTable.x;
         }
-        Table musicVolumeMultiplierTable = new Table(){{
-
+        Table musicVolTable = new Table(){{
+            setWidth(musicBarTable.getWidth());
+            setHeight(Scl.scl(60f));
+            x = musicBarTable.x;
+            y = musicBarTable.y - getHeight();
+            background(Styles.black5);
+            stack(volSlider, volLabel).padLeft(10f).padRight(10f).growX();
+            visible(() -> musicBarTable.visible && openVol);
         }};
 
         Table musicListTable = new Table(){{
-            setWidth(barScl * Scl.scl(510f));
+            setWidth(musicBarTable.getWidth());
             float h = sound.allInGameMusic.size == 0 ? Math.min(Scl.scl(32f), graphics.getHeight() / 4f) : Math.min(sound.allInGameMusic.size * Scl.scl(32f), graphics.getHeight() / 4f);
             setHeight(h);
             x = musicBarTable.x;
@@ -186,13 +199,18 @@ public class MusicBar{
                 }
                 if(!found) list.table(Styles.none, mt -> mt.labelWrap("@musicList.empty")).growX().left().row();
 
-            }).scrollX(false).visible(() -> musicBarTable.visible && openList).grow();
+            }).scrollX(false).grow();
+            visible(() -> musicBarTable.visible && openList);
         }};
+
+        bar = musicBarTable;
+        list = musicListTable;
+        vol = musicVolTable;
 
         moveButton.addListener((new ElementGestureListener(){
             @Override
             public void pan(InputEvent event, float x, float y, float deltaX, float deltaY){
-                musicBarTable.moveBy(deltaX, deltaY); //TODO：直接移动前判断
+                musicBarTable.moveBy(deltaX, deltaY); //TODO：使用dragged？
 
                 if(musicBarTable.y > parent.getHeight() - musicBarTable.getHeight()){
                     musicBarTable.y = parent.getHeight() - musicBarTable.getHeight();
@@ -207,29 +225,23 @@ public class MusicBar{
 
                 barX = musicBarTable.x;
                 barY = musicBarTable.y;
-
-                if(musicBarTable.y > parent.getHeight() / 2f){
-                    musicListTable.y = musicBarTable.y - musicListTable.getHeight();
-                }else{
-                    musicListTable.y = musicBarTable.y + musicBarTable.getHeight();
-                }
-                if(musicListTable.x != musicBarTable.x) musicListTable.x = musicBarTable.x;
+                limit(parent);
                 settings.putFloat("MCS-musicBarX", barX);
                 settings.putFloat("MCS-musicBarY", barY);
             }
         }));
 
-        bar = musicBarTable;
-        list = musicListTable;
-
         parent.addChild(musicBarTable);
         parent.addChild(musicListTable);
+        parent.addChild(musicVolTable);
+        limit(parent);
     }
 
     public void rebuild(){
         app.post(() -> {
             ui.hudGroup.removeChild(bar);
             ui.hudGroup.removeChild(list);
+            ui.hudGroup.removeChild(vol);
             build(ui.hudGroup);
         });
 
@@ -238,5 +250,17 @@ public class MusicBar{
     public void reset(){
         settings.remove("MCS-musicBarX");
         settings.remove("MCS-musicBarY");
+    }
+
+    private void limit(Group parent){
+        if(bar.y > parent.getHeight() / 2f){
+            list.y = bar.y - list.getHeight();
+            vol.y = bar.y - vol.getHeight();
+        }else{
+            list.y = bar.y + bar.getHeight();
+            vol.y = bar.y + bar.getHeight();
+        }
+        if(list.x != bar.x) list.x = bar.x;
+        if(vol.x != bar.x) vol.x = bar.x;
     }
 }
