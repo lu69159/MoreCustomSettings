@@ -59,6 +59,17 @@ public class MusicTools {
 
         return decodeName(realName.substring(("encodeName_").length(), index));
     }
+    public static int getCustomVolumeMultiplier(Fi file){
+        if(file == null) return 100;
+        int index = file.nameWithoutExtension().lastIndexOf("__");
+        if(index < 0) return 100;
+        try{
+            int vm = Integer.parseInt(file.nameWithoutExtension().substring(index + 1));
+            return vm > 300 ? 100 : vm; //为了兼容旧版格式...
+        }catch(NumberFormatException e){
+            return 100;
+        }
+    }
     private static String encodeName(String input){
         if(input == null) return null;
         return Base64.getUrlEncoder().withoutPadding().encodeToString(input.getBytes(StandardCharsets.UTF_8));

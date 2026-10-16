@@ -3,6 +3,7 @@ package MCS.ui.fragments;
 import MCS.MCS_EventType;
 import MCS.customMusic.*;
 import arc.Events;
+import arc.math.*;
 import arc.scene.*;
 import arc.scene.event.*;
 import arc.scene.ui.*;
@@ -19,7 +20,7 @@ import static mindustry.Vars.*;
 public class MusicBar{
     public boolean openList = false;
     private float barX = -1f, barY = -1f;
-    private Table bar, list;
+    private Table bar, list, vol;
 
     public MusicBar(){
         Events.run(EventType.WorldLoadEvent.class, this::rebuild);
@@ -30,32 +31,37 @@ public class MusicBar{
     public void build(Group parent){
         var sound = (CustomSoundControl)control.sound;
 
-        ImageButton moveButton = new ImageButton(Icon.move, Styles.clearNonei);
-        moveButton.touchable = Touchable.enabled;
-
-        Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false);
-        disabledMusicSlider.visible(() -> sound.getCurrent() == null);
-        disabledMusicSlider.touchable = Touchable.disabled;
-
-        Slider musicSlider = new Slider(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength(), 0.1f, false);
-        musicSlider.moved(value -> {
-            if(sound.getCurrent() != null && !musicSlider.isDragging()) sound.getCurrent().setPosition(value);
-        });
-        musicSlider.update(() -> {
-            musicSlider.setRange(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength());
-            if(!musicSlider.isDragging()) musicSlider.setValue(sound.getCurrent() == null ? 0f : sound.getCurrent().getPosition(), false);
-        });
-        musicSlider.visible(() -> sound.getCurrent() != null);
-
-        Label musicTimeLabel = new Label(() -> musicSlider.visible ? UI.formatTime(musicSlider.getValue() * 60f) : UI.formatTime(0));
-        musicTimeLabel.setAlignment(Align.center);
-        musicTimeLabel.setStyle(Styles.outlineLabel);
-        musicTimeLabel.touchable = Touchable.disabled;
+        ImageButton moveButton = new ImageButton(Icon.move, Styles.clearNonei){{
+            touchable = Touchable.enabled;
+        }};
+        Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false){{
+            touchable = Touchable.disabled;
+            visible(() -> sound.getCurrent() == null);
+        }};
+        Slider musicSlider = new Slider(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength(), 0.1f, false){{
+            moved(value -> {
+                if(sound.getCurrent() != null && !isDragging()) sound.getCurrent().setPosition(value);
+            });
+            update(() -> {
+                setRange(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength());
+                if(!isDragging()) setValue(sound.getCurrent() == null ? 0f : sound.getCurrent().getPosition(), false);
+            });
+            visible(() -> sound.getCurrent() != null);
+        }};
+        Slider volumeSlider = new Slider(0, 200, 1, false){{
+            moved(value -> settings.putInt("musicvol", (int)value));
+            update(() -> setValue(settings.getInt("musicvol")));
+        }};
+        Label musicTimeLabel = new Label(() -> musicSlider.visible ? UI.formatTime(musicSlider.getValue() * 60f) : UI.formatTime(0)){{
+            touchable = Touchable.disabled;
+            setAlignment(Align.center);
+            setStyle(Styles.outlineLabel);
+        }};
 
         float barScl = settings.getInt("musicBarScl", 100)/100f;
         Table musicBarTable = new Table(){{
-            setWidth(barScl * Scl.scl(510f));
-            setHeight(barScl * Scl.scl(150f));
+            setWidth(barScl * Scl.scl(580f));
+            setHeight(barScl * Scl.scl(170f));
             x = barX < 0 ? settings.getFloat("MCS-musicBarX",graphics.getWidth() / 4f)  : barX;
             y = barY < 0 ? settings.getFloat("MCS-musicBarY",graphics.getHeight() * 7/8f) : barY;
             background(Styles.black3);
@@ -66,7 +72,7 @@ public class MusicBar{
                 else return Touchable.childrenOnly;
             }).padLeft(10f).padRight(10f).growX().row();
             table(buttons -> {
-                buttons.defaults().size(barScl * 60f);
+                buttons.defaults().size(barScl * Scl.scl(60f));
 
                 buttons.button(Icon.leftOpen, Styles.clearNonei, () -> {
                     var m = sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? null : sound.getLastRandomPlayed() : sound.getCurrent();
@@ -133,8 +139,16 @@ public class MusicBar{
                 })
                 .update(b -> b.getStyle().imageUp = sound.mode.icon).left().padRight(10f);;
 
+                buttons.button(Icon.volumeDown, Styles.clearNonei, () -> {
+                    //TODO 每首音乐单独的倍率
+                })
+                .update(b -> {
+                    float v = settings.getInt("musicvol") * Mathf.clamp(state.rules.musicVolume);
+                    b.getStyle().imageUp = v==0 ? Icon.volumeOff : v<50 ? Icon.volumeDown : Icon.volumeUp;
+                }).left().padRight(10f);
+
                 buttons.add(moveButton).tooltip("@musicBar.dragToMove", true).left();
-            }).width(barScl * (6*60f + 5*10f)).fillY().center();
+            }).width(barScl * Scl.scl(7*60f + 6*10f)).fillY().center();
             visible(() -> settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
         }};
 
@@ -146,6 +160,9 @@ public class MusicBar{
             musicBarTable.x = parent.getWidth() - musicBarTable.getWidth();
             barX = musicBarTable.x;
         }
+        Table musicVolumeMultiplierTable = new Table(){{
+
+        }};
 
         Table musicListTable = new Table(){{
             setWidth(barScl * Scl.scl(510f));

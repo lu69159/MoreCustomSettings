@@ -21,8 +21,8 @@ public class CustomSoundControl extends SoundControl{
     private boolean preview = false;
     private boolean enabled, disabledLogic;
     private boolean fromLogic;
-    private float recentLogicTime = 0f;
-    private @Nullable Music lastLogicMusic;
+    private float logicTimer = 0f;
+    @Nullable Music lastLogicMusic;
 
     public @Nullable Music previewMusic;
     public MusicMode mode;
@@ -139,7 +139,8 @@ public class CustomSoundControl extends SoundControl{
             }
         }else{
             silence();
-            if(recentLogicTime > 0) recentLogicTime -= Time.delta; //只在游戏内时检测逻辑
+
+            if(logicTimer > 0) logicTimer -= Time.delta;
 
             if(!state.rules.disableMusic){
                 if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null){
@@ -149,7 +150,7 @@ public class CustomSoundControl extends SoundControl{
                         if(current == bm) silenced = true;
                     }else if(!getBossMusic().contains(current)){
                         fade = Mathf.clamp(fade - Time.delta / foutTime);
-                        current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
+                        current.setVolume(fade * volumeMultiplier());
                         if(fade <= 0.01f){
                             current.stop();
                             current = null;
@@ -172,12 +173,11 @@ public class CustomSoundControl extends SoundControl{
 
                     if(fade < 1f && current != null && allInGameMusic.contains(current)){
                         fade = Mathf.clamp(fade + Time.delta / foutTime);
-                        current.setVolume(fade * Core.settings.getInt("musicvol") / 100.0f);
+                        current.setVolume(fade * volumeMultiplier());
                     }
                 }
             }
         }
-
         updateLoops();
     }
 
@@ -207,8 +207,8 @@ public class CustomSoundControl extends SoundControl{
     }
 
     private boolean calledFromLogic(Music music){
-        if(recentLogicTime > 0 && music != null && music == lastLogicMusic) return fromLogic;
-        recentLogicTime = 60f;
+        if(logicTimer > 0 && music != null && music == lastLogicMusic) return fromLogic;
+        logicTimer = 60f;
         for(StackTraceElement frame : Thread.currentThread().getStackTrace()){
             if("mindustry.logic.LExecutor$PlayMusicI".equals(frame.getClassName())
                     && "run".equals(frame.getMethodName())){
