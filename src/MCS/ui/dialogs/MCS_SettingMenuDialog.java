@@ -362,8 +362,6 @@ public class MCS_SettingMenuDialog {
             this.isCopied = isCopied;
             addCloseButton();
 
-            var sound = (CustomSoundControl)control.sound;
-
             musicInGameDialog = new BaseDialog(title);
             musicInGameDialog.addCloseButton();
             musicInGameDialog.cont.table(Tex.button, t -> {

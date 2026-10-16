@@ -7,8 +7,6 @@ import java.nio.charset.*;
 import java.util.*;
 import java.util.regex.*;
 
-import static arc.Core.settings;
-
 public class MusicTools {
     private static final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
 
@@ -58,17 +56,6 @@ public class MusicTools {
         if(!realName.startsWith("encodeName_")) return realName.substring(0, index);
 
         return decodeName(realName.substring(("encodeName_").length(), index));
-    }
-    public static int getCustomVolumeMultiplier(Fi file){
-        if(file == null) return 100;
-        int index = file.nameWithoutExtension().lastIndexOf("__");
-        if(index < 0) return 100;
-        try{
-            int vm = Integer.parseInt(file.nameWithoutExtension().substring(index + 1));
-            return vm > 300 ? 100 : vm; //为了兼容旧版格式...
-        }catch(NumberFormatException e){
-            return 100;
-        }
     }
     private static String encodeName(String input){
         if(input == null) return null;
