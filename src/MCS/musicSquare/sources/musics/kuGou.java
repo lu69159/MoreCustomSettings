@@ -8,33 +8,21 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class kuGou extends musicBase{
-    private final String searchUrl1 = "http://songsearch.kugou.com/song_search_v2?keyword=";
-
-    public kuGou(){ super(""); }
-
-
-    public String searchUrl(String name){
-        try{
-            return searchUrl1 + URLEncoder.encode(name, "UTF-8");
-        }catch(UnsupportedEncodingException e){
-            return searchUrl1 + name;
-        }
-    }
+    public kuGou(){ super("kugou","http://songsearch.kugou.com/song_search_v2?keyword="); }
 
     @Override
-    public String url(String name) {
+    public String url(String name, int limit){
         try{
-            return url + URLEncoder.encode(name, "UTF-8");
+            return url + URLEncoder.encode(name, "UTF-8") + "&pagesize=" + limit;
         }catch(UnsupportedEncodingException e){
-            return url + name;
+            return url + name + "&pagesize=" + limit;
         }
     }
 
     @Override
     public Seq<Track> search(String name) {
         Seq<Track> results = new Seq<>();
-        Seq<String> rids = new Seq<>();
-        String searchUrl = searchUrl(name);
+        String searchUrl = url(name, 10);
         String[] get = {"", ""};
 
         try {
@@ -49,11 +37,12 @@ public class kuGou extends musicBase{
         String body = get[0];
 
         var json = Jval.read(body);
-        if(!json.get("error_code").equals("0") || json.get("lists").asArray().size == 0) return results;
+        if(json.getInt("error_code", -1) != 0 || json.get("data").getInt("total", 0) == 0) return results;
 
-        var lists = json.get("lists").asArray();
+        var lists = json.get("data").get("lists").asArray();
+        int total = Math.min(10, json.get("data").getInt("total", 0));
 
-        for(int i = 0; i < lists.size; i++){
+        for(int i = 0; i < total; i++){
             var item = lists.get(i);
             Track track = new Track();
             track.url = firstFreeUrl(item);
