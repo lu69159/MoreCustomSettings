@@ -77,8 +77,10 @@ public class musicSquareSearchDialog extends BaseDialog {
                         sourceTable.button(base.name, Icon.none, Styles.flatTogglet, () -> {
                             if(resource.enabled.contains(base)){
                                 resource.enabled.remove(base);
+                                Core.settings.put("MCS-resource-" + base.name, false);
                             }else{
                                 resource.enabled.add(base);
+                                Core.settings.put("MCS-resource-" + base.name, true);
                             }
                         }).growX().height(Scl.scl(60f)).checked(b -> {
                             boolean chk = resource.enabled.contains(base);
@@ -191,8 +193,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                     trackDownload(t);
                 }).size(38f);
             }else{
-                row.add(Core.bundle.get("musicSquare.noSource"))
-                    .color(Color.lightGray).padLeft(8f);
+                row.add(Core.bundle.get("musicSquare.noSource")).color(Color.lightGray).padLeft(8f);
             }
 
             if(t.pic != null && !t.pic.isEmpty() && musicBase.isSafeUrl(t.pic)){

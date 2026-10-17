@@ -25,6 +25,12 @@ public class allResources{
     String keyword;
     //int limit; TODO: 用于LOADMORE?
 
+    public allResources(){
+        for(var base : all){
+            if(Core.settings.getBool("MCS-resource-"+base.name, true)) enabled.add(base);
+        }
+    }
+
     public void search(String kw){
         allResults.clear();
         this.keyword = kw;
