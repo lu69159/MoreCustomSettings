@@ -13,17 +13,19 @@ import static MCS.customMusic.MusicTools.*;
 import static mindustry.Vars.*;
 
 public abstract class musicBase {
+    public String name;
     public String url;
 
-    public musicBase(String url){
+    public musicBase(String name, String url){
+        this.name = name;
         this.url = url;
     }
 
-    public String url(String name){
+    public String url(String name, int limit){ //TODO: 可能通过limit实现loadMore?
         try{
-            return url + URLEncoder.encode(name, "UTF-8") + "&limit=10";
+            return url + URLEncoder.encode(name, "UTF-8") + "&limit=" + limit;
         }catch(UnsupportedEncodingException e){
-            return url + name + "&limit=10";
+            return url + name + "&limit=" + limit;
         }
     }
 
@@ -80,7 +82,7 @@ public abstract class musicBase {
 
                 if(!isUsableExtension(data)){
                     if(!isPreview) ui.loadfrag.hide();
-                    ui.showInfo("@musicSquare.unusableExt");
+                    done.get(null);
                     return;
                 }
 
@@ -95,9 +97,13 @@ public abstract class musicBase {
 
         public void download(String name){
             downloadToTmp(fi -> {
-                var sound = (CustomSoundControl)control.sound;
-                sound.musicLoader.moveMusic(fi, name, true, true);
                 Core.app.post(() -> {
+                    if(fi == null){
+                        ui.showInfo("@musicSquare.unusableExt");
+                        return;
+                    }
+                    var sound = (CustomSoundControl)control.sound;
+                    sound.musicLoader.moveMusic(fi, name, true, true);
                     ui.loadfrag.hide();
                     sound.musicLoader.reload(name);
                     ui.showInfo("@musicSquare.downloaded");

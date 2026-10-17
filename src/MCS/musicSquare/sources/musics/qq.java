@@ -8,11 +8,11 @@ import java.net.URLEncoder;
 
 public class qq extends musicBase{
     public qq() {
-        super("https://tang.api.s01s.cn/music_open_api.php?msg=");
+        super("qq","https://tang.api.s01s.cn/music_open_api.php?msg=");
     }
 
     @Override
-    public String url(String name){
+    public String url(String name, int limit) {
         try{
             return url + URLEncoder.encode(name, "UTF-8") + "&type=json";
         }catch(UnsupportedEncodingException e){
@@ -24,7 +24,7 @@ public class qq extends musicBase{
     public Seq<Track> search(String name) {
         Seq<Track> results = new Seq<>();
         Seq<String> mids = new Seq<>();
-        String reqUrl = url(name);
+        String reqUrl = url(name, 10);
         String[] get = {"", ""};
 
         try {

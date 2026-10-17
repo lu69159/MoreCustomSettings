@@ -5,7 +5,6 @@ import MCS.musicSquare.sources.*;
 import MCS.musicSquare.sources.musics.*;
 import arc.*;
 import arc.audio.*;
-import arc.files.*;
 import arc.graphics.*;
 import arc.graphics.g2d.*;
 import arc.input.*;
@@ -26,17 +25,18 @@ public class musicSquareSearchDialog extends BaseDialog {
     String previewingUrl = "";
     Image loadingSpinner;
     Drawable loading;
-
-    private Table resultTable;
+    private Table resultTable, sourceTable;
+    private Button sourceButton;
     private TextField searchField;
     private String word = "";
     private final Seq<Texture> coverTextures = new Seq<>();
     private int coverGeneration;
-    private boolean isLoading = false;
+    private boolean isLoading = false, shownSource = false;
 
     public musicSquareSearchDialog() {
         super("@musicSquare.search");
         loading = new TextureRegionDrawable(Core.atlas.find("mcs-loading"));
+        setup();
         addCloseButton();
         setFillParent(true);
         resource.onSearchBeginning = this::loading;
@@ -54,28 +54,48 @@ public class musicSquareSearchDialog extends BaseDialog {
         });
     }
 
-    public void setup() {
+    public void setup(){
         var sound = (CustomSoundControl)control.sound;
         cont.table(t -> {
             t.left();
             t.image(Icon.zoom).padRight(8f);
             searchField = t.field("", text -> word = text).growX().get();
             if(!mobile){
-                searchField.keyDown(KeyCode.enter, () -> {
-                    if(!word.isEmpty() && !isLoading){
-                        sound.stopPreView();
-                        previewingUrl = "";
-                        resource.search(word);
-                    }
-                });
+                searchField.keyDown(KeyCode.enter, this::search);
             }
-            t.button("@searchMusic", Icon.zoom, () -> {
-                if(!word.isEmpty() && !isLoading){
-                    sound.stopPreView();
-                    previewingUrl = "";
-                    resource.search(word);
+            t.button("@musicSquare.searchMusic", Icon.zoom, this::search).size(100f, 50f);
+
+            sourceButton = t.button("@musicSquare.searchProvider", Icon.downOpen, () -> {
+                shownSource = !shownSource;
+                if(sourceTable == null){
+                    sourceTable = new Table(Styles.black3){{
+                        setWidth(Scl.scl(200f));
+                        setHeight(resource.all.size * Scl.scl(60f));
+                    }}.left().top();
+
+                    for(var base : resource.all){
+                        sourceTable.button(base.name, Icon.none, Styles.flatTogglet, () -> {
+                            if(resource.enabled.contains(base)){
+                                resource.enabled.remove(base);
+                            }else{
+                                resource.enabled.add(base);
+                            }
+                        }).growX().height(Scl.scl(60f)).checked(b -> {
+                            boolean chk = resource.enabled.contains(base);
+                            ((Image)b.getCells().first().get()).setDrawable(chk ? Icon.okSmall.tint(Color.green) : Icon.cancelSmall.tint(Color.red));
+                            return chk;
+                        }).row();
+                    }
+                    sourceTable.visible(() -> shownSource);
+                    sourceTable.update(this::positionSourceDropdown);
+                    addChild(sourceTable);
                 }
-            }).size(100f, 50f);
+                positionSourceDropdown();
+            }).checked(b -> {
+                ((Image)b.getCells().first().get()).setDrawable(shownSource ? Icon.upOpen : Icon.downOpen);
+                return shownSource;
+            }).get();
+            t.getCell(sourceButton).padLeft(10f).size(100f, 50f);
         }).fillX().padBottom(4).row();
 
         cont.pane(pane -> {
@@ -84,7 +104,23 @@ public class musicSquareSearchDialog extends BaseDialog {
         }).grow().row();
 
         buttons.defaults().size(210f,64f);
-        //buttons.button("@musicSquare.loadMore", Icon.download, () -> resource.loadMore(10)); //TODO
+    }
+    private void positionSourceDropdown(){
+        if(sourceButton == null || sourceTable == null) return;
+        var position = sourceButton.localToAscendantCoordinates(this, Tmp.v1.set(0f, 0f));
+        sourceTable.setPosition(
+            position.x + sourceButton.getWidth() - sourceTable.getWidth(),
+            position.y - sourceTable.getHeight()
+        );
+    }
+
+    private void search(){
+        var sound = (CustomSoundControl)control.sound;
+        if(!word.isEmpty() && !isLoading){
+            sound.stopPreView();
+            previewingUrl = "";
+            resource.search(word);
+        }
     }
 
     private void loading(){
@@ -103,7 +139,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         resultTable.clear();
         resultTable.top().left();
         if(resource.allResults.size == 0){
-            resultTable.add(Core.bundle.get("musicList.empty")).pad(20);
+            resultTable.add(resource.enabled.isEmpty() ? "@musicSquare.noProvider" : "@musicList.empty").pad(20);
         }else{
             for(var t : resource.allResults){
                 trackShow(t);
@@ -201,6 +237,10 @@ public class musicSquareSearchDialog extends BaseDialog {
         t.downloadToTmp(fi -> {
             if(!previewingUrl.equals(t.url)) return;
             Core.app.post(() -> {
+                if(fi == null){
+                    previewingUrl = "";
+                    return;
+                }
                 try{
                     sound.playPreView(
                             new Music(fi){

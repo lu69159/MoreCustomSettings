@@ -199,7 +199,6 @@ public class MCS_SettingMenuDialog {
         musicListDialog.addCloseButton();
 
         musicSearchDialog = new musicSquareSearchDialog();
-        musicSearchDialog.setup();
 
         contentManagerDialog = new ContentManagerDialog("@contentManager");
 

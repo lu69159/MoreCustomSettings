@@ -8,13 +8,13 @@ import static mindustry.Vars.ui;
 
 public class netEase extends musicBase{
     public netEase() {
-        super("https://api.qijieya.cn/meting/?type=search&id=");
+        super("netease","https://api.qijieya.cn/meting/?type=search&id=");
     }
 
     @Override
     public Seq<Track> search(String name) {
         Seq<Track> results = new Seq<>();
-        String reqUrl = url(name);
+        String reqUrl = url(name, 10);
         String[] get = {""};
 
         try {
