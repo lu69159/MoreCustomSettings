@@ -250,6 +250,7 @@ public class MusicBar{
     public void reset(){
         settings.remove("MCS-musicBarX");
         settings.remove("MCS-musicBarY");
+        rebuild();
     }
 
     private void limit(Group parent){

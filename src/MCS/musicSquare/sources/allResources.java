@@ -27,7 +27,7 @@ public class allResources{
 
     public allResources(){
         for(var base : all){
-            if(Core.settings.getBool("MCS-resource-"+base.name, true)) enabled.add(base);
+            if(Core.settings.getBool("MCS-resource-" + base.name, true)) enabled.add(base);
         }
     }
 
