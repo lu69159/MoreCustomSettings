@@ -6,13 +6,14 @@ import arc.util.serialization.Jval;
 
 public class kuWo extends musicBase {
     public kuWo() {
-        super("https://kw-api.cenguigui.cn/?name=");
+        super("kuwo", "https://kw-api.cenguigui.cn/?name=");
     }
+    //note：此API疑似已关闭
 
     @Override
     public Seq<Track> search(String name){
         Seq<musicBase.Track> results = new Seq<>();
-        String reqUrl = url(name);
+        String reqUrl = url(name, 10);
         String[] get = {""};
 
         try{
