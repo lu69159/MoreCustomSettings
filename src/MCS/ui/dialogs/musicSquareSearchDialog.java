@@ -70,7 +70,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 if(sourceTable == null){
                     sourceTable = new Table(Styles.black3){{
                         setWidth(Scl.scl(200f));
-                        setHeight(resource.all.size * Scl.scl(60f));
+                        setHeight(resource.all.size * 60f);
                     }}.left().top();
 
                     for(var base : resource.all){

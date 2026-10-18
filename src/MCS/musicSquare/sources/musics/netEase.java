@@ -12,16 +12,16 @@ public class netEase extends musicBase{
     }
 
     @Override
-    public Seq<Track> search(String name, int limit) {
+    public Seq<Track> search(String name, int limit){
         Seq<Track> results = new Seq<>();
         String reqUrl = url(name, limit);
         String[] get = {""};
 
-        try {
+        try{
             Http.get(reqUrl).timeout(15000).block(res -> {
                 get[0] = res.getResultAsString();
             });
-        } catch (Exception e) {
+        }catch(Exception e){
             ui.showException(e);
             return results;
         }
@@ -38,7 +38,7 @@ public class netEase extends musicBase{
 
         if(arr.size == 0) return results;
 
-        for (int i = 0; i < arr.size; i++) {
+        for (int i = 0; i < arr.size; i++){
             var item = arr.get(i);
             Track track = new Track();
             track.url = item.getString("url");
