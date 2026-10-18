@@ -1,3 +1,3 @@
-每首音乐单独的音量倍率调整【目前先用musicBar的全局音量调整】
+重做Track，根据musicBase来调用对应下载方法，可避免qq源的频繁调用
 musicBase搜索方法更改为search(String kw, int limit)，以支持加载更多内容
 添加新音乐源（如migu/joox）
