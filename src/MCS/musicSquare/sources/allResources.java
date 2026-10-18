@@ -2,7 +2,7 @@ package MCS.musicSquare.sources;
 
 import MCS.musicSquare.sources.musics.*;
 import arc.*;
-import arc.struct.Seq;
+import arc.struct.*;
 import arc.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -11,10 +11,10 @@ public class allResources{
     public @Nullable Runnable onSearchBeginning, onSearchComplete;
 
     private final netEase netEase = new netEase();
-    //private final kuWo kuWo = new kuWo(); 关闭
+    private final kuWo kuWo = new kuWo();
     private final kuGou kuGou = new kuGou();
     private final qq qq = new qq();
-    public final Seq<musicBase> all = Seq.with(netEase, kuGou, qq);
+    public final Seq<musicBase> all = Seq.with(netEase, kuWo, kuGou, qq);
 
     private final ExecutorService searchExecutor = Threads.executor("MusicSearch", all.size);//用于并发查询
     private int searchId;
