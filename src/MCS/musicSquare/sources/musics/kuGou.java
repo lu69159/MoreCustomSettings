@@ -4,25 +4,13 @@ import arc.struct.Seq;
 import arc.util.Http;
 import arc.util.serialization.Jval;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 public class kuGou extends musicBase{
-    public kuGou(){ super("kugou","http://songsearch.kugou.com/song_search_v2?keyword="); }
+    public kuGou(){ super("kugou","https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}"); }
 
     @Override
-    public String url(String name, int limit){
-        try{
-            return url + URLEncoder.encode(name, "UTF-8") + "&pagesize=" + limit;
-        }catch(UnsupportedEncodingException e){
-            return url + name + "&pagesize=" + limit;
-        }
-    }
-
-    @Override
-    public Seq<Track> search(String name) {
+    public Seq<Track> search(String name, int limit) {
         Seq<Track> results = new Seq<>();
-        String searchUrl = url(name, 10);
+        String searchUrl = url(name, limit);
         String[] get = {"", ""};
 
         try {

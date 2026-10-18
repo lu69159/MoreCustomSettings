@@ -3,28 +3,17 @@ package MCS.musicSquare.sources.musics;
 import arc.struct.Seq;
 import arc.util.Http;
 import arc.util.serialization.Jval;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 public class qq extends musicBase{
     public qq() {
-        super("qq","https://tang.api.s01s.cn/music_open_api.php?msg=");
+        super("qq","https://tang.api.s01s.cn/music_open_api.php?msg={0}&type=json");
     }
 
     @Override
-    public String url(String name, int limit) {
-        try{
-            return url + URLEncoder.encode(name, "UTF-8") + "&type=json";
-        }catch(UnsupportedEncodingException e){
-            return url + name + "&type=json";
-        }
-    }
-
-    @Override
-    public Seq<Track> search(String name) {
+    public Seq<Track> search(String name, int limit) {
         Seq<Track> results = new Seq<>();
         Seq<String> mids = new Seq<>();
-        String reqUrl = url(name, 10);
+        String reqUrl = url(name, limit);
         String[] get = {"", ""};
 
         try {
@@ -47,6 +36,7 @@ public class qq extends musicBase{
             if(item.getString("pay").equals("免费")) mids.add(item.getString("song_mid"));
         }
 
+        //TODO：快速遍历会被判定为重复请求
         try {
             for(int i = 0; i < mids.size; i++){
                 Http.get(reqUrl + "&mid=" + mids.get(i)).timeout(15000).block(res -> {

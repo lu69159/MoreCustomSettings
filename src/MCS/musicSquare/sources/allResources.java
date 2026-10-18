@@ -20,7 +20,7 @@ public class allResources{
     private int searchId;
 
     public Seq<musicBase> enabled = Seq.with();
-    public Seq<musicBase.Track> allResults = new Seq<>();
+    public Seq<Track> allResults = new Seq<>();
 
     String keyword;
     //int limit; TODO: 用于LOADMORE?
@@ -31,7 +31,7 @@ public class allResources{
         }
     }
 
-    public void search(String kw){
+    public void search(String kw, int limit){
         allResults.clear();
         this.keyword = kw;
 
@@ -49,7 +49,7 @@ public class allResources{
             return;
         }
 
-        musicBase.Track[][] resultsBySource = new musicBase.Track[sources.size][];//resource[平台id][此平台查询结果数]
+        Track[][] resultsBySource = new Track[sources.size][];//resource[平台id][此平台查询结果数]
         AtomicInteger remaining = new AtomicInteger(sources.size);
 
         for(int i = 0; i < sources.size; i++){
@@ -57,18 +57,18 @@ public class allResources{
             final musicBase source = sources.get(i);
             searchExecutor.submit(() -> {
                 try{
-                    Seq<musicBase.Track> results = source.search(kw);
-                    resultsBySource[sourceIndex] = results == null ? new musicBase.Track[0] : results.toArray(musicBase.Track.class);
+                    Seq<Track> results = source.search(kw, limit);
+                    resultsBySource[sourceIndex] = results == null ? new Track[0] : results.toArray(Track.class);
                     if(results != null) Log.info(source.name + " had found " + results.size + " result(s)");
                 }catch(Throwable error){
                     Log.err(source.name + " failed to search：" + error.getMessage());
-                    resultsBySource[sourceIndex] = new musicBase.Track[0];
+                    resultsBySource[sourceIndex] = new Track[0];
                 }finally{
                     if(remaining.decrementAndGet() == 0){
                         Core.app.post(() -> {
                             if(requestId != searchId) return; //避免旧搜索覆盖新搜索(BUT搜索按钮已经阻止了多次搜索?)
                             allResults.clear();
-                            for(musicBase.Track[] sourceResults : resultsBySource){
+                            for(Track[] sourceResults : resultsBySource){
                                 if(sourceResults != null) allResults.addAll(sourceResults);
                             }
                             if(onSearchComplete != null) onSearchComplete.run();

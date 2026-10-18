@@ -121,7 +121,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         if(!word.isEmpty() && !isLoading){
             sound.stopPreView();
             previewingUrl = "";
-            resource.search(word);
+            resource.search(word, 10);
         }
     }
 
@@ -147,6 +147,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 trackShow(t);
             }
         }
+        Log.info("Found " + resource.allResults.size + " result(s) at all\n");
         isLoading = false;
     }
 
@@ -158,7 +159,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         coverTextures.clear();
     }
 
-    private void trackShow(musicBase.Track t){
+    private void trackShow(Track t){
         var sound = (CustomSoundControl)control.sound;
 
         resultTable.table(Styles.grayPanel, row -> {
@@ -229,7 +230,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         }).growX().pad(2).row();
     }
 
-    private void trackPreviewListening(musicBase.Track t){
+    private void trackPreviewListening(Track t){
         if(!musicBase.isSafeUrl(t.url)) return;
         previewingUrl = t.url;
 
@@ -264,7 +265,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         previewingUrl = "";
     }
 
-    private void trackDownload(musicBase.Track t){
+    private void trackDownload(Track t){
         BaseDialog dialog = new BaseDialog("@musicSquare.selectCategory");
         dialog.addCloseButton();
         dialog.cont.table(Tex.button, bt -> {
