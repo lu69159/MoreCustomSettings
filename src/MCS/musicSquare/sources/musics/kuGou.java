@@ -6,6 +6,7 @@ import arc.util.serialization.Jval;
 
 public class kuGou extends musicBase{
     public kuGou(){ super("kugou","https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}"); }
+    String getDownloadUrl = "https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash={0}";
 
     @Override
     public Seq<Track> search(String name, int limit) {
@@ -33,7 +34,7 @@ public class kuGou extends musicBase{
         for(int i = 0; i < total; i++){
             var item = lists.get(i);
             Track track = new Track();
-            track.url = firstFreeUrl(item);
+            track.url = getFiUrl(item);
             track.pic = item.getString("Image").replace("{size}", "64").replace("http://", "https://");
             track.artist = item.getString("SingerName");
             track.name = item.getString("SongName");
@@ -43,37 +44,36 @@ public class kuGou extends musicBase{
         return results;
     }
 
-    private String firstFreeUrl(Jval item){
+    String getFiUrl(Jval item){
         String sq = item.getString("SQFileHash", "");
         if(!sq.isEmpty() && item.getInt("SQPayType", 0) == 0 && item.getInt("SQPrivilege", 0) == 0 && item.getInt("ASQPrivilege", 0) == 0){
-            String u = fetchPlayUrl(sq);
+            String u = getUrlFromHash(sq);
             if(!u.isEmpty()) return u;
         }
         String hq = item.getString("HQFileHash", "");
         if(!hq.isEmpty() && item.getInt("HQPayType", 0) == 0 && item.getInt("HQPrivilege", 0) == 0){
-            String u = fetchPlayUrl(hq);
+            String u = getUrlFromHash(hq);
             if(!u.isEmpty()) return u;
         }
         String lo = item.getString("FileHash", "");
         if(!lo.isEmpty() && item.getInt("PayType", 0) == 0 && item.getInt("Privilege", 0) == 0){
-            String u = fetchPlayUrl(lo);
+            String u = getUrlFromHash(lo);
             if(!u.isEmpty()) return u;
         }
         return "";
     }
 
-    private String fetchPlayUrl(String hash){
+    String getUrlFromHash(String hash){
         String[] get = {""};
         try{
-            Http.get("https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=" + hash)
-                .timeout(15000).block(res -> get[0] = res.getResultAsString());
+            Http.get(getDownloadUrl.replace("{0}", hash)).timeout(15000).block(res -> get[0] = res.getResultAsString());
         }catch(Exception e){
             return "";
         }
         if(get[0].isEmpty()) return "";
         try{
             var j = Jval.read(get[0]);
-            if(!j.has("errcode") || j.getInt("errcode", -1) != 0) return "";
+            if(j.getInt("errcode", -1) != 0) return "";
             return j.getString("url", "").replace("http://", "https://");
         }catch(Exception e){
             return "";
