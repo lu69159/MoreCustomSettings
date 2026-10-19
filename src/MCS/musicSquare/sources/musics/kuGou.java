@@ -34,7 +34,7 @@ public class kuGou extends musicBase{
             var item = lists.get(i);
             Track track = new Track();
             track.url = firstFreeUrl(item);
-            track.pic = item.getString("Image").replace("{size}", "64");
+            track.pic = item.getString("Image").replace("{size}", "64").replace("http://", "https://");
             track.artist = item.getString("SingerName");
             track.name = item.getString("SongName");
             results.add(track);
@@ -65,7 +65,7 @@ public class kuGou extends musicBase{
     private String fetchPlayUrl(String hash){
         String[] get = {""};
         try{
-            Http.get("http://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=" + hash)
+            Http.get("https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=" + hash)
                 .timeout(15000).block(res -> get[0] = res.getResultAsString());
         }catch(Exception e){
             return "";
@@ -74,7 +74,7 @@ public class kuGou extends musicBase{
         try{
             var j = Jval.read(get[0]);
             if(!j.has("errcode") || j.getInt("errcode", -1) != 0) return "";
-            return j.getString("url", "");
+            return j.getString("url", "").replace("http://", "https://");
         }catch(Exception e){
             return "";
         }
