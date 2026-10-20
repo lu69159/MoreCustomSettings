@@ -9,9 +9,9 @@ public class kuGou extends musicBase{
     String getDownloadUrl = "https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash={0}";
 
     @Override
-    public Seq<Track> search(String name, int limit) {
+    public Seq<Track> search(String keyWord, int limit) {
         Seq<Track> results = new Seq<>();
-        String searchUrl = url(name, limit);
+        String searchUrl = url(keyWord, limit);
         String[] get = {"", ""};
 
         try {

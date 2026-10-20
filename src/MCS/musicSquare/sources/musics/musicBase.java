@@ -25,14 +25,17 @@ public abstract class musicBase {
      * @implNote  {0}:搜索keyWord  {1}:搜索limit
      */
     public String url(String name, int limit){
+        return url.replace("{0}", encodeKeyword(name)).replace("{1}", String.valueOf(limit));
+    }
+    public String encodeKeyword(String name){
         try{
-            return url.replace("{0}", URLEncoder.encode(name, "UTF-8")).replace("{1}", String.valueOf(limit));
+            return URLEncoder.encode(name, "UTF-8");
         }catch(UnsupportedEncodingException e){
-            return url.replace("{0}", name).replace("{1}", String.valueOf(limit));
+            return name;
         }
     }
 
-    public Seq<Track> search(String name, int limit) {
+    public Seq<Track> search(String keyWord, int limit) {
         return new Seq<>();
     }
 

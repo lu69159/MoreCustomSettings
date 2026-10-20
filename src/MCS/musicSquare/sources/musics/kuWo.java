@@ -11,9 +11,9 @@ public class kuWo extends musicBase{
     String getDownloadUrl = "https://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=mp3&response=url", picUrl = "https://img2.kuwo.cn/star/albumcover/{0}";
 
     @Override
-    public Seq<Track> search(String name, int limit) {
+    public Seq<Track> search(String keyWord, int limit) {
         Seq<Track> results = new Seq<>();
-        String reqUrl = url(name, limit);
+        String reqUrl = url(keyWord, limit);
         String[] get = {""};
 
         try{

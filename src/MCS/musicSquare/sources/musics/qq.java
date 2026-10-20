@@ -6,18 +6,17 @@ import arc.util.serialization.Jval;
 
 public class qq extends musicBase{
     public qq() {
-        super("qq","https://tang.api.s01s.cn/music_open_api.php?msg={0}&type=json");
+        super("qq","https://tang.api.s01s.cn/music_open_api.php?{0}&type=json");
     }
 
     @Override
-    public Seq<Track> search(String name, int limit) {
+    public Seq<Track> search(String keyWord, int limit) {
         Seq<Track> results = new Seq<>();
         Seq<String> mids = new Seq<>();
-        String reqUrl = url(name, limit);
         String[] get = {"", ""};
 
         try {
-            Http.get(reqUrl + "&limit=10").timeout(15000).block(res -> {
+            Http.get(url.replace("{0}", "msg=" + encodeKeyword(keyWord))).timeout(15000).block(res -> {
                 get[0] = res.getResultAsString();
             });
         } catch (Exception e) {
@@ -39,14 +38,13 @@ public class qq extends musicBase{
         //TODO：快速遍历会被判定为重复请求
         try {
             for(int i = 0; i < mids.size; i++){
-                Http.get(reqUrl + "&mid=" + mids.get(i)).timeout(15000).block(res -> {
+                Http.get(url.replace("{0}", "&mid=" + mids.get(i))).timeout(15000).block(res -> {
                     get[1] = res.getResultAsString();
                 });
                 String body2 = get[1];
                 var json2 = Jval.read(body2);
                 Track track = new Track();
-                track.url = !json2.getString("song_play_url_sq").isEmpty() ? json2.getString("song_play_url_sq") : !json2.getString("song_play_url_hq").isEmpty() ? json2.getString("song_play_url_hq") :
-                        !json2.getString("song_play_url_standard").isEmpty() ? json2.getString("song_play_url_standard") : json2.getString("song_play_url_fq");
+                track.url = json2.getString("song_play_url");
                 track.pic = json2.getString("album_pic");
                 track.artist = json2.getString("singer_name");
                 track.name = json2.getString("song_title");
