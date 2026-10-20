@@ -1,0 +1,112 @@
+# Custom music providers (`resources.json`)
+
+`resources.json` defines the providers used by the music search. Its root value must be a JSON array; each entry describes one provider. The file is loaded from the mod root directory.
+
+## Provider fields
+
+| Field | Required | Description |
+|---|---:|---|
+| `name` | Yes | Provider ID/name. Used in logs and the provider setting key (`MCS-resource-<name>`). |
+| `url1` | Yes | Search endpoint. `{0}` is replaced with the URL-encoded search keyword; `{1}` is replaced with the requested result limit. |
+| `url2` | No | Optional per-track detail endpoint. If set, the parser obtains an ID from `handler1.mid`, substitutes it for `{0}`, then requests this endpoint for each eligible result. |
+| `prerequisite` | No | Optional `__`-separated field/value pairs used to filter search results. Example: `"pay__免费"` keeps only results whose `pay` field equals `免费`. Omit it or use an empty string to accept all results. |
+| `handler1` | Yes | Describes fields in the search response. At minimum, `name` must be configured and non-empty. |
+| `handler2` | If needed | Describes fields in the detail response. Configure it when the playable URL or picture is read from URL2. |
+
+## Handler fields
+
+`handler1` and `handler2` use the same field format. Each value is the name of a field in the corresponding JSON object, except where noted.
+
+| Field | Description |
+|---|---|
+| `name` | Song title field. The track title is read from `handler1.name`. Required by the current parser. |
+| `artist` | Artist field, normally read from the search result (`handler1`). |
+| `url` | Playable URL field. If `handler1.url` is set, it is read from the search result. Otherwise the parser reads `handler2.url` from the detail response. For a plain-text URL2 response, use `"url": "{0}"`; the parser stores that response under the special `{0}` key. |
+| `pic` | Album-art field. If set in `handler1`, it is read from the search result; otherwise it is read from the detail response using `handler2.pic`. |
+| `mid` | Only used in `handler1` with `url2`. A single field name or multiple candidate field names separated by `__`. The first non-empty value is inserted into URL2's `{0}` placeholder. |
+| `array` | Path to the array of search results, with each object key separated by `__`. For example, `data__lists` means `response.data.lists`. Leave unset/empty if URL1 returns the result array at the root. |
+| `replace` | Pairs of text replacements separated by `__`: `old1__new1__old2__new2`. Replacements are applied to the selected URL or picture value. The number of entries should be even. |
+| `picUrl` | Optional picture URL template. When set, `{0}` is replaced with the value read from `pic`, after `replace` processing. |
+
+### Search and detail response flow
+
+1. The parser requests `url1`, replacing `{0}` with the URL-encoded keyword and `{1}` with the limit.
+2. It reads the result array directly from the response root or follows the `handler1.array` path.
+3. If `prerequisite` is set, only entries matching every configured field/value pair are kept.
+4. If `url2` is set, the parser reads the first available ID from `handler1.mid`, requests URL2 with that ID in `{0}`, then reads the detail response using `handler2`.
+5. Track title and artist come from `handler1`; URL and picture come from `handler1` when their fields are configured there, otherwise from `handler2`.
+
+URL2 may return either a JSON object or a plain URL string. For a JSON object, configure `handler2.url` to the actual URL field. For a plain URL response, configure `handler2.url` as `"{0}"`.
+
+## Examples
+
+### URL1 returns an array directly
+
+```json
+{
+  "name": "example-direct",
+  "url1": "https://example.com/search?q={0}&limit={1}",
+  "handler1": {
+    "name": "title",
+    "artist": "artist",
+    "url": "play_url",
+    "pic": "cover"
+  }
+}
+```
+
+### URL1 returns nested results and URL2 returns an object
+
+```json
+{
+  "name": "example-detail",
+  "url1": "https://example.com/search?q={0}&limit={1}",
+  "prerequisite": "pay__free",
+  "handler1": {
+    "array": "data__items",
+    "mid": "song_id__alternate_id",
+    "name": "title",
+    "artist": "artist"
+  },
+  "url2": "https://example.com/song/{0}",
+  "handler2": {
+    "url": "play_url",
+    "pic": "cover"
+  }
+}
+```
+
+### URL2 returns a plain URL string
+
+```json
+{
+  "name": "example-plain-url",
+  "url1": "https://example.com/search?q={0}&limit={1}",
+  "handler1": {
+    "array": "items",
+    "mid": "id",
+    "name": "title",
+    "artist": "artist"
+  },
+  "url2": "https://example.com/play?id={0}",
+  "handler2": {
+    "url": "{0}"
+  }
+}
+```
+
+## Current provider examples
+
+- **Netease**: URL1 returns an array directly, and each result contains its own title, artist, picture, and playable URL.
+- **QQ**: `handler1.mid` supplies `song_mid`; URL2 returns a JSON object whose URL and picture fields are `song_play_url` and `album_pic`.
+- **Kugou**: result array path is `data__lists`; `mid` tries `SQFileHash`, `HQFileHash`, then `FileHash`. URL2 returns an object with a `url` field.
+- **Kuwo**: result array path is `abslist`; URL2 returns a plain URL, so `handler2.url` is `{0}`. Its picture URL is built from `picUrl` and `web_albumpic_short`.
+
+## Important constraints
+
+- Use valid JSON: double-quoted strings, no comments, and commas between fields/items.
+- `url1` and `handler1` must be present, and `handler1.name` must not be empty.
+- With `url2`, each result needs a non-empty ID in one of `handler1.mid`'s fields. If the playable URL or picture comes from URL2, configure `handler2` for that response format.
+- `array`, `mid`, `replace`, and `prerequisite` use the exact delimiter `__`.
+- `prerequisite` and `replace` are pairs. Keep an even number of entries in each.
+- Avoid `{0}` in a field name except for the special `handler2.url` configuration used with plain-text URL2 responses.
