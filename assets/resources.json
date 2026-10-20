@@ -1,0 +1,67 @@
+[
+    {
+        "name": "netease",
+        "displayName": "netEase",
+        "searchUrl": "https://api.qijieya.cn/meting/?type=search&id={0}&limit={1}",
+        "handleTrack":{
+            "url": "url",
+            "pic": "pic",
+            "artist": "artist",
+            "name": "name"
+        }
+    },
+    {
+        "name": "qq",
+        "displayName": "QQ",
+        "searchUrl": "https://tang.api.s01s.cn/music_open_api.php?msg={0}&type=json",
+        "searchUrl2": "https://tang.api.s01s.cn/music_open_api.php?rid={0}&type=json",
+        "prerequisite": {
+            "pay": "免费"
+        },
+        "handleTrack":{
+            "url": "song_play_url", 
+            "pic": "album_pic",
+            "artist": "singer_name",
+            "name": "song_title"
+        }
+    },
+    {
+        "name": "kugou",
+        "displayName": "kuGou",
+        "searchUrl": "https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}",
+        "searchUrl2": "https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash={0}",
+        "prerequisite":{
+            "PayType": 0
+        },
+        "handleTrack":{
+            "url": [
+                "SQFileHash", "HQFileHash", "FileHash"
+            ],
+            "pic": {
+                "name": "Image",
+                "replace":[
+                    "{size}", "64",
+                    "http://", "https://"
+                ]
+            },
+            "artist": "SingerName",
+            "name": "SongName"
+        }
+    },
+    {
+        "name": "kuwo",
+        "displayName": "kuWo",
+        "searchUrl": "https://search.kuwo.cn/r.s?all={0}&ft=music&pn=0&rn={1}&rformat=json&encoding=utf8",
+        "searchUrl2": "https://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=mp3&response=url",  //返回的是下载url而非文件
+        "picUrl": "https://img2.kuwo.cn/star/albumcover/{0}",
+        "handleTrack":{
+            "url": {
+                "name": "MUSICRID",
+                "returnUrl": true
+            },
+            "pic": "web_albumpic_short",
+            "artist": "ARTIST",
+            "name": "NAME"
+        }
+    }
+]
