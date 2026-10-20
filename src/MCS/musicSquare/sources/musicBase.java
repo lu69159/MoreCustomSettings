@@ -5,27 +5,13 @@ import arc.struct.*;
 import java.net.*;
 import java.io.*;
 
-public class musicBase {
+public abstract class musicBase {
     public String name;
     public String url;
 
     public musicBase(String name, String url){
         this.name = name;
         this.url = url;
-    }
-
-    /**
-     * @implNote  {0}:搜索keyWord  {1}:搜索limit
-     */
-    public String url(String name, int limit){
-        return url.replace("{0}", encodeKeyword(name)).replace("{1}", String.valueOf(limit));
-    }
-    public String encodeKeyword(String name){
-        try{
-            return URLEncoder.encode(name, "UTF-8");
-        }catch(UnsupportedEncodingException e){
-            return name;
-        }
     }
 
     public Seq<Track> search(String keyWord, int limit) {

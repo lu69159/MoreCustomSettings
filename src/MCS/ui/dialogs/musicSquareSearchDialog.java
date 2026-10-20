@@ -71,22 +71,23 @@ public class musicSquareSearchDialog extends BaseDialog {
                         setWidth(Scl.scl(200f));
                         setHeight(resource.all.size * 60f);
                     }}.left().top();
-
-                    for(var base : resource.all){
-                        sourceTable.button(base.name, Icon.none, Styles.flatTogglet, () -> {
-                            if(resource.enabled.contains(base)){
-                                resource.enabled.remove(base);
-                                Core.settings.put("MCS-resource-" + base.name, false);
-                            }else{
-                                resource.enabled.add(base);
-                                Core.settings.put("MCS-resource-" + base.name, true);
-                            }
-                        }).growX().height(Scl.scl(60f)).checked(b -> {
-                            boolean chk = resource.enabled.contains(base);
-                            ((Image)b.getCells().first().get()).setDrawable(chk ? Icon.okSmall.tint(Color.green) : Icon.cancelSmall.tint(Color.red));
-                            return chk;
-                        }).row();
-                    }
+                    sourceTable.pane(p -> {
+                        for(var base : resource.all){
+                            p.button(base.name, Icon.none, Styles.flatTogglet, () -> {
+                                if(resource.enabled.contains(base)){
+                                    resource.enabled.remove(base);
+                                    Core.settings.put("MCS-resource-" + base.name, false);
+                                }else{
+                                    resource.enabled.add(base);
+                                    Core.settings.put("MCS-resource-" + base.name, true);
+                                }
+                            }).growX().height(60f).checked(b -> {
+                                boolean chk = resource.enabled.contains(base);
+                                ((Image)b.getCells().first().get()).setDrawable(chk ? Icon.okSmall.tint(Color.green) : Icon.cancelSmall.tint(Color.red));
+                                return chk;
+                            }).row();
+                        }
+                    }).scrollX(false).grow();
                     sourceTable.visible(() -> shownSource);
                     sourceTable.update(this::positionSourceDropdown);
                     addChild(sourceTable);
@@ -239,6 +240,7 @@ public class musicSquareSearchDialog extends BaseDialog {
             if(!previewingUrl.equals(t.url)) return;
             Core.app.post(() -> {
                 if(fi == null){
+                    ui.showInfo("@musicSquare.unusableExt");
                     previewingUrl = "";
                     return;
                 }

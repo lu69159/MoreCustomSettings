@@ -1,201 +1,196 @@
 package MCS.musicSquare.sources;
 
-import arc.struct.Seq;
-import arc.util.Http;
-import arc.util.Log;
-import arc.util.serialization.Jval;
+import arc.struct.*;
+import arc.util.*;
+import arc.util.serialization.*;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.io.*;
+import java.net.*;
 
 public class ResourceParser{
 
-    public static musicBase parse(Jval jval){
-        ResourceBase resource = new ResourceBase(jval);
-        return new musicBase(resource.name, resource.searchUrl){
+    public static musicBase parse(Jval resource){
+        String name = resource.getString("name");
+        String url1 = resource.getString("url1"), url2 = resource.getString("url2");
+        String[] prerequisite = resource.getString("prerequisite").split("__");
+        JvalHandler handler1 = new JvalHandler(resource.get("handler1"));
+        @Nullable JvalHandler handler2 = resource.get("handler2") == null ? null : new JvalHandler(resource.get("handler2"));
+
+        if(handler1.name.isEmpty()){
+            Log.err("Provider's name is empty!");
+            return null;
+        }
+        if(url1.isEmpty()){
+            Log.err(name + "'s url is empty!");
+            return null;
+        }
+
+        return new musicBase(name, url1){
             @Override
-            public Seq<Track> search(String keyWord, int limit){
-                return resource.search(keyWord, limit);
+            public Seq<Track> search(String keyWord, int limit) {
+                Seq<Track> results = new Seq<>();
+                Seq<TmpTrack> tmp = new Seq<>();
+                String[] get = {"",""};
+
+                try{
+                    Http.get(url1.replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(15000).block(res -> {
+                        get[0] = res.getResultAsString();
+                    });
+                }catch(Exception e){
+                    Log.err(name + " failed to get info from url1");
+                    return results;
+                }
+
+                Jval.JsonArray res1 = handler1.getArray(Jval.read(get[0]));
+                if(res1 == null || res1.size == 0) return results;
+
+                if(url2.isEmpty()){
+                    for(var j1 : res1){
+                        if(shouldAdd(j1, prerequisite)) tmp.add(new TmpTrack(j1, null, handler1, handler2));
+                    }
+                }else{
+                    for(var j1 : res1){
+                        if(shouldAdd(j1, prerequisite)){
+                            String mid = handler1.getMid(j1);
+                            if(mid.isEmpty()) continue;
+
+                            Jval j2 = null;
+                            try{
+                                Http.get(url2.replace("{0}", mid)).timeout(15000).block(res -> {
+                                    get[1] = res.getResultAsString();
+                                });
+                                if(!get[1].isEmpty()){
+                                    if(get[1].startsWith("http")) j2 = Jval.newObject().put("{0}", get[1]);
+                                    else j2 = Jval.read(get[1]);
+                                }
+                            }catch(Exception e){
+                                Log.err(name + " failed to get info from url2");
+                            }
+                            tmp.add(new TmpTrack(j1, j2, handler1, handler2));
+                        }
+                    }
+                }
+
+                for(var t : tmp){
+                    var track = t.getTrack();
+                    if(track != null) results.add(track);
+                }
+                return results;
             }
         };
     }
 
-    public static class ResourceBase{
-        public String name;
-        public String[] prerequisite, replace;
-        public String searchUrl, searchUrl2, picUrl;
-        public Handler handler, handler2;
-
-        public ResourceBase(Jval resource){
-            if(resource == null || !resource.isObject()){
-                throw new IllegalArgumentException("Resource configuration must be a JSON object");
-            }
-
-            name = resource.getString("name");
-            prerequisite = split(resource.getString("prerequisite"));
-            replace = split(resource.getString("replace"));
-            searchUrl = resource.getString("searchUrl");
-            searchUrl2 = resource.getString("searchUrl2");
-            picUrl = resource.getString("picUrl");
-            handler = new Handler(resource.get("handler"));
-            handler2 = new Handler(resource.get("handler2"));
-
-            if(name.isEmpty()) throw new IllegalArgumentException("Resource configuration is missing 'name'");
-            if(searchUrl.isEmpty()) throw new IllegalArgumentException("Resource '" + name + "' is missing 'searchUrl'");
-        }
-
-        public Seq<Track> search(String keyWord, int limit){
-            Seq<Track> results = new Seq<>();
-
-            try{
-                String url = searchUrl.replace("{0}", encodeKeyword(keyWord == null ? "" : keyWord))
-                    .replace("{1}", String.valueOf(limit));
-                String response = requestOnline(url);
-                if(response.isEmpty()) return results;
-
-                Jval root = Jval.read(response);
-                Jval.JsonArray items = findItems(root);
-                if(items == null) return results;
-
-                for(Jval item : items){
-                    if(item == null || !item.isObject()) continue;
-
-                    String secondaryUrl = "";
-                    Jval detail = null;
-                    if(!searchUrl2.isEmpty()){
-                        String id = firstString(item, handler.mid);
-                        if(id.isEmpty()) continue;
-
-                        String detailUrl = replace(searchUrl2.replace("{0}", encodeKeyword(id)));
-                        detail = readResponse(requestOnline(detailUrl));
-                        if(detail == null) continue;
-                        secondaryUrl = getString(detail, handler2.url);
-
-                        // Some sources return the playable URL as a plain JSON string.
-                        if(secondaryUrl.isEmpty() && (detail.isString() || detail.isNumber())){
-                            secondaryUrl = detail.asString();
-                        }
-                    }
-
-                    Track track = new Track();
-                    track.name = getString(item, handler.name);
-                    track.artist = getString(item, handler.artist);
-                    track.pic = getPicture(item, detail);
-                    track.url = searchUrl2.isEmpty() ? replace(getString(item, handler.url)) : replace(secondaryUrl);
-
-                    // A track without a playable URL cannot be previewed or downloaded.
-                    if(!track.url.isEmpty()) results.add(track);
-                }
-            }catch(Exception e){
-                Log.err("Failed to parse music source '" + name + "'", e);
-            }
-
-            return results;
-        }
-
-        private Jval.JsonArray findItems(Jval root){
-            if(root == null) return null;
-            if(root.isArray()) return root.asArray();
-
-            Jval value = root;
-            if(handler.arr.length == 0 || handler.arr[0].isEmpty()) return null;
-            for(String key : handler.arr){
-                if(key.isEmpty()) continue;
-                if(value == null || !value.isObject()) return null;
-                value = value.get(key);
-            }
-            return value != null && value.isArray() ? value.asArray() : null;
-        }
-
-        private String getPicture(Jval item, Jval detail){
-            String picture = getString(item, handler.pic);
-            if(!picture.isEmpty()){
-                return replace(picUrl.isEmpty() ? picture : picUrl.replace("{0}", picture));
-            }
-
-            picture = getString(detail, handler2.pic);
-            if(picture.isEmpty()) return "";
-            return replace(picUrl.isEmpty() ? picture : picUrl.replace("{0}", picture));
-        }
-
-        private Jval readResponse(String response){
-            if(response == null || response.trim().isEmpty()) return null;
-            try{
-                return Jval.read(response);
-            }catch(Exception ignored){
-                // A few providers return a raw URL rather than JSON; quote it for Jval parsing.
-                return Jval.valueOf(response.trim());
+    public static boolean shouldAdd(Jval jval, String[] prerequisite){
+        if(prerequisite[0].isEmpty()) return true;
+        boolean b = true;
+        for(int i = 0; i < prerequisite.length; i+=2){
+            if(!jval.get(prerequisite[i]).asString().equals(prerequisite[i+1])){
+                b = false;
+                break;
             }
         }
+        return b;
+    }
 
-        public String requestOnline(String url){
-            String[] result = {""};
-            try{
-                Http.get(url).timeout(15000).block(res -> result[0] = res.getResultAsString());
-            }catch(Exception ignored){
-            }
-            return result[0];
-        }
-
-        public String replace(String value){
-            if(value == null || value.isEmpty()) return "";
-            for(int i = 0; i + 1 < replace.length; i += 2){
-                if(!replace[i].isEmpty()) value = value.replace(replace[i], replace[i + 1]);
-            }
-            return value;
-        }
-
-        public String encodeKeyword(String value){
-            try{
-                return URLEncoder.encode(value, "UTF-8");
-            }catch(UnsupportedEncodingException e){
-                return value;
-            }
-        }
-
-        private static String[] split(String value){
-            return value == null || value.isEmpty() ? new String[]{""} : value.split("__", -1);
-        }
-
-        private static String firstString(Jval value, String[] keys){
-            for(String key : keys){
-                String result = getString(value, key);
-                if(!result.isEmpty()) return result;
-            }
-            return "";
-        }
-
-        private static String getString(Jval object, String key){
-            if(object == null || !object.isObject() || key == null || key.isEmpty()) return "";
-            Jval value = object.get(key);
-            if(value == null || value.isNull()) return "";
-            if(value.isString() || value.isNumber()) return value.asString();
-            return "";
+    public static String encodeKeyWord(String kw){
+        try{
+            return URLEncoder.encode(kw, "UTF-8");
+        }catch(UnsupportedEncodingException e){
+            return kw;
         }
     }
 
-    public static class Handler{
-        public String name;
-        public String artist;
-        public String pic;
-        public String url;
-        public String[] mid;
-        public String[] arr;
+    public static class TmpTrack{
+        public Jval j1;
+        public @Nullable Jval j2;
+        public JvalHandler handler1;
+        public @Nullable JvalHandler handler2;
 
-        public Handler(Jval j){
-            name = getString(j, "name");
-            artist = getString(j, "artist");
-            pic = getString(j, "pic");
-            url = getString(j, "url");
-            mid = ResourceBase.split(getString(j, "mid"));
-            arr = ResourceBase.split(getString(j, "array"));
+        public TmpTrack(Jval j1, Jval j2, JvalHandler handler1, JvalHandler handler2){
+            this.j1 = j1;
+            this.j2 = j2;
+            this.handler1 = handler1;
+            this.handler2 = handler2;
         }
 
-        private static String getString(Jval object, String key){
-            if(object == null || !object.isObject()) return "";
-            Jval value = object.get(key);
-            if(value == null || value.isNull()) return "";
-            return value.isString() || value.isNumber() ? value.asString() : "";
+        public Track getTrack(){
+            var t = new Track();
+            t.name = j1.getString(handler1.name);
+            t.artist = j1.getString(handler1.artist);
+            t.url = !handler1.url.isEmpty() ? handler1.getUrl(j1) : handler2.getUrl(j2);
+            t.pic = !handler1.pic.isEmpty() ? handler1.getPic(j1) : handler2.getPic(j2);
+            return t;
+        }
+    }
+
+    public static class JvalHandler{
+        public String url;
+        public String pic;
+        public String artist;
+        public String name;
+        public String[] mid;
+        public String[] array;
+
+        public String[] replace;
+        public String picUrl;
+
+        public JvalHandler(Jval init){
+            this.url = init.getString("url");
+            this.pic = init.getString("pic");
+            this.artist = init.getString("artist");
+            this.name = init.getString("name");
+            this.mid = init.getString("mid").split("__");
+            this.array = init.getString("array").split("__");
+            this.replace = init.getString("replace").split("__");
+            this.picUrl = init.getString("picUrl");
+        }
+
+        public String getUrl(Jval jval){
+            String u = jval.getString(url);
+            Log.info(u + "\n");
+            return replaceStr(u);
+        }
+
+        public String getPic(Jval jval){
+            String u = jval.getString(pic);
+            if(!u.isEmpty() && !picUrl.isEmpty()){
+                return picUrl.replace("{0}", replaceStr(u));
+            }else{
+                return replaceStr(u);
+            }
+        }
+
+        public String getMid(Jval jval){
+            if(mid[0].isEmpty()) return "";
+            for(String s : mid){
+                if (!jval.getString(s).isEmpty()) {
+                    return jval.getString(s);
+                }
+            }
+            return "";
+        }
+
+        public Jval.JsonArray getArray(Jval jval){
+            if(jval.isArray() || array[0].isEmpty()) return jval.asArray();
+            Jval tmp = jval;
+            try{
+                for(String a : array){
+                    tmp = tmp.get(a);
+                }
+                return tmp.asArray();
+            }catch(Exception e){
+                Log.err("Failed to parse array: " + e.getMessage());
+                return null;
+            }
+        }
+
+        private String replaceStr(String oldStr){
+            if(replace[0].isEmpty() || oldStr.isEmpty()) return oldStr;
+            String s = oldStr;
+            for(int i = 0; i < replace.length; i+=2){
+                s = s.replace(replace[i], replace[i+1]);
+            }
+            return s;
         }
     }
 }
