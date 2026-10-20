@@ -1,18 +1,11 @@
-package MCS.musicSquare.sources.musics;
+package MCS.musicSquare.sources;
 
-import MCS.customMusic.CustomSoundControl;
-import arc.*;
-import arc.files.*;
-import arc.func.*;
 import arc.struct.*;
-import arc.util.*;
+
 import java.net.*;
 import java.io.*;
 
-import static MCS.customMusic.MusicTools.*;
-import static mindustry.Vars.*;
-
-public abstract class musicBase {
+public class musicBase {
     public String name;
     public String url;
 

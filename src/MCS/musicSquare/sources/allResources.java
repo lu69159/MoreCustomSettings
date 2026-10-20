@@ -1,22 +1,21 @@
 package MCS.musicSquare.sources;
 
-import MCS.musicSquare.sources.musics.*;
 import arc.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.serialization.Jval;
+
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import static mindustry.Vars.*;
+import static MCS.musicSquare.sources.ResourceParser.*;
+
 public class allResources{
     public @Nullable Runnable onSearchBeginning, onSearchComplete;
+    public final Seq<musicBase> all = Seq.with();
 
-    private final netEase netEase = new netEase();
-    private final kuWo kuWo = new kuWo();
-    private final kuGou kuGou = new kuGou();
-    private final qq qq = new qq();
-    public final Seq<musicBase> all = Seq.with(netEase, kuWo, kuGou, qq);
-
-    private final ExecutorService searchExecutor = Threads.executor("MusicSearch", all.size);//用于并发查询
+    private final ExecutorService searchExecutor;//用于并发查询
     private int searchId;
 
     public Seq<musicBase> enabled = Seq.with();
@@ -26,6 +25,11 @@ public class allResources{
     //int limit; TODO: 用于LOADMORE?
 
     public allResources(){
+        var json = Jval.read(mods.getMod("mcs").root.child("resources.json").readString("UTF-8")).asArray();
+        for(var j : json){
+            all.add(parse(j));
+        }
+        searchExecutor = Threads.executor("MusicSearch", all.size);
         for(var base : all){
             if(Core.settings.getBool("MCS-resource-" + base.name, true)) enabled.add(base);
         }
