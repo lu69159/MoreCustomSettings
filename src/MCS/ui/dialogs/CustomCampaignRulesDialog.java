@@ -44,7 +44,6 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 Call.setRules(Vars.state.rules);
             }
         });
-        Events.on(SectorCaptureEvent.class, e -> Core.settings.remove("MCS-" + e.sector.planet + "-" + e.sector.id + "-baseWave"));
 
         hidden(() -> {
             if(planet != null){

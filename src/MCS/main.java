@@ -35,6 +35,8 @@ public class main extends Mod{
             contentManager.load();
             MCSui.load();
         });
+
+        Events.on(SectorCaptureEvent.class, e -> Core.settings.remove("MCS-" + e.sector.planet + "-" + e.sector.id + "-baseWave"));
     }
 
     public void isFoo(){

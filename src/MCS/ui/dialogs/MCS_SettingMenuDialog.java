@@ -82,7 +82,6 @@ public class MCS_SettingMenuDialog {
                 removeAllListener(ui.campaignRules.getClass().getName());
                 ui.campaignRules = new CampaignRulesDialog();
                 if(state.isCampaign() && !net.client()){
-                    Core.settings.remove("MCS-" + state.getSector().planet + "-" + state.getSector().id + "-baseWave");
                     new CustomCampaignRules(state.getPlanet()).apply(state.getPlanet(), state.rules);
                     state.getPlanet().campaignRules.apply(state.getPlanet(), state.rules);
                     Call.setRules(state.rules);
