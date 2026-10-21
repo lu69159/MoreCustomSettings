@@ -52,6 +52,8 @@ public class main extends Mod{
         control.sound.bossMusic.clear();
         removeAllListener(control.sound.getClass().getName());
         control.sound = new CustomSoundControl();
+        removeAllListener(spawner.getClass().getName());
+        spawner = new CustomWaveSpawner();
     }
 
     /**

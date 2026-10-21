@@ -76,19 +76,14 @@ public class MCS_SettingMenuDialog {
 
         t.checkPref("enablecustomcampaigndifficulty", false, b -> {
             if(b){
+                removeAllListener(ui.campaignRules.getClass().getName());
                 ui.campaignRules = new CustomCampaignRulesDialog();
-                removeAllListener(spawner.getClass().getName());
-                spawner = new CustomWaveSpawner();
-                if(state.isCampaign() && !net.client()){
-                    rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
-                    Call.setRules(state.rules);
-                }
             }else{
+                removeAllListener(ui.campaignRules.getClass().getName());
                 ui.campaignRules = new CampaignRulesDialog();
-                removeAllListener(spawner.getClass().getName());
-                spawner = new WaveSpawner();
                 if(state.isCampaign() && !net.client()){
-                    new CustomCampaignRules(state.getPlanet()).apply(state.getPlanet(), state.rules);//TEST
+                    Core.settings.remove("MCS-" + state.getSector().planet + "-" + state.getSector().id + "-baseWave");
+                    new CustomCampaignRules(state.getPlanet()).apply(state.getPlanet(), state.rules);
                     state.getPlanet().campaignRules.apply(state.getPlanet(), state.rules);
                     Call.setRules(state.rules);
                 }

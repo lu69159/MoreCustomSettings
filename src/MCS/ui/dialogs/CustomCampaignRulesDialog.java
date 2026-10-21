@@ -27,6 +27,11 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
     public CustomCampaignRulesDialog(){
         new BaseDialog("@campaign.difficulty");
 
+        if(state.isCampaign() && !net.client()){
+            rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
+            Call.setRules(state.rules);
+        }
+
         Events.on(SaveLoadEvent.class, e -> {
             if(state.isCampaign() && !net.client() && Core.settings.getBool("enablecustomcampaigndifficulty")){
                 rulesMap.get(state.getPlanet()).apply(state.getPlanet(), state.rules);
@@ -39,6 +44,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 Call.setRules(Vars.state.rules);
             }
         });
+        Events.on(SectorCaptureEvent.class, e -> Core.settings.remove("MCS-" + e.sector.planet + "-" + e.sector.id + "-baseWave"));
 
         hidden(() -> {
             if(planet != null){

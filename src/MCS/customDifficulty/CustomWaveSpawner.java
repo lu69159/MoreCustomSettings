@@ -1,6 +1,6 @@
 package MCS.customDifficulty;
 
-import arc.Events;
+import arc.*;
 import arc.func.*;
 import arc.math.*;
 import arc.math.geom.*;
@@ -71,11 +71,12 @@ public class CustomWaveSpawner extends WaveSpawner{
             if(spawned == 0) continue;
 
             if(state.isCampaign()){
+                float esm = Core.settings.getBool("enablecustomcampaigndifficulty") ? rulesMap.get(state.getPlanet()).enemySpawnMultiplier / 100f : state.getPlanet().campaignRules.difficulty.enemySpawnMultiplier;
                 //1.5+ x 1 boss result in 2 bosses, else
                 spawned = Math.max(1, group.effect == StatusEffects.boss ?
-                        Mathf.round(spawned * rulesMap.get(state.getPlanet()).enemySpawnMultiplier / 100f) :
+                        Mathf.round(spawned * esm) :
                         //1.n x 1 unit result in 2 units
-                        Mathf.ceil(spawned * rulesMap.get(state.getPlanet()).enemySpawnMultiplier / 100f)
+                        Mathf.ceil(spawned * esm)
                 );
             }
             int spawnedf = spawned;

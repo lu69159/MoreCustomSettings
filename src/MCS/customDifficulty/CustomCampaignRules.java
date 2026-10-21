@@ -1,5 +1,6 @@
 package MCS.customDifficulty;
 
+import arc.Core;
 import mindustry.Vars;
 import mindustry.game.*;
 import mindustry.gen.Groups;
@@ -60,7 +61,10 @@ public class CustomCampaignRules extends CampaignRules {
 
         rules.objectiveTimerMultiplier = waveTimeMultiplier / 100.0f;
         if(Vars.state.hasSector() && Vars.state.getSector().info.winWave > 0){
-            rules.winWave = Vars.state.getSector().info.winWave + extendWaves;
+            var sec = Vars.state.getSector();
+            if(sec.preset != null) rules.winWave = Vars.state.getSector().preset.captureWave + extendWaves;
+            else rules.winWave = Core.settings.getInt("MCS-" + sec.planet + "-" + sec.id + "-baseWave", sec.info.winWave) + extendWaves;
+            Core.settings.put("MCS-" + sec.planet + "-" + sec.id + "-baseWave", rules.winWave - extendWaves);
         }
 
         rules.teams.get(rules.waveTeam).unitFactoryActivationDelay = unitFactoryActivationDelay;
