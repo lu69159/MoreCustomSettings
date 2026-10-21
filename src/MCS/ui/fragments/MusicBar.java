@@ -156,7 +156,7 @@ public class MusicBar{
 
                 buttons.add(moveButton).tooltip("@musicBar.dragToMove", true).left();
             }).width(barScl * (7*60f + 6*10f)).fillY().center();
-            visible(() -> settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
+            visible(() -> ui.hudfrag.shown && settings.getBool("enableMusicBar", false) && state.isGame() && !state.isEditor());
         }};
 
         if(musicBarTable.y > parent.getHeight() - musicBarTable.getHeight()){
