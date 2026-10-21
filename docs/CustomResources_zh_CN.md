@@ -1,4 +1,5 @@
 # 自定义音乐源（`resources.json`）
+> [!warning] 由GPT-6-Luna生成
 
 `resources.json` 用于定义音乐搜索使用的音乐源。文件根节点必须是 JSON 数组，每个数组项描述一个音乐源。该文件从模组根目录加载。
 
