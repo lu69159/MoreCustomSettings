@@ -140,6 +140,9 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
                 slider(t, "@rules.unitfactoryactivation", customRule.unitFactoryActivationDelay, value -> {
                     customRule.unitFactoryActivationDelay = value * 60f;
                 }, 0, 60, 0.5f, StatUnit.minutes.localized());
+                slider(t, "@rules.radius", customRule.dropZoneRadius, value -> {
+                    customRule.dropZoneRadius = value;
+                }, 1, 100, 1, false);
             }).left().growX().row();
 
             if(planet.allowSectorInvasion){

@@ -14,6 +14,7 @@ public class CustomCampaignRules extends CampaignRules {
     public float waveTimeMultiplier; //percent%
     public int extendWaves;
     public float unitFactoryActivationDelay;
+    public float dropZoneRadius;
 
     public CustomCampaignRules(Planet planet){
         enemy = new CustomTeamRules();
@@ -24,6 +25,7 @@ public class CustomCampaignRules extends CampaignRules {
         waveTimeMultiplier = 100f;
         extendWaves = 0;
         unitFactoryActivationDelay = 0f;
+        dropZoneRadius = 37.5f;
 
         fog = planet.campaignRuleDefaults.fog;
         hideSpawns = planet.campaignRuleDefaults.hideSpawns; //把showSpawns改hideSpawns的家伙是不是吃饱撑啊!
@@ -62,9 +64,18 @@ public class CustomCampaignRules extends CampaignRules {
         rules.objectiveTimerMultiplier = waveTimeMultiplier / 100.0f;
         if(Vars.state.hasSector() && Vars.state.getSector().info.winWave > 0){
             var sec = Vars.state.getSector();
+            String header = "MCS-" + sec.planet + "-" + sec.id;
+
+            if(!Core.settings.has(header + "initWS")) Core.settings.put(header + "initWS", rules.initialWaveSpacing);
+            if(!Core.settings.has(header + "WS")) Core.settings.put(header + "WS", rules.waveSpacing);
+            rules.initialWaveSpacing = Core.settings.getFloat(header + "initWS") * waveTimeMultiplier / 100f;
+            rules.waveSpacing = Core.settings.getFloat(header + "WS") * waveTimeMultiplier / 100f;
+
             if(sec.preset != null) rules.winWave = Vars.state.getSector().preset.captureWave + extendWaves;
-            else rules.winWave = Core.settings.getInt("MCS-" + sec.planet + "-" + sec.id + "-baseWave", sec.info.winWave) + extendWaves;
-            Core.settings.put("MCS-" + sec.planet + "-" + sec.id + "-baseWave", rules.winWave - extendWaves);
+            else{
+                rules.winWave = Core.settings.getInt(header + "-baseWave", sec.info.winWave) + extendWaves;
+                Core.settings.put(header + "-baseWave", rules.winWave - extendWaves);
+            }
         }
 
         rules.teams.get(rules.waveTeam).unitFactoryActivationDelay = unitFactoryActivationDelay;
@@ -78,6 +89,8 @@ public class CustomCampaignRules extends CampaignRules {
         rules.teams.get(Vars.player.team()).unitHealthMultiplier = player.unitHealthMultiplier;
         rules.teams.get(Vars.player.team()).unitCostMultiplier = player.unitCostMultiplier;
         rules.teams.get(Vars.player.team()).unitBuildSpeedMultiplier = player.unitBuildSpeedMultiplier;
+
+        rules.dropZoneRadius = dropZoneRadius * Vars.tilesize;
     }
 
     public void set(CustomDifficulty diff){
@@ -96,6 +109,7 @@ public class CustomCampaignRules extends CampaignRules {
 
         extendWaves = 0;
         unitFactoryActivationDelay = 0f;
+        dropZoneRadius = 37.5f;
         customDiff = diff;
     }
 

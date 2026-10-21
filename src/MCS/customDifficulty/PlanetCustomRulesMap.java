@@ -27,6 +27,7 @@ public class PlanetCustomRulesMap {
             r.waveTimeMultiplier = settings.getFloat(name + "WT", 100f);
             r.extendWaves = settings.getInt(name + "EW", 0);
             r.unitFactoryActivationDelay = settings.getFloat(name + "UFA", 0f);
+            r.dropZoneRadius = settings.getFloat(name + "DZR", 37.5f);
 
             r.customDiff = CustomDifficulty.valueOf(settings.getString(name + "DI", "normal"));
 
@@ -73,6 +74,7 @@ public class PlanetCustomRulesMap {
             settings.remove(name + "WT");
             settings.remove(name + "EW");
             settings.remove(name + "UFA");
+            settings.remove(name + "DZR");
 
             settings.remove(name + "DI");
 
@@ -116,6 +118,7 @@ public class PlanetCustomRulesMap {
         settings.put(name + "WT", r.waveTimeMultiplier);
         settings.put(name + "EW", r.extendWaves);
         settings.put(name + "UFA", r.unitFactoryActivationDelay);
+        settings.put(name + "DZR", r.dropZoneRadius);
 
         settings.put(name + "DI", r.customDiff.name());
 

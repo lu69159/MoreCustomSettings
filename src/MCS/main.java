@@ -36,7 +36,12 @@ public class main extends Mod{
             MCSui.load();
         });
 
-        Events.on(SectorCaptureEvent.class, e -> Core.settings.remove("MCS-" + e.sector.planet + "-" + e.sector.id + "-baseWave"));
+        Events.on(SectorCaptureEvent.class, e -> {
+            String header = "MCS-" + e.sector.planet + "-" + e.sector.id;
+            Core.settings.remove(header + "-baseWave");
+            Core.settings.remove(header + "initWS");
+            Core.settings.remove(header + "WS");
+        });
     }
 
     public void isFoo(){
