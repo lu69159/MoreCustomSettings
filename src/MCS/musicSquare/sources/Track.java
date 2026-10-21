@@ -1,4 +1,4 @@
-package MCS.musicSquare.sources.musics;
+package MCS.musicSquare.sources;
 
 import MCS.customMusic.CustomSoundControl;
 import arc.Core;
@@ -7,7 +7,7 @@ import arc.func.Cons;
 import arc.util.Http;
 
 import static MCS.customMusic.MusicTools.*;
-import static MCS.musicSquare.sources.musics.musicBase.*;
+import static MCS.musicSquare.sources.musicBase.*;
 import static mindustry.Vars.*;
 
 public class Track{
@@ -15,7 +15,6 @@ public class Track{
     public String pic;
     public String artist;
     public String name;
-    boolean needCheck = false;//TODO
 
     private String extension(byte[] d){
         if(d.length < 12) return "";

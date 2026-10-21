@@ -82,10 +82,12 @@ public class CustomMusicLoader {
             }
         }else{
             var seq = Seq.with(menu, editor, ambient, dark, boss).find(ms -> ms.name.equals(name));
-            if(seq != null) seq.loadCustom();
+            if(seq != null){
+                seq.loadCustom();
+                sound.reloadAllInGameMusic();
+            }
             else ui.showException(new Exception("Failed to reload: Not such musicSeq found"));
         }
-        sound.reloadAllInGameMusic();
     }
     public void reloadAll(){
         menu.loadCustom();
@@ -124,6 +126,7 @@ public class CustomMusicLoader {
             p.dispose();
         }
         init();
+        sound.reloadAllInGameMusic();
     }
 
     public void renameMusic(Music m, String newName){
