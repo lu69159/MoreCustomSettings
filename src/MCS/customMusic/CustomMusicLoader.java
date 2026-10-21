@@ -172,7 +172,7 @@ public class CustomMusicLoader {
     }
     public void importMusic(String name){
         if(name.equals("ambient") || name.equals("dark") || name.equals("boss")){
-            FileChooser.open("ogg", "mp3").submitMulti(files -> {
+            FileChooser.open("ogg", "mp3", "wav").submitMulti(files -> {
                 if(importMusicFromFi(files, getFolderName(name), true, true)){
                     ui.showInfo("@importMusic.imported");
                     reload(name);

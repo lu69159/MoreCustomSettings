@@ -11,7 +11,7 @@ public class MusicTools {
     private static final Pattern pattern = Pattern.compile("[^-0-9a-zA-Z -)(\\[\\]]");
 
     public static boolean isMusic(Fi fi){
-        return (fi.extension().equals("ogg") || fi.extension().equals("mp3")) && fi.name().lastIndexOf("__") != -1;
+        return (fi.extension().equals("ogg") || fi.extension().equals("mp3")|| fi.extension().equals("wav")) && fi.name().lastIndexOf("__") != -1;
     }
 
     public static boolean isSameMusic(Music current, Music music, boolean replace){
