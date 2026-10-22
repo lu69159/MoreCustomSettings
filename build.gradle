@@ -96,7 +96,6 @@ jar{
 
     from(projectDir){
         include "mod.hjson"
-        include "resources.json"
     }
 }
 

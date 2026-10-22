@@ -1,5 +1,6 @@
 package MCS.musicSquare.sources;
 
+import arc.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.serialization.*;
@@ -7,25 +8,39 @@ import arc.util.serialization.*;
 import java.io.*;
 import java.net.*;
 
-public class ProviderParser {
+import static MCS.main.saveFolder;
 
-    public static Provider parse(Jval resource){
-        String name = resource.getString("name");
+public class ProviderParser{
+
+    public static Provider parse(String name, Jval resource, boolean isCustom){
+        if(name.isEmpty()){
+            Log.err("Provider's name is empty!");
+            return null;
+        }
+        if(!resource.isObject()){
+            Log.err("Wrong provider format!\n");
+            return null;
+        }
+
         String url1 = resource.getString("url1"), url2 = resource.getString("url2");
         String[] prerequisite = resource.getString("prerequisite").split("__");
         JvalHandler handler1 = new JvalHandler(resource.get("handler1"));
         @Nullable JvalHandler handler2 = resource.get("handler2") == null ? null : new JvalHandler(resource.get("handler2"));
 
-        if(handler1.name.isEmpty()){
-            Log.err("Provider's name is empty!");
-            return null;
-        }
         if(url1.isEmpty()){
             Log.err(name + "'s url is empty!");
             return null;
         }
+        if(handler1.name.isEmpty()){
+            Log.err("Must get music name in handler1!");
+            return null;
+        }
+        if(handler1.artist.isEmpty()){
+            Log.err("Must get music artist in handler1!");
+            return null;
+        }
 
-        return new Provider(name, url1){
+        return new Provider(name, url1, isCustom){
             @Override
             public Seq<Track> search(String keyWord, int limit) {
                 Seq<Track> results = new Seq<>();

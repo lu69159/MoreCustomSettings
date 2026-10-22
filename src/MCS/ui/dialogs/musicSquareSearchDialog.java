@@ -20,7 +20,7 @@ import mindustry.ui.dialogs.*;
 import static mindustry.Vars.*;
 
 public class musicSquareSearchDialog extends BaseDialog {
-    allResources resource =  new allResources();
+    ProviderHub resource = new ProviderHub();
     String previewingUrl = "";
     Image loadingSpinner;
     Drawable loading;
@@ -37,6 +37,8 @@ public class musicSquareSearchDialog extends BaseDialog {
         loading = new TextureRegionDrawable(Core.atlas.find("mcs-loading"));
         setup();
         addCloseButton();
+        SearchSettingsDialog settings = new SearchSettingsDialog();
+        buttons.button("@musicSquare.searchSettings", Icon.settings, settings::show);
         setFillParent(true);
         resource.onSearchBeginning = this::loading;
         resource.onSearchComplete = this::complete;
@@ -54,7 +56,6 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     public void setup(){
-        var sound = (CustomSoundControl)control.sound;
         cont.table(t -> {
             t.left();
             t.image(Icon.zoom).padRight(8f);
@@ -71,23 +72,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                         setWidth(Scl.scl(200f));
                         setHeight(resource.all.size * 60f);
                     }}.left().top();
-                    sourceTable.pane(p -> {
-                        for(var base : resource.all){
-                            p.button(base.name, Icon.none, Styles.flatTogglet, () -> {
-                                if(resource.enabled.contains(base)){
-                                    resource.enabled.remove(base);
-                                    Core.settings.put("MCS-resource-" + base.name, false);
-                                }else{
-                                    resource.enabled.add(base);
-                                    Core.settings.put("MCS-resource-" + base.name, true);
-                                }
-                            }).growX().height(60f).checked(b -> {
-                                boolean chk = resource.enabled.contains(base);
-                                ((Image)b.getCells().first().get()).setDrawable(chk ? Icon.okSmall.tint(Color.green) : Icon.cancelSmall.tint(Color.red));
-                                return chk;
-                            }).row();
-                        }
-                    }).scrollX(false).grow();
+                    rebuildSourceTable();
                     sourceTable.visible(() -> shownSource);
                     sourceTable.update(this::positionSourceDropdown);
                     addChild(sourceTable);
@@ -107,6 +92,60 @@ public class musicSquareSearchDialog extends BaseDialog {
 
         buttons.defaults().size(210f,64f);
     }
+    private void rebuildSourceTable(){
+        if(sourceTable == null) return;
+        sourceTable.clearChildren();
+        sourceTable.setWidth(Scl.scl(200f));
+        sourceTable.setHeight(Scl.scl((resource.all.size + 1) * 60f));
+        sourceTable.pane(p -> {
+            for(var base : resource.all){
+                Table sourceRow = new Table();
+                sourceRow.button(base.name, Icon.none, Styles.flatTogglet, () -> {
+                    if(resource.enabled.contains(base)){
+                        resource.enabled.remove(base);
+                        Core.settings.put("MCS-resource-" + base.name, false);
+                    }else{
+                        resource.enabled.add(base);
+                        Core.settings.put("MCS-resource-" + base.name, true);
+                    }
+                }).height(60f).padRight(base.isCustom ? 36f : 0f).checked(b -> {
+                    boolean chk = resource.enabled.contains(base);
+                    ((Image)b.getCells().first().get()).setDrawable(chk ? Icon.okSmall.tint(Color.green) : Icon.cancelSmall.tint(Color.red));
+                    return chk;
+                }).growX();
+
+                Stack stackedRow = new Stack();
+                stackedRow.add(sourceRow);
+                if(base.isCustom){
+                    Table deleteOverlay = new Table();
+                    deleteOverlay.add().growX();
+                    deleteOverlay.button(Icon.trashSmall, Styles.clearNonei, () -> {
+                        ui.showConfirm("@confirm", "@musicSquare.deleteConfirm", () -> {
+                            resource.removeCustomProvider(base);
+                            rebuildSourceTable();
+                            positionSourceDropdown();
+                        });
+                    }).size(36f, 60f);
+                    stackedRow.add(deleteOverlay);
+                }
+                p.add(stackedRow).growX().height(60f).row();
+            }
+            p.table(addRow -> {
+                addRow.button("@musicSquare.addProvider", Icon.addSmall, Styles.cleart, () -> {
+                    FileChooser.open("json").submitMulti(files -> {
+                        for(var fi : files){
+                            resource.importCustomProvider(fi);
+                        }
+                    });
+                }).growX().height(60f);
+                addRow.button("?", Styles.flatBordert, () -> {
+                    ui.showInfo("TODO");
+                    //TODO: 接口说明显示
+                }).size(36f, 60f);
+            }).growX().height(60f).row();
+        }).scrollX(false).grow();
+        positionSourceDropdown();
+    }
     private void positionSourceDropdown(){
         if(sourceButton == null || sourceTable == null) return;
         var position = sourceButton.localToAscendantCoordinates(this, Tmp.v1.set(0f, 0f));
@@ -121,7 +160,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         if(!word.isEmpty() && !isLoading){
             sound.stopPreView();
             previewingUrl = "";
-            resource.search(word, 10);
+            resource.search(word, Core.settings.getInt("musicSquare-limit", 10));
         }
     }
 
@@ -315,5 +354,15 @@ public class musicSquareSearchDialog extends BaseDialog {
             });
         });
         dialog.show();
+    }
+
+    private class SearchSettingsDialog extends BaseDialog{
+        public SearchSettingsDialog(){
+            super("@musicSquare.searchSettings");
+            cont.add(new SettingsMenuDialog.SettingsTable(){{
+                sliderPref("musicSquare-limit", 10, 1, 30, i -> i + "");
+            }});
+            addCloseButton();
+        }
     }
 }

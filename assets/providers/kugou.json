@@ -1,0 +1,19 @@
+{
+  "url1": "https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}",
+  "handler1":{
+    "array": "data__lists",
+    "mid": "SQFileHash__HQFileHash__FileHash",
+    "replace": "{size}__64__http:__https:",
+
+    "pic": "Image",
+    "artist": "SingerName",
+    "name": "SongName"
+  },
+
+  "url2": "https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash={0}",
+  "handler2":{
+    "replace": "http:__https:",
+
+    "url": "url"
+  }
+}

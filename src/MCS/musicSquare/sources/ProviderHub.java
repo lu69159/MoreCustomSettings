@@ -1,6 +1,7 @@
 package MCS.musicSquare.sources;
 
 import arc.*;
+import arc.files.*;
 import arc.struct.*;
 import arc.util.*;
 import arc.util.serialization.Jval;
@@ -9,9 +10,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import static mindustry.Vars.*;
+import static MCS.main.*;
 import static MCS.musicSquare.sources.ProviderParser.*;
 
-public class allResources{
+public class ProviderHub {
     public @Nullable Runnable onSearchBeginning, onSearchComplete;
     public final Seq<Provider> all = Seq.with();
 
@@ -22,14 +24,28 @@ public class allResources{
     public Seq<Track> allResults = new Seq<>();
 
     String keyword;
-    //int limit; TODO: 用于LOADMORE?
 
-    public allResources(){
-        var json = Jval.read(mods.getMod("mcs").root.child("resources.json").readString("UTF-8")).asArray();
-        for(var j : json){
-            all.add(parse(j));
+    public ProviderHub(){
+        var folder = mods.getMod("mcs").root.child("providers");
+        for(var j : folder.seq()){
+            all.add(parse(j.nameWithoutExtension(), Jval.read(j.readString("UTF-8")), false));
         }
+
+        var customFolder = saveFolder.child("providers");
+        if(!customFolder.exists()) customFolder.mkdirs();
+        for(var custom : customFolder.seq()){
+            Log.info("Loading custom provider: " + custom.nameWithoutExtension());
+            var p = parse(custom.nameWithoutExtension(), Jval.read(custom.readString("UTF-8")), true);
+            if(p == null){
+                Log.err("Something is wrong!");
+            }else{
+                all.add(p);
+                Log.info("success.");
+            }
+        }
+
         searchExecutor = Threads.executor("MusicSearch", all.size);
+
         for(var base : all){
             if(Core.settings.getBool("MCS-resource-" + base.name, true)) enabled.add(base);
         }
@@ -81,5 +97,40 @@ public class allResources{
                 }
             });
         }
+    }
+
+    public void importCustomProvider(Fi fi){
+        if(fi.extension().equals("json")){
+            if(saveFolder.child("providers").seq().contains(f -> f.name().equals(fi.name())) || all.find(p -> p.name.equals(fi.nameWithoutExtension())) != null){
+                ui.showErrorMessage("@musicSquare.import.duplicate");
+                return;
+            }
+            try{
+                var p = parse(fi.nameWithoutExtension(), Jval.read(fi.readString("UTF-8")), true);
+                if(p != null){
+                    fi.copyTo(saveFolder.child("providers").child(fi.name()));
+                    ui.showInfo("@musicSquare.import.restart");
+                }else{
+                    ui.showErrorMessage("@musicSquare.import.failed");
+                }
+            }catch(Exception e){
+                ui.showException(Core.bundle.get("musicSquare.import.failed") + ": ", e);
+            }
+        }
+    }
+
+    public void removeCustomProvider(Provider provider){
+        if(!provider.isCustom) return;
+
+        var customFolder = saveFolder.child("providers");
+        var p = customFolder.seq().find(fi -> fi.nameWithoutExtension().equals(provider.name));
+        if(p == null){
+            Log.err("Not found custom provider!");
+        }else{
+            p.delete();
+        }
+        enabled.remove(provider);
+        Core.settings.remove("MCS-resource-" + provider.name);
+        all.remove(provider);
     }
 }

@@ -7,10 +7,12 @@ import java.net.*;
 public abstract class Provider {
     public String name;
     public String url;
+    public boolean isCustom;
 
-    public Provider(String name, String url){
+    public Provider(String name, String url, boolean isCustom){
         this.name = name;
         this.url = url;
+        this.isCustom = isCustom;
     }
 
     public Seq<Track> search(String keyWord, int limit) {

@@ -1,0 +1,17 @@
+{
+  "url1": "https://search.kuwo.cn/r.s?all={0}&ft=music&pn=0&rn={1}&rformat=json&encoding=utf8",
+  "handler1":{
+    "array": "abslist",
+    "mid": "MUSICRID",
+    "picUrl": "https://img2.kuwo.cn/star/albumcover/{0}",
+
+    "pic": "web_albumpic_short",
+    "artist": "ARTIST",
+    "name": "NAME"
+  },
+
+  "url2": "https://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=mp3&response=url",
+  "handler2": {
+    "url": "{0}"
+  }
+}

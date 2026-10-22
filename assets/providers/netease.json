@@ -1,0 +1,9 @@
+{
+  "url1": "https://api.qijieya.cn/meting/?type=search&id={0}&limit={1}",
+  "handler1":{
+    "url": "url",
+    "pic": "pic",
+    "artist": "artist",
+    "name": "name"
+  }
+}
