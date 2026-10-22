@@ -69,7 +69,6 @@ public class MCS_SettingMenuDialog {
                 })
         ));
         t.pref(new ButtonSetting("@musicList", Icon.list, () -> musicListDialog.show()));
-        //t.checkPref("neverLoadPic", false); todo: 禁用音乐封面加载
         t.pref(new ButtonSetting("@musicSquare.search", Icon.zoom, () -> musicSearchDialog.show()));
 
         t.pref(new TitleSetting("@settingtitle.campaignDifficulty"));
