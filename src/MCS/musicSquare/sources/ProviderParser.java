@@ -147,7 +147,6 @@ public class ProviderParser {
 
         public String getUrl(Jval jval){
             String u = jval.getString(url);
-            Log.info(u + "\n");
             return replaceStr(u);
         }
 
