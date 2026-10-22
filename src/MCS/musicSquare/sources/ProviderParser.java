@@ -35,7 +35,7 @@ public class ProviderParser{
             Log.err("Must get music name in handler1!");
             return null;
         }
-        if(handler1.artist.isEmpty()){
+        if(handler1.artist[0].isEmpty()){
             Log.err("Must get music artist in handler1!");
             return null;
         }
@@ -59,13 +59,17 @@ public class ProviderParser{
                 Jval.JsonArray res1 = handler1.getArray(Jval.read(get[0]));
                 if(res1 == null || res1.size == 0) return results;
 
+                int limitCounter = 0;
                 if(url2.isEmpty()){
                     for(var j1 : res1){
-                        if(shouldAdd(j1, prerequisite)) tmp.add(new TmpTrack(j1, null, handler1, handler2));
+                        if(shouldAdd(j1, prerequisite) && limitCounter < limit){
+                            tmp.add(new TmpTrack(j1, null, handler1, handler2));
+                            limitCounter++;
+                        }
                     }
                 }else{
                     for(var j1 : res1){
-                        if(shouldAdd(j1, prerequisite)){
+                        if(shouldAdd(j1, prerequisite) && limitCounter < limit){
                             String mid = handler1.getMid(j1);
                             if(mid.isEmpty()) continue;
 
@@ -82,6 +86,7 @@ public class ProviderParser{
                                 Log.err(name + " failed to get info from url2");
                             }
                             tmp.add(new TmpTrack(j1, j2, handler1, handler2));
+                            limitCounter++;
                         }
                     }
                 }
@@ -131,17 +136,17 @@ public class ProviderParser{
         public Track getTrack(){
             var t = new Track();
             t.name = j1.getString(handler1.name);
-            t.artist = j1.getString(handler1.artist);
-            t.url = !handler1.url.isEmpty() ? handler1.getUrl(j1) : handler2.getUrl(j2);
-            t.pic = !handler1.pic.isEmpty() ? handler1.getPic(j1) : handler2.getPic(j2);
+            t.artist = handler1.getArtist(j1);
+            t.url = !handler1.url[0].isEmpty() ? handler1.getUrl(j1) : handler2.getUrl(j2);
+            t.pic = !handler1.pic[0].isEmpty() ? handler1.getPic(j1) : handler2.getPic(j2);
             return t;
         }
     }
 
     public static class JvalHandler{
-        public String url;
-        public String pic;
-        public String artist;
+        public String[] url;
+        public String[] pic;
+        public String[] artist;
         public String name;
         public String[] mid;
         public String[] array;
@@ -150,9 +155,9 @@ public class ProviderParser{
         public String picUrl;
 
         public JvalHandler(Jval init){
-            this.url = init.getString("url");
-            this.pic = init.getString("pic");
-            this.artist = init.getString("artist");
+            this.url = init.getString("url").split("__");
+            this.pic = init.getString("pic").split("__");
+            this.artist = init.getString("artist").split("__");
             this.name = init.getString("name");
             this.mid = init.getString("mid").split("__");
             this.array = init.getString("array").split("__");
@@ -161,16 +166,46 @@ public class ProviderParser{
         }
 
         public String getUrl(Jval jval){
-            String u = jval.getString(url);
-            return replaceStr(u);
+            if(url.length == 1){
+                return replaceStr(jval.getString(url[0]));
+            }else{
+                var j = jval;
+                for(var s : url){
+                    if(j.isArray()) j = j.asArray().first().get(s);
+                    else j = j.get(s);
+                }
+                return replaceStr(j.asString());
+            }
         }
 
         public String getPic(Jval jval){
-            String u = jval.getString(pic);
-            if(!u.isEmpty() && !picUrl.isEmpty()){
-                return picUrl.replace("{0}", replaceStr(u));
+            if(pic.length == 1){
+                String u = jval.getString(pic[0]);
+                if(!u.isEmpty() && !picUrl.isEmpty()){
+                    return picUrl.replace("{0}", replaceStr(u));
+                }else{
+                    return replaceStr(u);
+                }
             }else{
-                return replaceStr(u);
+                var j = jval;
+                for(var s : pic){
+                    if(j.isArray()) j = j.asArray().first().get(s);
+                    else j = j.get(s);
+                }
+                return replaceStr(j.asString());
+            }
+        }
+
+        public String getArtist(Jval jval){
+            if(artist.length == 1){
+                return jval.getString(artist[0]);
+            }else{
+                var j = jval;
+                for(var s : artist){
+                    if(j.isArray()) j = j.asArray().first().get(s);
+                    else j = j.get(s);
+                }
+                return j.asString();
             }
         }
 
