@@ -104,7 +104,7 @@ URL2 可以返回 JSON 对象，也可以返回纯文本 URL。若返回 JSON �
 ## 重要约束
 
 - 必须使用有效 JSON：字符串使用双引号，不要添加注释。
-- 必须提供 `url1` 和 `handler1`，且 `handler1.name` 不能为空。
+- 必须提供 `url1` 和 `handler1`，且 `handler1.name` 和 `handler1.artist` 不能为空。
 - 设置了 `url2` 时，每条结果必须能从 `handler1.mid` 的候选字段中获取非空 ID。如果播放地址或图片来自 URL2，还需根据响应格式配置 `handler2`。
 - `array`、`mid`、`replace` 和 `prerequisite` 使用固定分隔符 `__`。
 - `prerequisite` 和 `replace` 都按成对值解析，请确保每项中的值数量为偶数。

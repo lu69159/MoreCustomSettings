@@ -104,7 +104,7 @@ URL2 may return either a JSON object or a plain URL string. For a JSON object, c
 ## Important constraints
 
 - Use valid JSON: double-quoted strings, no comments.
-- `url1` and `handler1` must be present, and `handler1.name` must not be empty.
+- `url1` and `handler1` must be present, and `handler1.name` & `handler1.artist` must not be empty.
 - With `url2`, each result needs a non-empty ID in one of `handler1.mid`'s fields. If the playable URL or picture comes from URL2, configure `handler2` for that response format.
 - `array`, `mid`, `replace`, and `prerequisite` use the exact delimiter `__`.
 - `prerequisite` and `replace` are pairs. Keep an even number of entries in each.
