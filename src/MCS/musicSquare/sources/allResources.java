@@ -9,16 +9,16 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import static mindustry.Vars.*;
-import static MCS.musicSquare.sources.ResourceParser.*;
+import static MCS.musicSquare.sources.ProviderParser.*;
 
 public class allResources{
     public @Nullable Runnable onSearchBeginning, onSearchComplete;
-    public final Seq<musicBase> all = Seq.with();
+    public final Seq<Provider> all = Seq.with();
 
     private final ExecutorService searchExecutor;//用于并发查询
     private int searchId;
 
-    public Seq<musicBase> enabled = Seq.with();
+    public Seq<Provider> enabled = Seq.with();
     public Seq<Track> allResults = new Seq<>();
 
     String keyword;
@@ -45,7 +45,7 @@ public class allResources{
             if(requestId == searchId && onSearchBeginning != null) onSearchBeginning.run();
         });
 
-        Seq<musicBase> sources = enabled.copy();
+        Seq<Provider> sources = enabled.copy();
         if(sources.isEmpty()){
             Core.app.post(() -> {
                 if(requestId == searchId && onSearchComplete != null) onSearchComplete.run();
@@ -58,7 +58,7 @@ public class allResources{
 
         for(int i = 0; i < sources.size; i++){
             final int sourceIndex = i;
-            final musicBase source = sources.get(i);
+            final Provider source = sources.get(i);
             searchExecutor.submit(() -> {
                 try{
                     Seq<Track> results = source.search(kw, limit);

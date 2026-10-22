@@ -3,13 +3,12 @@ package MCS.musicSquare.sources;
 import arc.struct.*;
 
 import java.net.*;
-import java.io.*;
 
-public abstract class musicBase {
+public abstract class Provider {
     public String name;
     public String url;
 
-    public musicBase(String name, String url){
+    public Provider(String name, String url){
         this.name = name;
         this.url = url;
     }

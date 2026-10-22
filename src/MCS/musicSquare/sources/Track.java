@@ -7,7 +7,7 @@ import arc.func.Cons;
 import arc.util.Http;
 
 import static MCS.customMusic.MusicTools.*;
-import static MCS.musicSquare.sources.musicBase.*;
+import static MCS.musicSquare.sources.Provider.*;
 import static mindustry.Vars.*;
 
 public class Track{

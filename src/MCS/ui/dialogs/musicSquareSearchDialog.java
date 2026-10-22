@@ -178,7 +178,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                     .color(Color.lightGray).growX().wrap();
             }).width(300f).growX().padLeft(8f);
 
-            if(t.url != null && !t.url.isEmpty() && musicBase.isSafeUrl(t.url)){
+            if(t.url != null && !t.url.isEmpty() && Provider.isSafeUrl(t.url)){
                 row.button(Icon.play, new ImageButton.ImageButtonStyle(Styles.clearNonei){{
                     imageUp = Icon.play;
                     imageChecked = Icon.pause;
@@ -197,7 +197,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 row.add(Core.bundle.get("musicSquare.noSource")).color(Color.lightGray).padLeft(8f);
             }
 
-            if(t.pic != null && !t.pic.isEmpty() && musicBase.isSafeUrl(t.pic)){
+            if(t.pic != null && !t.pic.isEmpty() && Provider.isSafeUrl(t.pic)){
                 int generation = coverGeneration;
 
                 Http.get(t.pic, res -> {
@@ -231,7 +231,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackPreviewListening(Track t){
-        if(!musicBase.isSafeUrl(t.url)) return;
+        if(!Provider.isSafeUrl(t.url)) return;
         previewingUrl = t.url;
 
         var sound = (CustomSoundControl)control.sound;

@@ -7,9 +7,9 @@ import arc.util.serialization.*;
 import java.io.*;
 import java.net.*;
 
-public class ResourceParser{
+public class ProviderParser {
 
-    public static musicBase parse(Jval resource){
+    public static Provider parse(Jval resource){
         String name = resource.getString("name");
         String url1 = resource.getString("url1"), url2 = resource.getString("url2");
         String[] prerequisite = resource.getString("prerequisite").split("__");
@@ -25,7 +25,7 @@ public class ResourceParser{
             return null;
         }
 
-        return new musicBase(name, url1){
+        return new Provider(name, url1){
             @Override
             public Seq<Track> search(String keyWord, int limit) {
                 Seq<Track> results = new Seq<>();
