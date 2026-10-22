@@ -116,6 +116,8 @@ public class ProviderHub {
             }catch(Exception e){
                 ui.showException(Core.bundle.get("musicSquare.import.failed") + ": ", e);
             }
+        }else{
+            ui.showErrorMessage("@musicSquare.import.notJson");
         }
     }
 
