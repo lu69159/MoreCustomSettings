@@ -180,7 +180,7 @@ public class CustomMusicLoader {
                 }
             });
         }else{
-            FileChooser.open("ogg", "mp3").submitMulti(files -> {
+            FileChooser.open("ogg", "mp3", "wav").submitMulti(files -> {
                 if(importNamedMusicFromFi(files, name, true, true)){
                     ui.showInfo("@importMusic.imported");
                     reload(name);
