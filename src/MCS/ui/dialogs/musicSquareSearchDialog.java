@@ -361,6 +361,7 @@ public class musicSquareSearchDialog extends BaseDialog {
             super("@musicSquare.searchSettings");
             cont.add(new SettingsMenuDialog.SettingsTable(){{
                 sliderPref("musicSquare-limit", 10, 1, 30, i -> i + "");
+                sliderPref("musicSquare-timeout", 15, 0, 60, i -> i == 0 ? "@musicSquare.unlimit" : Core.bundle.format("setting.seconds", i));
             }});
             addCloseButton();
         }
