@@ -45,7 +45,6 @@ URL2 may return either a JSON object or a plain URL string. For a JSON object, c
 
 ```json
 {
-  "name": "example-direct",
   "url1": "https://example.com/search?q={0}&limit={1}",
   "handler1": {
     "name": "title",
@@ -60,7 +59,6 @@ URL2 may return either a JSON object or a plain URL string. For a JSON object, c
 
 ```json
 {
-  "name": "example-detail",
   "url1": "https://example.com/search?q={0}&limit={1}",
   "prerequisite": "pay__free",
   "handler1": {

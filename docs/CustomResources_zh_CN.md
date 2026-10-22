@@ -45,7 +45,6 @@ URL2 可以返回 JSON 对象，也可以返回纯文本 URL。若返回 JSON �
 
 ```json
 {
-  "name": "example-direct",
   "url1": "https://example.com/search?q={0}&limit={1}",
   "handler1": {
     "name": "title",
@@ -60,7 +59,6 @@ URL2 可以返回 JSON 对象，也可以返回纯文本 URL。若返回 JSON �
 
 ```json
 {
-  "name": "example-detail",
   "url1": "https://example.com/search?q={0}&limit={1}",
   "prerequisite": "pay__free",
   "handler1": {
