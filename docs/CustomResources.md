@@ -24,7 +24,7 @@ If the first stage produces no accepted results, later URLs are not requested.
 | `handler1`, `handler2`, ... | Describes fields in the response for the matching request stage. `handler1.name` and `handler1.artist` are required. |
 | `name` | Song title field. Nested object paths can be separated with `__`, e.g. `track__title`. |
 | `artist` | Artist field. Nested object paths can be separated with `__`. |
-| `url` | Playable URL field. Nested object paths can be separated with `__`. |
+| `url` | Playable URL field. Nested object paths can be separated with `__`. When set to `{0}` , the response is treated as a plain-text URL.|
 | `pic` | Album-art field. Nested object paths can be separated with `__`; may be combined with `picUrl`. |
 | `mid` | ID field. Multiple candidate field names can be separated with `__`; the first non-empty value is used for `{0}` in the next URL stage. Candidate fields must be direct children of the current response object. If a later stage does not provide a new `mid`, the previous non-empty value is retained. |
 | `array` | Path to the search-result array, with object keys separated by `__`, e.g. `data__items` means `response.data.items`. Omit it if the response root is an array. |
@@ -102,7 +102,7 @@ URL2 is requested separately for each search result. Its response should be a JS
 - **Netease**: URL1 returns an array directly; each result contains title, artist, picture, and playable URL.
 - **QQ**: `handler1.mid` supplies `song_mid`; URL2's response is parsed by `handler2` for the playable URL and picture.
 - **Kugou**: result array path is `data__lists`; `mid` tries `SQFileHash`, `HQFileHash`, then `FileHash`; URL2 returns a JSON object with a `url` field.
-- **Kuwo**: result array path is `abslist`; URL2 returns plain text. Note: the current parser does not support plain-text URL responses; the response must be a JSON object.
+- **Kuwo**: result array path is `abslist`; URL2 returns plain text. 
 
 ## Notes and limitations
 

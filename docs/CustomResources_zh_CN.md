@@ -24,7 +24,7 @@
 | `handler1`、`handler2`…… | 描述对应阶段的响应字段。`handler1.name` 和 `handler1.artist` 必须配置。 |
 | `name` | 歌曲标题字段。可使用 `__` 分隔嵌套路径，例如 `track__title`。 |
 | `artist` | 艺术家字段。可使用 `__` 分隔嵌套路径。 |
-| `url` | 播放地址字段。可使用 `__` 分隔嵌套路径。 |
+| `url` | 播放地址字段。可使用 `__` 分隔嵌套路径。设置为 `{0}` 时会直接将响应解析为纯文本URL|
 | `pic` | 专辑图片字段。可使用 `__` 分隔嵌套路径；可配合 `picUrl`。 |
 | `mid` | ID 字段。可填写多个候选字段名，用 `__` 分隔；读取第一个非空字段。用于下一阶段 URL 的 `{0}`。候选字段必须位于当前响应对象的直接子级。后续阶段没有读到新的 `mid` 时，会保留之前的非空值。 |
 | `array` | 搜索结果数组的路径，各层对象键用 `__` 分隔，例如 `data__items` 表示 `response.data.items`。若响应根节点本身是数组，可省略。 |
@@ -102,7 +102,7 @@ URL2 的响应通过 `handler2.mid` 更新 ID，随后 URL3 使用该 ID 请求�
 - **网易云（Netease）**：URL1 直接返回数组，曲目字段包含标题、艺术家、图片和播放地址。
 - **QQ**：`handler1.mid` 提供 `song_mid`；URL2 响应由 `handler2` 读取播放地址和图片。
 - **酷狗（Kugou）**：结果数组路径为 `data__lists`；`mid` 依次尝试 `SQFileHash`、`HQFileHash`、`FileHash`；URL2 返回包含 `url` 字段的 JSON 对象。
-- **酷我（Kuwo）**：结果数组路径为 `abslist`；URL2 返回纯文本 URL。注意：当前解析器不支持纯文本 URL 响应，需要 JSON 对象格式。
+- **酷我（Kuwo）**：结果数组路径为 `abslist`；URL2 返回纯文本 URL。
 
 ## 注意事项
 

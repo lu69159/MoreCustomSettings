@@ -92,7 +92,7 @@ public class ProviderParser{
                                 return results;
                             }
                             if(!get2[0].isEmpty()){
-                                Jval j = Jval.read(get2[0]);
+                                Jval j = handlers.get(i).url[0].equals("{0}") ? Jval.newObject().put("{0}", get2[0]) : Jval.read(get2[0]);
                                 if(handlers.get(i).canAdd(j)) t.updateTrack(j, handlers.get(i));
                             }
                         }
