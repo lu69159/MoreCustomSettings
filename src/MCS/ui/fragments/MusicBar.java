@@ -210,7 +210,7 @@ public class MusicBar{
         moveButton.addListener((new ElementGestureListener(){
             @Override
             public void pan(InputEvent event, float x, float y, float deltaX, float deltaY){
-                musicBarTable.moveBy(deltaX, deltaY); //TODO：使用dragged？
+                musicBarTable.moveBy(deltaX, deltaY);
 
                 if(musicBarTable.y > parent.getHeight() - musicBarTable.getHeight()){
                     musicBarTable.y = parent.getHeight() - musicBarTable.getHeight();
