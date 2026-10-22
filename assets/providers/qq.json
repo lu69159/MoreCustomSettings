@@ -1,8 +1,8 @@
 {
-  "prerequisite": "pay__免费",
-
   "url1": "https://tang.api.s01s.cn/music_open_api.php?msg={0}&type=json",
   "handler1":{
+    "prerequisite": "pay__免费",
+    
     "artist": "singer_name",
     "name": "song_title",
     "mid": "song_mid"
