@@ -2,10 +2,10 @@
   "url1": "https://tang.api.s01s.cn/music_open_api.php?msg={0}&type=json",
   "handler1":{
     "prerequisite": "pay__免费",
+    "mid0": "song_mid",
     
     "artist": "singer_name",
-    "name": "song_title",
-    "mid": "song_mid"
+    "name": "song_title"
   },
 
   "url2": "https://tang.api.s01s.cn/music_open_api.php?mid={0}&type=json",

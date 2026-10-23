@@ -10,8 +10,8 @@ Use `xxx.json` to define a music provider; the filename (without `.json`) is its
 A provider can define consecutive request stages: `url1`, `url2`, `url3`, and so on. Every URL must have a handler with the matching number: `url1` uses `handler1`, `url2` uses `handler2`.
 
 1. `url1` is the search request. `{0}` is replaced with the URL-encoded keyword and `{1}` with the requested result limit. The parser gets the result array using `handler1.array`, filters entries using `handler1.prerequisite`, and creates a track for each accepted result.
-2. For each later URL, the parser gets the ID from the current track's `mid`, substitutes it for `{0}`, and requests details for that track. The corresponding handler filters the response and extracts fields. Only `url1` substitutes `{1}`; later stages do not replace `{1}`.
-3. Non-empty `name`, `artist`, `url`, `pic`, and `mid` values in each handler update the track; empty fields do not overwrite values from earlier stages. A later stage may set `mid` for the next request.
+2. For each later URL, the parser substitutes the current track's MID values into matching numbered placeholders: `mid0` into `{0}`, `mid1` into `{1}`, and so on. The corresponding handler filters the response and extracts fields. Only `url1` substitutes `{0}` with the keyword and `{1}` with the result limit.
+3. Non-empty `name`, `artist`, `url`, and `pic` values update the track; empty values do not overwrite values from earlier stages. Each handler replaces the track's MID list with the MID values it extracts. To pass an ID to another URL stage, that stage's handler must extract it again.
 4. At the end of the search, only tracks with both a non-empty `name` and `artist` are returned.
 
 If the first stage produces no accepted results, later URLs are not requested.
@@ -20,19 +20,19 @@ If the first stage produces no accepted results, later URLs are not requested.
 
 | Field | Description |
 |---|---|
-| `url1`, `url2`, ... | Consecutive request URLs. Numbering cannot have gaps, and every URL needs a matching handler. In `url1`, `{0}` is replaced with the keyword and `{1}` with the result limit. In later URLs, only `{0}` is replaced with the current track's `mid`. |
+| `url1`, `url2`, ... | Consecutive request URLs. Numbering cannot have gaps, and every URL needs a matching handler. In `url1`, `{0}` is replaced with the keyword and `{1}` with the result limit. In later URLs, `{0}`, `{1}`, etc. are replaced by the current MID values in order. |
 | `handler1`, `handler2`, ... | Describes fields in the response for the matching request stage. `handler1.name` and `handler1.artist` are required. |
 | `name` | Song title field. Nested object paths can be separated with `__`, e.g. `track__title`. |
 | `artist` | Artist field. Nested object paths can be separated with `__`. |
 | `url` | Playable URL field. Nested object paths can be separated with `__`. When set to `{0}` , the response is treated as a plain-text URL.|
 | `pic` | Album-art field. Nested object paths can be separated with `__`; may be combined with `picUrl`. |
-| `mid` | ID field. Multiple candidate field names can be separated with `__`; the first non-empty value is used for `{0}` in the next URL stage. Candidate fields must be direct children of the current response object. If a later stage does not provide a new `mid`, the previous non-empty value is retained. |
+| `mid0`, `mid1`, ... | MID fields, numbered consecutively starting at `mid0`. `mid0` supplies `{0}` in the next URL, `mid1` supplies `{1}`, and so on. Each value can list fallback field names separated with `__`; the first non-empty field is used. Fields must be direct children of the current response object. A missing MID value becomes an empty placeholder; if no MID fields are configured, the next URL stage is skipped. |
 | `array` | Path to the search-result array, with object keys separated by `__`, e.g. `data__items` means `response.data.items`. Omit it if the response root is an array. |
 | `prerequisite` | Filters response objects in the current stage. Specify field/expected-value pairs separated by `__`, e.g. `pay__free`. All pairs must match. Omit or leave empty to accept all entries. |
 | `replace` | Text replacement pairs separated by `__`, e.g. `old1__new1__old2__new2`. Applied to URL and picture values. The number of values must be even. |
 | `picUrl` | Picture URL template. When set, `{0}` is replaced with the picture field value after `replace` processing. |
 
-For `name`, `artist`, `url`, and `pic`, when traversal encounters an array, the parser selects its first element and continues. `mid` does not support nested or array traversal. The `picUrl` template is applied only when `pic` is a single field name; it is not applied to multi-segment `pic` paths.
+For `name`, `artist`, `url`, and `pic`, when traversal encounters an array, the parser selects its first element and continues. `midN` fields do not support nested or array traversal. MID fields must be numbered continuously from `mid0`; parsing stops at the first missing or empty `midN` configuration. The `picUrl` template is applied only when `pic` is a single field name; it is not applied to multi-segment `pic` paths.
 
 ## Examples
 
@@ -59,7 +59,7 @@ For `name`, `artist`, `url`, and `pic`, when traversal encounters an array, the 
   "handler1": {
     "array": "data__items",
     "prerequisite": "pay__free",
-    "mid": "song_id__alternate_id",
+    "mid0": "song_id__alternate_id",
     "name": "title",
     "artist": "artist"
   },
@@ -80,13 +80,13 @@ URL2 is requested separately for each search result. Its response is a JSON obje
   "url1": "https://example.com/search?q={0}&limit={1}",
   "handler1": {
     "array": "items",
-    "mid": "song_id",
+    "mid0": "song_id",
     "name": "title",
     "artist": "artist"
   },
   "url2": "https://example.com/song/{0}",
   "handler2": {
-    "mid": "stream_id"
+    "mid0": "stream_id"
   },
   "url3": "https://example.com/stream/{0}",
   "handler3": {
@@ -95,13 +95,34 @@ URL2 is requested separately for each search result. Its response is a JSON obje
 }
 ```
 
-`handler2.mid` updates the track ID from URL2's response; URL3 then uses that ID to request the playable URL.
+`handler2.mid0` replaces the current MID list with the `stream_id` value from URL2's response; URL3 then uses it as `{0}` to request the playable URL.
+
+### Multiple IDs in one request
+
+```json
+{
+  "url1": "https://example.com/search?q={0}&limit={1}",
+  "handler1": {
+    "array": "items",
+    "mid0": "song_id",
+    "mid1": "source",
+    "name": "title",
+    "artist": "artist"
+  },
+  "url2": "https://example.com/play?id={0}&source={1}",
+  "handler2": {
+    "url": "data__url"
+  }
+}
+```
+
+Here `mid0` fills `{0}` with `song_id`, and `mid1` fills `{1}` with `source` in `url2`.
 
 ## Current provider examples
 
 - **Netease**: URL1 returns an array directly; each result contains title, artist, picture, and playable URL.
-- **QQ**: `handler1.mid` supplies `song_mid`; URL2's response is parsed by `handler2` for the playable URL and picture.
-- **Kugou**: result array path is `data__lists`; `mid` tries `SQFileHash`, `HQFileHash`, then `FileHash`; URL2 returns a JSON object with a `url` field.
+- **QQ**: `handler1.mid0` supplies `song_mid`; URL2's response is parsed by `handler2` for the playable URL and picture.
+- **Kugou**: result array path is `data__lists`; `mid0` tries `SQFileHash`, `HQFileHash`, then `FileHash`; URL2 returns a JSON object with a `url` field.
 - **Kuwo**: result array path is `abslist`; URL2 returns plain text. 
 
 ## Notes and limitations
@@ -109,8 +130,8 @@ URL2 is requested separately for each search result. Its response is a JSON obje
 - Use valid JSON: double-quoted strings and no comments.
 - `url1` and `handler1` are required; `handler1.name` and `handler1.artist` must be non-empty.
 - URL stages must be numbered consecutively from `url1`, and each URL must have its matching handler.
-- When later URLs are configured, make sure the current track has the correct non-empty `mid`. If a later stage does not extract a new `mid`, the previous value is retained and may cause the next stage to reuse a stale ID.
+- MID fields are replaced at every stage, not carried forward. To use an ID in a later URL, configure the matching `midN` on the immediately preceding handler. If a configured MID field is absent in a response, its URL placeholder is replaced with an empty string.
 - `array` applies to the first search response only. If the response root is an object, configure a valid path; a missing path or a non-array result yields no search results.
 - `prerequisite` and `replace` are pairs separated by `__`; make sure each has an even number of values.
-- In request URLs, `{0}` is the keyword or track ID. Handler paths are JSON object keys; do not use `{0}` as an ordinary JSON field.
+- In `url1`, `{0}` is the keyword and `{1}` is the result limit. In later URLs, `{0}`, `{1}`, etc. correspond to `mid0`, `mid1`, etc. Handler paths are JSON object keys; do not use placeholders as ordinary JSON field names.
 - Requests use HTTP GET. Request methods and headers cannot be configured.

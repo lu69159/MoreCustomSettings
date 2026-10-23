@@ -2,7 +2,7 @@
   "url1": "https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}",
   "handler1":{
     "array": "data__lists",
-    "mid": "SQFileHash__HQFileHash__FileHash",
+    "mid0": "SQFileHash__HQFileHash__FileHash",
     "replace": "{size}__64__http:__https:",
 
     "pic": "Image",

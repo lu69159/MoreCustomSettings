@@ -73,13 +73,14 @@ public class ProviderParser{
                 for(int i = 0; i < urls.size; i++){
                     if(i == 0){
                         try{
-                            Http.get(urls.get(i).replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(Core.settings.getInt("musicSquare-timeout", 20) * 1000).block(res -> {
+                            Http.get(urls.get(i).replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
                                 get[0] = res.getResultAsString();
                             });
                         }catch(Exception e){
                             return results;
                         }
 
+                        Log.info(get[0]);
                         var getArray = handlers.get(i).getArray(Jval.read(get[0]));
                         if(getArray == null || getArray.size == 0) return results;
                         int counter = 0;
@@ -93,10 +94,14 @@ public class ProviderParser{
                     }else{
                         if(tmp.isEmpty()) return results;
                         for(var t : tmp){
-                            if(!t.mid.isEmpty()){
+                            if(!t.mids.isEmpty()){
                                 String[] get2 = {""};
+                                String u = urls.get(i);
+                                for(int m=0; m<t.mids.size; m++){
+                                    u = u.replace("{" + m + "}", t.mids.get(m));
+                                }
                                 try{
-                                    Http.get(urls.get(i).replace("{0}", t.mid)).timeout(Core.settings.getInt("musicSquare-timeout", 20) * 1000).block(res -> {
+                                    Http.get(u).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
                                         get2[0] = res.getResultAsString();
                                     });
                                 }catch(Exception e){
@@ -132,7 +137,7 @@ public class ProviderParser{
         public String pic = "";
         public String artist = "";
         public String name = "";
-        public String mid = "";
+        public Seq<String> mids = new Seq<>();
 
         public TmpTrack(Jval jval1, JvalHandler handler1){
             updateTrack(jval1, handler1);
@@ -152,7 +157,8 @@ public class ProviderParser{
             if(!handler.getName(jval).isEmpty()){
                 name = handler.getName(jval);
             }
-            mid = handler.getMid(jval); //mid不需要非空检查
+            mids.clear();
+            mids = handler.getMids(jval);
         }
 
         public Track getTrack(){
@@ -172,7 +178,8 @@ public class ProviderParser{
         public String[] artist;
         public String[] name;
 
-        public String[] mid;
+        public Seq<String[]> mid = new Seq<>();
+
         public String[] array;
         public String[] replace;
         public String[] prerequisite;
@@ -184,7 +191,11 @@ public class ProviderParser{
             this.pic = init.getString("pic").split("__");
             this.artist = init.getString("artist").split("__");
             this.name = init.getString("name").split("__");
-            this.mid = init.getString("mid").split("__");
+            for(int i=0;;i++){
+                String[] m = init.getString("mid" + i).split("__");
+                if(m[0].isEmpty()) break;
+                this.mid.add(m);
+            }
             this.array = init.getString("array").split("__");
             this.replace = init.getString("replace").split("__");
             this.prerequisite = init.getString("prerequisite").split("__");
@@ -192,82 +203,116 @@ public class ProviderParser{
         }
 
         public String getUrl(Jval jval){
-            if(url.length == 1){
-                return replaceStr(jval.getString(url[0]));
-            }else{
-                var j = jval;
-                for(var s : url){
-                    if(j.isArray()) j = j.asArray().first().get(s);
-                    else j = j.get(s);
+            try{
+                if(url.length == 1){
+                    return replaceStr(jval.getString(url[0]));
+                }else{
+                    var j = jval;
+                    for(var s : url){
+                        if(j.isArray()) j = j.asArray().first().get(s);
+                        else j = j.get(s);
+                    }
+                    return replaceStr(j.asString());
                 }
-                return replaceStr(j.asString());
+            }catch(Exception e){
+                Log.err("Failed to getUrl: " + e.getMessage());
+                return "";
             }
         }
 
         public String getPic(Jval jval){
-            if(pic.length == 1){
-                String u = jval.getString(pic[0]);
-                if(!u.isEmpty() && !picUrl.isEmpty()){
-                    return picUrl.replace("{0}", replaceStr(u));
+            try{
+                if(pic.length == 1){
+                    String u = jval.getString(pic[0]);
+                    if(!u.isEmpty() && !picUrl.isEmpty()){
+                        return picUrl.replace("{0}", replaceStr(u));
+                    }else{
+                        return replaceStr(u);
+                    }
                 }else{
-                    return replaceStr(u);
+                    var j = jval;
+                    for(var s : pic){
+                        if(j.isArray()) j = j.asArray().first().get(s);
+                        else j = j.get(s);
+                    }
+                    return replaceStr(j.asString());
                 }
-            }else{
-                var j = jval;
-                for(var s : pic){
-                    if(j.isArray()) j = j.asArray().first().get(s);
-                    else j = j.get(s);
-                }
-                return replaceStr(j.asString());
+            }catch(Exception e){
+                Log.err("Failed to getPic: " + e.getMessage());
+                return "";
             }
         }
 
         public String getArtist(Jval jval){
-            if(artist.length == 1){
-                return jval.getString(artist[0]);
-            }else{
-                var j = jval;
-                for(var s : artist){
-                    if(j.isArray()) j = j.asArray().first().get(s);
-                    else j = j.get(s);
+            try{
+                if(artist.length == 1){
+                    return jval.getString(artist[0]);
+                }else{
+
+                    var j = jval;
+                    for(var s : artist){
+                        if(j.isArray()) j = j.asArray().first().get(s);
+                        else j = j.get(s);
+                    }
+                    return j.asString();
                 }
-                return j.asString();
+            }catch(Exception e){
+                Log.err("Failed to getArtist: " + e.getMessage());
+                return "";
             }
         }
 
         public String getName(Jval jval){
-            if(name.length == 1){
-                return jval.getString(name[0]);
-            }else{
-                var j = jval;
-                for(var s : name){
-                    if(j.isArray()) j = j.asArray().first().get(s);
-                    else j = j.get(s);
+            try{
+                if(name.length == 1){
+                    return jval.getString(name[0]);
+                }else{
+
+                    var j = jval;
+                    for(var s : name){
+                        if(j.isArray()) j = j.asArray().first().get(s);
+                        else j = j.get(s);
+                    }
+                    return j.asString();
                 }
-                return j.asString();
+            }catch(Exception e){
+                Log.err("Failed to getName: " + e.getMessage());
+                return "";
             }
         }
 
-        public String getMid(Jval jval){
-            if(mid[0].isEmpty()){
-                return "";
-            }
-            for(String s : mid){
-                if (!jval.getString(s).isEmpty()) {
-                    return jval.getString(s);
+        public Seq<String> getMids(Jval jval){
+            try{
+                Seq<String> mids = new Seq<>();
+                for(var m : mid){
+                    String str = "";
+                    if(!m[0].isEmpty()){
+                        for(String s : m){
+                            if (!jval.getString(s).isEmpty()) {
+                                str = jval.getString(s);
+                                break;
+                            }
+                        }
+                    }
+                    if(str.isEmpty()) Log.warn("There is empty mid.");
+                    mids.add(str);
                 }
+                return mids;
+            }catch(Exception e){
+                Log.err("Failed to getMids: " + e.getMessage());
+                return new Seq<>();
             }
-            return "";
         }
 
         public Jval.JsonArray getArray(Jval jval){
-            if(jval.isArray()) return jval.asArray();
-            if(array[0].isEmpty()){
-                Log.err("Response is an object, but array handler is empty");
-                return null;
-            }
-            Jval tmp = jval;
             try{
+                if(jval.isArray()) return jval.asArray();
+                if(array[0].isEmpty()){
+                    Log.err("Response is an object, but array handler is empty");
+                    return null;
+                }
+                Jval tmp = jval;
+
                 for(String a : array){
                     tmp = tmp.get(a);
                 }

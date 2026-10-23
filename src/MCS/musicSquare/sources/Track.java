@@ -42,7 +42,7 @@ public class Track{
             return;
         }
 
-        Http.get(url).timeout(Core.settings.getInt("musicSquare-timeout", 20) * 1000).error(err).submit(res -> {
+        Http.get(url).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).error(err).submit(res -> {
             byte[] data = res.getResult();
 
             if(!isUsableExtension(data)){

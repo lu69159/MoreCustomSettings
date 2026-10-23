@@ -2,7 +2,7 @@
   "url1": "https://search.kuwo.cn/r.s?all={0}&ft=music&pn=0&rn={1}&rformat=json&encoding=utf8",
   "handler1":{
     "array": "abslist",
-    "mid": "MUSICRID",
+    "mid0": "MUSICRID",
     "picUrl": "https://img2.kuwo.cn/star/albumcover/{0}",
 
     "pic": "web_albumpic_short",
