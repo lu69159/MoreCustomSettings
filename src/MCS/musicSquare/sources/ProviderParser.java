@@ -25,13 +25,23 @@ public class ProviderParser{
         for(int i = 1; ;i++){
             String u = resource.getString("url" + i);
             if(u.isEmpty()) break;
-            var jh = resource.get("handler" + i);
-            if(jh == null){
+            var j = resource.get("handler" + i);
+            if(j == null){
                 Log.err("Each url must have a handler!\n");
                 return null;
             }
+            JvalHandler jh = new JvalHandler(j);
+            if(!jh.prerequisite[0].isEmpty() && jh.prerequisite.length % 2 != 0){
+                Log.err("prerequisite must contain an even number of strings!");
+                return null;
+            }
+            if(!jh.replace[0].isEmpty() && jh.replace.length % 2 != 0){
+                Log.err("replace must contain an even number of strings!");
+                return null;
+            }
+
             urls.add(u);
-            handlers.add(new JvalHandler(jh));
+            handlers.add(jh);
         }
         /*
         String url1 = resource.getString("url1"), url2 = resource.getString("url2");
@@ -83,17 +93,19 @@ public class ProviderParser{
                     }else{
                         if(tmp.isEmpty()) return results;
                         for(var t : tmp){
-                            String[] get2 = {""};
-                            try{
-                                Http.get(urls.get(i).replace("{0}", t.mid)).timeout(Core.settings.getInt("musicSquare-timeout", 20) * 1000).block(res -> {
-                                    get2[0] = res.getResultAsString();
-                                });
-                            }catch(Exception e){
-                                return results;
-                            }
-                            if(!get2[0].isEmpty()){
-                                Jval j = handlers.get(i).url[0].equals("{0}") ? Jval.newObject().put("{0}", get2[0]) : Jval.read(get2[0]);
-                                if(handlers.get(i).canAdd(j)) t.updateTrack(j, handlers.get(i));
+                            if(!t.mid.isEmpty()){
+                                String[] get2 = {""};
+                                try{
+                                    Http.get(urls.get(i).replace("{0}", t.mid)).timeout(Core.settings.getInt("musicSquare-timeout", 20) * 1000).block(res -> {
+                                        get2[0] = res.getResultAsString();
+                                    });
+                                }catch(Exception e){
+                                    return results;
+                                }
+                                if(!get2[0].isEmpty()){
+                                    Jval j = handlers.get(i).url[0].equals("{0}") ? Jval.newObject().put("{0}", get2[0]) : Jval.read(get2[0]);
+                                    if(handlers.get(i).canAdd(j)) t.updateTrack(j, handlers.get(i));
+                                }
                             }
                         }
                     }
@@ -140,13 +152,11 @@ public class ProviderParser{
             if(!handler.getName(jval).isEmpty()){
                 name = handler.getName(jval);
             }
-            if(!handler.getMid(jval).isEmpty()){
-                mid = handler.getMid(jval);
-            }
+            mid = handler.getMid(jval); //mid不需要非空检查
         }
 
         public Track getTrack(){
-            if(url.isEmpty() || artist.isEmpty()) return null;
+            if(name.isEmpty() || artist.isEmpty()) return null;
             Track t = new Track();
             t.url = url;
             t.pic = pic;
