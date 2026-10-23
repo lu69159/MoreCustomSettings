@@ -18,6 +18,7 @@ import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
 import static mindustry.Vars.*;
+import static MCS.main.*;
 
 public class musicSquareSearchDialog extends BaseDialog {
     ProviderHub resource = new ProviderHub();
@@ -119,7 +120,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                 if(base.isCustom){
                     Table deleteOverlay = new Table();
                     deleteOverlay.add().growX();
-                    deleteOverlay.button(Icon.trashSmall, Styles.clearNonei, () -> {
+                    deleteOverlay.button(Icon.trashSmall, Styles.flati, () -> {
                         ui.showConfirm("@confirm", "@musicSquare.deleteConfirm", () -> {
                             resource.removeCustomProvider(base);
                             rebuildSourceTable();
@@ -131,14 +132,14 @@ public class musicSquareSearchDialog extends BaseDialog {
                 p.add(stackedRow).growX().height(60f).row();
             }
             p.table(addRow -> {
-                addRow.button("@musicSquare.addProvider", Icon.addSmall, Styles.cleart, () -> {
+                addRow.button("@musicSquare.addProvider", Icon.addSmall, Styles.flatt, () -> {
                     FileChooser.open("json").submitMulti(files -> {
                         for(var fi : files){
                             resource.importCustomProvider(fi);
                         }
                     });
                 }).growX().height(60f);
-                addRow.button("?", Styles.flatBordert, () -> {
+                addRow.button("?", Styles.flatt, () -> {
                     ui.showInfo("TODO");
                     //TODO: 接口说明显示
                 }).size(36f, 60f);
@@ -362,6 +363,15 @@ public class musicSquareSearchDialog extends BaseDialog {
             cont.add(new SettingsMenuDialog.SettingsTable(){{
                 sliderPref("musicSquare-limit", 10, 1, 30, i -> i + "");
                 sliderPref("musicSquare-timeout", 15, 0, 60, i -> i == 0 ? "@musicSquare.unlimit" : Core.bundle.format("setting.seconds", i));
+                if(!mobile){
+                    pref(new MCS_SettingMenuDialog.ButtonSetting("@openProviderFolder", Icon.folder, () -> {
+                        try{
+                            Core.app.openFolder(saveFolder.child("providers").absolutePath());
+                        }catch(Exception e){
+                            ui.showException(e);
+                        }
+                    }));
+                }
             }});
             addCloseButton();
         }

@@ -73,14 +73,12 @@ public class ProviderParser{
                 for(int i = 0; i < urls.size; i++){
                     if(i == 0){
                         try{
-                            Http.get(urls.get(i).replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
+                            Http.get(urls.get(0).replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
                                 get[0] = res.getResultAsString();
                             });
                         }catch(Exception e){
                             return results;
                         }
-
-                        Log.info(get[0]);
                         var getArray = handlers.get(i).getArray(Jval.read(get[0]));
                         if(getArray == null || getArray.size == 0) return results;
                         int counter = 0;
