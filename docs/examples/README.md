@@ -1,0 +1,1 @@
+[goMusicApi.json](goMusicApi.json)是以本地运行的[go-music-api](https://github.com/guohuiyuan/go-music-api)为搜索源的模板
