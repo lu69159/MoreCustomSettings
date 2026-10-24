@@ -39,6 +39,10 @@ public class ProviderParser{
                 Log.err("replace must contain an even number of strings!");
                 return null;
             }
+            if(!jh.replaceName[0].isEmpty() && jh.replaceName.length % 2 != 0){
+                Log.err("replaceName must contain an even number of strings!");
+                return null;
+            }
 
             urls.add(u);
             handlers.add(jh);
@@ -180,6 +184,7 @@ public class ProviderParser{
 
         public String[] array;
         public String[] replace;
+        public String[] replaceName;
         public String[] prerequisite;
 
         public String picUrl;
@@ -196,6 +201,7 @@ public class ProviderParser{
             }
             this.array = init.getString("array").split("__");
             this.replace = init.getString("replace").split("__");
+            this.replaceName = init.getString("replaceName").split("__");
             this.prerequisite = init.getString("prerequisite").split("__");
             this.picUrl = init.getString("picUrl");
         }
@@ -244,7 +250,7 @@ public class ProviderParser{
         public String getArtist(Jval jval){
             try{
                 if(artist.length == 1){
-                    return jval.getString(artist[0]);
+                    return replaceName(jval.getString(artist[0]));
                 }else{
 
                     var j = jval;
@@ -252,7 +258,7 @@ public class ProviderParser{
                         if(j.isArray()) j = j.asArray().first().get(s);
                         else j = j.get(s);
                     }
-                    return j.asString();
+                    return replaceName(j.asString());
                 }
             }catch(Exception e){
                 Log.err("Failed to getArtist: " + e.getMessage());
@@ -263,7 +269,7 @@ public class ProviderParser{
         public String getName(Jval jval){
             try{
                 if(name.length == 1){
-                    return jval.getString(name[0]);
+                    return replaceName(jval.getString(name[0]));
                 }else{
 
                     var j = jval;
@@ -271,7 +277,7 @@ public class ProviderParser{
                         if(j.isArray()) j = j.asArray().first().get(s);
                         else j = j.get(s);
                     }
-                    return j.asString();
+                    return replaceName(j.asString());
                 }
             }catch(Exception e){
                 Log.err("Failed to getName: " + e.getMessage());
@@ -338,6 +344,15 @@ public class ProviderParser{
             String s = oldStr;
             for(int i = 0; i < replace.length; i+=2){
                 s = s.replace(replace[i], replace[i+1]);
+            }
+            return s;
+        }
+
+        private String replaceName(String oldName){
+            if(replaceName[0].isEmpty() || oldName.isEmpty()) return oldName;
+            String s = oldName;
+            for(int i = 0; i < replaceName.length; i+=2){
+                s = s.replace(replaceName[i], replaceName[i+1]);
             }
             return s;
         }
