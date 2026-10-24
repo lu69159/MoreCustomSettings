@@ -4,7 +4,7 @@
     "array": "abslist",
     "mid0": "MUSICRID",
     "picUrl": "https://img2.kuwo.cn/star/albumcover/{0}",
-    "replaceName": "&nbsp;__ __&apos;__ ",
+    "replaceName": "&nbsp;__ __&apos;__'__&amp__&",
 
     "pic": "web_albumpic_short",
     "artist": "ARTIST",
