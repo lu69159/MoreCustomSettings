@@ -296,8 +296,9 @@ public class musicSquareSearchDialog extends BaseDialog {
                 }
             });
         }, e -> {
+            if(!previewingUrl.equals(t.url)) return;
             previewingUrl = "";
-            ui.showInfo("@musicSquare.noAudio");
+            Core.app.post(() -> ui.showInfo("@musicSquare.timeOut"));
         }, true);
     }
 
