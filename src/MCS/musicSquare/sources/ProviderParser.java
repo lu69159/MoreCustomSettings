@@ -73,7 +73,7 @@ public class ProviderParser{
                 Seq<Track> results = new Seq<>();
                 Seq<TmpTrack> tmp = new Seq<>();
                 String[] get = {""};
-
+                boolean test = Core.settings.getBool("musicSquare-test", false);
                 for(int i = 0; i < urls.size; i++){
                     if(i == 0){
                         try{
@@ -81,16 +81,20 @@ public class ProviderParser{
                                 get[0] = res.getResultAsString();
                             });
                         }catch(Exception e){
-                            Log.err(name + " failed to connect search url: "+ e.getMessage());
+                            if(test) Log.err(name + " failed to connect search url: "+ e.getMessage());
                             return results;
                         }
                         var getArray = handlers.get(i).getArray(Jval.read(get[0]));
-                        if(getArray == null || getArray.size == 0) return results;
+                        if(getArray == null || getArray.size == 0){
+                            if(test) Log.err(name+"'s response is empty!");//TODO TEST
+                            return results;
+                        }
                         int counter = 0;
                         for(int k = 0; k < getArray.size; k++){
                             Jval j = getArray.get(k);
                             if(handlers.get(0).canAdd(j) && counter < limit){
                                 tmp.add(new TmpTrack(j, handlers.get(0)));
+                                if(test) Log.info(name+"'s result(s) add result"+(k+1));//TODO TEST
                                 counter++;
                             }
                         }
@@ -107,8 +111,10 @@ public class ProviderParser{
                                     Http.get(u).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
                                         get2[0] = res.getResultAsString();
                                     });
-                                }catch(Exception ignored){}
-                                
+                                }catch(Exception e){
+                                    if(test) Log.err(name+"'s result"+tmp.indexOf(t)+" failed to conntect url"+i+": "+ e.getMessage());
+                                }
+
                                 if(!get2[0].isEmpty()){
                                     Jval j = handlers.get(i).url[0].equals("{0}") ? Jval.newObject().put("{0}", get2[0]) : Jval.read(get2[0]);
                                     if(handlers.get(i).canAdd(j)) t.updateTrack(j, handlers.get(i));
@@ -219,7 +225,7 @@ public class ProviderParser{
                     return replaceStr(j.asString());
                 }
             }catch(Exception e){
-                Log.err("Failed to getUrl: " + e.getMessage());
+                if(Core.settings.getBool("musicSquare-test", false)) Log.err("Failed to getUrl: " + e.getMessage());
                 return "";
             }
         }
@@ -242,7 +248,7 @@ public class ProviderParser{
                     return replaceStr(j.asString());
                 }
             }catch(Exception e){
-                Log.err("Failed to getPic: " + e.getMessage());
+                if(Core.settings.getBool("musicSquare-test", false)) Log.err("Failed to getPic: " + e.getMessage());
                 return "";
             }
         }
@@ -261,7 +267,7 @@ public class ProviderParser{
                     return replaceName(j.asString());
                 }
             }catch(Exception e){
-                Log.err("Failed to getArtist: " + e.getMessage());
+                if(Core.settings.getBool("musicSquare-test", false)) Log.err("Failed to getArtist: " + e.getMessage());
                 return "";
             }
         }
@@ -280,12 +286,13 @@ public class ProviderParser{
                     return replaceName(j.asString());
                 }
             }catch(Exception e){
-                Log.err("Failed to getName: " + e.getMessage());
+                if(Core.settings.getBool("musicSquare-test", false)) Log.err("Failed to getName: " + e.getMessage());
                 return "";
             }
         }
 
         public Seq<String> getMids(Jval jval){
+            boolean test = Core.settings.getBool("musicSquare-test", false);
             try{
                 Seq<String> mids = new Seq<>();
                 for(var m : mid){
@@ -298,21 +305,22 @@ public class ProviderParser{
                             }
                         }
                     }
-                    if(str.isEmpty()) Log.warn("There is empty mid.");
+                    if(str.isEmpty() && test) Log.warn("There is empty mid.");
                     mids.add(str);
                 }
                 return mids;
             }catch(Exception e){
-                Log.err("Failed to getMids: " + e.getMessage());
+                if(test) Log.err("Failed to getMids: " + e.getMessage());
                 return new Seq<>();
             }
         }
 
         public Jval.JsonArray getArray(Jval jval){
+            boolean test = Core.settings.getBool("musicSquare-test", false);
             try{
                 if(jval.isArray()) return jval.asArray();
                 if(array[0].isEmpty()){
-                    Log.err("Response is an object, but array handler is empty");
+                    if(test) Log.err("Response is an object, but array handler is empty");
                     return null;
                 }
                 Jval tmp = jval;
@@ -322,7 +330,7 @@ public class ProviderParser{
                 }
                 return tmp.asArray();
             }catch(Exception e){
-                Log.err("Failed to parse array: " + e.getMessage());
+                if(test) Log.err("Failed to parse array: " + e.getMessage());
                 return null;
             }
         }

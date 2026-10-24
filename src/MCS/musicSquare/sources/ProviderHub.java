@@ -52,6 +52,7 @@ public class ProviderHub {
     }
 
     public void search(String kw, int limit){
+        boolean test = Core.settings.getBool("musicSquare-test", false);
         allResults.clear();
         this.keyword = kw;
 
@@ -79,9 +80,9 @@ public class ProviderHub {
                 try{
                     Seq<Track> results = source.search(kw, limit);
                     resultsBySource[sourceIndex] = results == null ? new Track[0] : results.toArray(Track.class);
-                    if(results != null) Log.info(source.name + " had found " + results.size + " result(s)");
+                    if(test && results != null) Log.info(source.name + " had found " + results.size + " result(s)");
                 }catch(Throwable error){
-                    Log.err(source.name + " failed to search：" + error.getMessage());
+                    if(test) Log.err(source.name + " failed to search：" + error.getMessage());
                     resultsBySource[sourceIndex] = new Track[0];
                 }finally{
                     if(remaining.decrementAndGet() == 0){

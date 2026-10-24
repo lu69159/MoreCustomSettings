@@ -32,7 +32,7 @@ public class musicSquareSearchDialog extends BaseDialog {
     private String word = "";
     private final Seq<Texture> coverTextures = new Seq<>();
     private int coverGeneration;
-    private boolean isLoading = false, shownSource = false;
+    private boolean isLoading = false, shownSource = false, resourceChanged = false;
 
     public musicSquareSearchDialog() {
         super("@musicSquare.search");
@@ -110,6 +110,7 @@ public class musicSquareSearchDialog extends BaseDialog {
                         resource.enabled.add(base);
                         Core.settings.put("MCS-resource-" + base.name, true);
                     }
+                    resourceChanged = true;
                 }).height(60f).padRight(base.isCustom ? 36f : 0f).checked(b -> {
                     boolean chk = resource.enabled.contains(base);
                     ((Image)b.getCells().first().get()).setDrawable(chk ? Icon.okSmall.tint(Color.green) : Icon.cancelSmall.tint(Color.red));
@@ -163,8 +164,9 @@ public class musicSquareSearchDialog extends BaseDialog {
     private void search(){
         var sound = (CustomSoundControl)control.sound;
         String tmp = searchField.getText();
-        if(!tmp.isEmpty() && !word.equals(tmp) && !isLoading){
+        if(!isLoading && !tmp.isEmpty() && (!word.equals(tmp) || resourceChanged)){
             word = tmp;
+            resourceChanged = false;
             sound.stopPreView();
             previewingUrl = "";
             resource.search(word, Core.settings.getInt("musicSquare-limit", 10));
@@ -184,6 +186,7 @@ public class musicSquareSearchDialog extends BaseDialog {
 
     private void complete(){
         loadingSpinner = null;
+        isLoading = false;
         resultTable.clear();
         resultTable.top().left();
         if(resource.allResults.size == 0){
@@ -194,7 +197,6 @@ public class musicSquareSearchDialog extends BaseDialog {
             }
         }
         Log.info("Found " + resource.allResults.size + " result(s) at all\n");
-        isLoading = false;
     }
 
     private void clearCoverTextures(){
@@ -368,6 +370,8 @@ public class musicSquareSearchDialog extends BaseDialog {
         public SearchSettingsDialog(){
             super("@musicSquare.searchSettings");
             cont.add(new SettingsMenuDialog.SettingsTable(){{
+                pref(new MCS_SettingMenuDialog.TitleSetting("@musicSquare.searchSettings"));
+
                 sliderPref("musicSquare-limit", 10, 1, 30, i -> i + "");
                 sliderPref("musicSquare-timeout", 15, 0, 60, i -> i == 0 ? "@musicSquare.unlimit" : Core.bundle.format("setting.seconds", i));
                 if(!mobile){
@@ -379,6 +383,10 @@ public class musicSquareSearchDialog extends BaseDialog {
                         }
                     }));
                 }
+
+                pref(new MCS_SettingMenuDialog.TitleSetting("@settings.dev"));
+
+                checkPref("musicSquare-test", false);
             }});
             addCloseButton();
         }
