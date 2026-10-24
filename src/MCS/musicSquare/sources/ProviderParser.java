@@ -81,6 +81,7 @@ public class ProviderParser{
                                 get[0] = res.getResultAsString();
                             });
                         }catch(Exception e){
+                            Log.err(name + " failed to connect search url: "+ e.getMessage());
                             return results;
                         }
                         var getArray = handlers.get(i).getArray(Jval.read(get[0]));
@@ -106,9 +107,8 @@ public class ProviderParser{
                                     Http.get(u).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
                                         get2[0] = res.getResultAsString();
                                     });
-                                }catch(Exception e){
-                                    return results;
-                                }
+                                }catch(Exception ignored){}
+                                
                                 if(!get2[0].isEmpty()){
                                     Jval j = handlers.get(i).url[0].equals("{0}") ? Jval.newObject().put("{0}", get2[0]) : Jval.read(get2[0]);
                                     if(handlers.get(i).canAdd(j)) t.updateTrack(j, handlers.get(i));
