@@ -30,6 +30,7 @@ If the first stage produces no accepted results, later URLs are not requested.
 | `array` | Path to the search-result array, with object keys separated by `__`, e.g. `data__items` means `response.data.items`. Omit it if the response root is an array. |
 | `prerequisite` | Filters response objects in the current stage. Specify field/expected-value pairs separated by `__`, e.g. `pay__free`. All pairs must match. Omit or leave empty to accept all entries. |
 | `replace` | Text replacement pairs separated by `__`, e.g. `old1__new1__old2__new2`. Applied to URL and picture values. The number of values must be even. |
+| `replace` | Text replacement pairs separated by `__`, e.g. `old1__new1__old2__new2`. Applied to Song title and Artist. The number of values must be even. |
 | `picUrl` | Picture URL template. When set, `{0}` is replaced with the picture field value after `replace` processing. |
 
 For `name`, `artist`, `url`, and `pic`, when traversal encounters an array, the parser selects its first element and continues. `midN` fields do not support nested or array traversal. MID fields must be numbered continuously from `mid0`; parsing stops at the first missing or empty `midN` configuration. The `picUrl` template is applied only when `pic` is a single field name; it is not applied to multi-segment `pic` paths.
