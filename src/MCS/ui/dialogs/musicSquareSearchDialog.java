@@ -17,6 +17,7 @@ import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
+import static arc.Core.app;
 import static mindustry.Vars.*;
 import static MCS.main.*;
 
@@ -140,8 +141,11 @@ public class musicSquareSearchDialog extends BaseDialog {
                     });
                 }).growX().height(60f);
                 addRow.button("?", Styles.flatt, () -> {
-                    ui.showInfo("TODO");
-                    //TODO: 接口说明显示
+                    String url = "https://github.com/lu69159/MoreCustomSettings/tree/main/docs";
+                    if(!app.openURI(url)){
+                        ui.showInfoFade("@linkfail");
+                        app.setClipboardText(url);
+                    }
                 }).size(36f, 60f);
             }).growX().height(60f).row();
         }).scrollX(false).grow();
