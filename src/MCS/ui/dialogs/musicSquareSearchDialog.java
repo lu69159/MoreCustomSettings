@@ -277,8 +277,8 @@ public class musicSquareSearchDialog extends BaseDialog {
         var sound = (CustomSoundControl)control.sound;
 
         t.downloadToTmp(fi -> {
-            if(!previewingUrl.equals(t.url)) return;
             Core.app.post(() -> {
+                if(!previewingUrl.equals(t.url)) return;
                 if(fi == null){
                     ui.showInfo("@musicSquare.unusableExt");
                     previewingUrl = "";
