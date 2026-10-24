@@ -58,23 +58,6 @@ public class Track{
             tmpMusic.writeBytes(data);
             done.get(tmpMusic);
         });
-
-        Http.get(url, res -> {
-            byte[] data = res.getResult();
-
-            if(!isUsableExtension(data)){
-                if(!isPreview) ui.loadfrag.hide();
-                done.get(null);
-                return;
-            }
-
-            String ext = extension(data);
-
-            String sanitized = encodeString(artist + " - " + name);
-            var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + url.hashCode() + "." + ext);
-            tmpMusic.writeBytes(data);
-            done.get(tmpMusic);
-        }, err);
     }
 
     public void download(String name){
