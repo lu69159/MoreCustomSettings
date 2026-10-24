@@ -60,7 +60,7 @@ public class musicSquareSearchDialog extends BaseDialog {
         cont.table(t -> {
             t.left();
             t.image(Icon.zoom).padRight(8f);
-            searchField = t.field("", text -> word = text).growX().get();
+            searchField = t.field("", text -> {}).growX().get();
             if(!mobile){
                 searchField.keyDown(KeyCode.enter, this::search);
             }
@@ -158,7 +158,9 @@ public class musicSquareSearchDialog extends BaseDialog {
 
     private void search(){
         var sound = (CustomSoundControl)control.sound;
-        if(!word.isEmpty() && !isLoading){
+        String tmp = searchField.getText();
+        if(!tmp.isEmpty() && !word.equals(tmp) && !isLoading){
+            word = tmp;
             sound.stopPreView();
             previewingUrl = "";
             resource.search(word, Core.settings.getInt("musicSquare-limit", 10));
