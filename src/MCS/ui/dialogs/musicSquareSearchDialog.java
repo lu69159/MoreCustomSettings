@@ -281,6 +281,7 @@ public class musicSquareSearchDialog extends BaseDialog {
 
     private void trackPreviewListening(Track t){
         if(!Provider.isSafeUrl(t.url) && t.cache == null) return;
+        stopPreviewListening();
         previewingHash = t.hashCode();
 
         var sound = (CustomSoundControl)control.sound;
