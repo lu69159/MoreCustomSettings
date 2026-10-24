@@ -1,6 +1,6 @@
 {
-  "url1": "https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}",
-  "handler1":{
+  "url": "https://songsearch.kugou.com/song_search_v2?keyword={0}&pagesize={1}",
+  "handler":{
     "array": "data__lists",
     "mid0": "SQFileHash__HQFileHash__FileHash",
     "replace": "{size}__64__http:__https:",
@@ -10,8 +10,8 @@
     "name": "SongName"
   },
 
-  "url2": "https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash={0}",
-  "handler2":{
+  "url1": "https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash={0}",
+  "handler1":{
     "replace": "http:__https:",
 
     "url": "url"

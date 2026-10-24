@@ -2,9 +2,9 @@ package MCS.musicSquare.sources;
 
 import MCS.customMusic.CustomSoundControl;
 import arc.Core;
-import arc.files.Fi;
-import arc.func.Cons;
-import arc.util.Http;
+import arc.files.*;
+import arc.func.*;
+import arc.util.*;
 
 import static MCS.customMusic.MusicTools.*;
 import static MCS.musicSquare.sources.Provider.*;
@@ -15,6 +15,7 @@ public class Track{
     public String pic;
     public String artist;
     public String name;
+    public @Nullable ProviderParser.TmpTrack cache;
 
     private String extension(byte[] d){
         if(d.length < 12) return "";
@@ -31,22 +32,56 @@ public class Track{
     }
 
     public void downloadToTmp(Cons<Fi> done, Cons<Throwable> err, boolean isPreview){
-        if(!isSafeUrl(url)) ui.showException(new Throwable("Not found usable url."));
-
         var sound = (CustomSoundControl)control.sound;
-        if(!isPreview) ui.loadfrag.show("[accent]" + Core.bundle.get("musicSquare.downloading"));
+        if(!isPreview) ui.loadfrag.show("@downloading");
 
-        var existed = sound.musicLoader.tmp.seq().find(fi -> getFileName(fi).equals(artist + " - " + name) && fi.nameWithoutExtension().lastIndexOf("__") >= 0 && fi.nameWithoutExtension().endsWith(String.valueOf(url.hashCode())));
+        var existed = sound.musicLoader.tmp.seq().find(fi -> getFileName(fi).equals(artist + " - " + name) && fi.nameWithoutExtension().lastIndexOf("__") >= 0 && fi.nameWithoutExtension().endsWith(String.valueOf(this.hashCode())));
         if(existed != null && existed.length() > 0){
             done.get(existed);
             return;
         }
 
+        if(!isSafeUrl(url) && cache != null){
+            Core.executor.submit(() -> {
+                cache.update();
+                url = cache.url;
+                pic = cache.pic;
+                artist = cache.artist;
+                if(!isSafeUrl(url)){
+                    Core.app.post(() -> {
+                        if(!isPreview) ui.loadfrag.hide();
+                        done.get(null);
+                    });
+                    return;
+                }
+                Http.get(url).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).error(err).submit(res -> {
+                    byte[] data = res.getResult();
+
+                    if(!isUsableExtension(data)){
+                        if(!isPreview) Core.app.post(() -> ui.loadfrag.hide());
+                        done.get(null);
+                        return;
+                    }
+
+                    String ext = extension(data);
+                    String sanitized = encodeString(artist + " - " + name);
+                    var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + this.hashCode() + "." + ext);
+                    tmpMusic.writeBytes(data);
+                    done.get(tmpMusic);
+                });
+            });
+            return;
+        }
+        if(!isSafeUrl(url)){
+            if(!isPreview) ui.loadfrag.hide();
+            done.get(null);
+            return;
+        }
         Http.get(url).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).error(err).submit(res -> {
             byte[] data = res.getResult();
 
             if(!isUsableExtension(data)){
-                if(!isPreview) ui.loadfrag.hide();
+                if(!isPreview) Core.app.post(() -> ui.loadfrag.hide());
                 done.get(null);
                 return;
             }
@@ -54,7 +89,7 @@ public class Track{
             String ext = extension(data);
 
             String sanitized = encodeString(artist + " - " + name);
-            var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + url.hashCode() + "." + ext);
+            var tmpMusic = sound.musicLoader.tmp.child(sanitized + "__" + this.hashCode() + "." + ext);
             tmpMusic.writeBytes(data);
             done.get(tmpMusic);
         });

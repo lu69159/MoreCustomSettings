@@ -1,6 +1,6 @@
 {
-  "url1": "https://search.kuwo.cn/r.s?all={0}&ft=music&pn=0&rn={1}&rformat=json&encoding=utf8",
-  "handler1":{
+  "url": "https://search.kuwo.cn/r.s?all={0}&ft=music&pn=0&rn={1}&rformat=json&encoding=utf8",
+  "handler":{
     "array": "abslist",
     "mid0": "MUSICRID",
     "picUrl": "https://img2.kuwo.cn/star/albumcover/{0}",
@@ -11,8 +11,8 @@
     "name": "NAME"
   },
 
-  "url2": "https://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=mp3&response=url",
-  "handler2": {
+  "url1": "https://antiserver.kuwo.cn/anti.s?type=convert_url&rid={0}&format=mp3&response=url",
+  "handler1": {
     "url": "{0}"
   }
 }

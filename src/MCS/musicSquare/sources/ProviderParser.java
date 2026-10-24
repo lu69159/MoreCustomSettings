@@ -20,7 +20,21 @@ public class ProviderParser{
             return null;
         }
 
-        Seq<String> urls = new Seq<>();
+
+
+        String u0 = resource.getString("url");
+        if(u0.isEmpty()){
+            Log.err("First url can't be empty!");
+            return null;
+        }
+        var j0 = resource.get("handler");
+        if(j0 == null){
+            Log.err("First handler can't be empty!");
+            return null;
+        }
+        JvalHandler firstHandler = new JvalHandler(u0, j0);
+        if(isInvalidHandler(firstHandler)) return null;
+
         Seq<JvalHandler> handlers = new Seq<>();
         for(int i = 1; ;i++){
             String u = resource.getString("url" + i);
@@ -30,106 +44,69 @@ public class ProviderParser{
                 Log.err("Each url must have a handler!\n");
                 return null;
             }
-            JvalHandler jh = new JvalHandler(j);
-            if(!jh.prerequisite[0].isEmpty() && jh.prerequisite.length % 2 != 0){
-                Log.err("prerequisite must contain an even number of strings!");
-                return null;
-            }
-            if(!jh.replace[0].isEmpty() && jh.replace.length % 2 != 0){
-                Log.err("replace must contain an even number of strings!");
-                return null;
-            }
-            if(!jh.replaceName[0].isEmpty() && jh.replaceName.length % 2 != 0){
-                Log.err("replaceName must contain an even number of strings!");
-                return null;
-            }
-
-            urls.add(u);
+            JvalHandler jh = new JvalHandler(u, j);
+            if(isInvalidHandler(jh)) return null;
             handlers.add(jh);
         }
-        /*
-        String url1 = resource.getString("url1"), url2 = resource.getString("url2");
-        JvalHandler handler1 = new JvalHandler(resource.get("handler1"));
-        @Nullable JvalHandler handler2 = resource.get("handler2") == null ? null : new JvalHandler(resource.get("handler2"));
 
-         */
-
-        if(urls.isEmpty()){
-            Log.err("Url1 can't be empty!");
-            return null;
-        }
-        if(handlers.get(0).name[0].isEmpty()){
-            Log.err("Must get music name in handler1!");
-            return null;
-        }
-        if(handlers.get(0).artist[0].isEmpty()){
-            Log.err("Must get music artist in handler1!");
-            return null;
-        }
-
-        return new Provider(name, urls.get(0), isCustom){
+        return new Provider(name, firstHandler.requestUrl, isCustom){
             @Override
             public Seq<Track> search(String keyWord, int limit) {
                 Seq<Track> results = new Seq<>();
                 Seq<TmpTrack> tmp = new Seq<>();
                 String[] get = {""};
                 boolean test = Core.settings.getBool("musicSquare-test", false);
-                for(int i = 0; i < urls.size; i++){
-                    if(i == 0){
-                        try{
-                            Http.get(urls.get(0).replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
-                                get[0] = res.getResultAsString();
-                            });
-                        }catch(Exception e){
-                            if(test) Log.err(name + " failed to connect search url: "+ e.getMessage());
-                            return results;
-                        }
-                        var getArray = handlers.get(i).getArray(Jval.read(get[0]));
-                        if(getArray == null || getArray.size == 0){
-                            if(test) Log.err(name+"'s response is empty!");//TODO TEST
-                            return results;
-                        }
-                        int counter = 0;
-                        for(int k = 0; k < getArray.size; k++){
-                            Jval j = getArray.get(k);
-                            if(handlers.get(0).canAdd(j) && counter < limit){
-                                tmp.add(new TmpTrack(j, handlers.get(0)));
-                                if(test) Log.info(name+"'s result(s) add result"+(k+1));//TODO TEST
-                                counter++;
-                            }
-                        }
-                    }else{
-                        if(tmp.isEmpty()) return results;
-                        for(var t : tmp){
-                            if(!t.mids.isEmpty()){
-                                String[] get2 = {""};
-                                String u = urls.get(i);
-                                for(int m=0; m<t.mids.size; m++){
-                                    u = u.replace("{" + m + "}", t.mids.get(m));
-                                }
-                                try{
-                                    Http.get(u).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
-                                        get2[0] = res.getResultAsString();
-                                    });
-                                }catch(Exception e){
-                                    if(test) Log.err(name+"'s result"+tmp.indexOf(t)+" failed to conntect url"+i+": "+ e.getMessage());
-                                }
 
-                                if(!get2[0].isEmpty()){
-                                    Jval j = handlers.get(i).url[0].equals("{0}") ? Jval.newObject().put("{0}", get2[0]) : Jval.read(get2[0]);
-                                    if(handlers.get(i).canAdd(j)) t.updateTrack(j, handlers.get(i));
-                                }
-                            }
-                        }
+                try{
+                    Http.get(firstHandler.requestUrl.replace("{0}", encodeKeyWord(keyWord)).replace("{1}", String.valueOf(limit))).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
+                        get[0] = res.getResultAsString();
+                    });
+                }catch(Exception e){
+                    if(test) Log.err(name + " failed to connect search url: "+ e.getMessage());
+                    return results;
+                }
+                var getArray = firstHandler.getArray(Jval.read(get[0]));
+                if(getArray == null || getArray.size == 0){
+                    if(test) Log.err(name+"'s response is empty!");//TODO TEST
+                    return results;
+                }
+                int counter = 0;
+                for(int k = 0; k < getArray.size; k++){
+                    Jval j = getArray.get(k);
+                    if(firstHandler.canAdd(j) && counter < limit){
+                        tmp.add(new TmpTrack(j, firstHandler, handlers));
+                        if(test) Log.info(name+"'s result(s) add result"+(k+1));//TODO TEST
+                        counter++;
                     }
                 }
+
+                boolean cached = Core.settings.getBool("musicSquare-singleRequest", false);
                 for(var t : tmp){
+                    if(!cached){
+                        if(!t.update()) Log.err("Failed to update result"+tmp.indexOf(t)+"!");
+                    }
                     var track = t.getTrack();
                     if(track != null) results.add(track);
                 }
                 return results;
             }
         };
+    }
+
+    public static boolean isInvalidHandler(JvalHandler handler){
+        if(!handler.prerequisite[0].isEmpty() && handler.prerequisite.length % 2 != 0){
+            Log.err("prerequisite must contain an even number of strings!");
+            return true;
+        }
+        if(!handler.replace[0].isEmpty() && handler.replace.length % 2 != 0){
+            Log.err("replace must contain an even number of strings!");
+            return true;
+        }
+        if(!handler.replaceName[0].isEmpty() && handler.replaceName.length % 2 != 0){
+            Log.err("replaceName must contain an even number of strings!");
+            return true;
+        }
+        return false;
     }
 
     public static String encodeKeyWord(String kw){
@@ -146,12 +123,49 @@ public class ProviderParser{
         public String artist = "";
         public String name = "";
         public Seq<String> mids = new Seq<>();
+        public Seq<JvalHandler> handlers = new Seq<>();
 
-        public TmpTrack(Jval jval1, JvalHandler handler1){
-            updateTrack(jval1, handler1);
+        public TmpTrack(Jval jval1, JvalHandler handler1, Seq<JvalHandler> nextHandlers){
+            this.handlers = nextHandlers;
+            update(jval1, handler1);
         }
 
-        public void updateTrack(@Nullable Jval jval, JvalHandler handler){
+        public boolean update(){
+            if(handlers.size == 0) return true;
+            for(var h: handlers){
+                if(!mids.isEmpty()){
+                    String[] get = {""};
+                    String u = h.requestUrl;
+                    for(int m=0; m<mids.size; m++){
+                        u = u.replace("{" + m + "}", mids.get(m));
+                    }
+                    try{
+                        Http.get(u).timeout(Core.settings.getInt("musicSquare-timeout", 15) * 1000).block(res -> {
+                            get[0] = res.getResultAsString();
+                        });
+                    }catch(Exception e){
+                        if(Core.settings.getBool("musicSquare-test", false)) Log.err("Failed to connect url"+handlers.indexOf(h)+": "+e.getMessage());
+                    }
+                    if(!get[0].isEmpty()){
+                        try{
+                            Jval j = h.url[0].equals("{0}") ? Jval.newObject().put("{0}", get[0]) : Jval.read(get[0]);
+                            if(h.canAdd(j)){
+                                update(j, h);
+                            }else{
+                                break;
+                            }
+                        }catch(Exception e){
+                            if(Core.settings.getBool("musicSquare-test", false)) Log.err("Failed to parse url"+handlers.indexOf(h)+" response: "+e.getMessage());
+                            break;
+                        }
+                    }else{
+                        break;
+                    }
+                }
+            }
+            return true;
+        }
+        public void update(@Nullable Jval jval, JvalHandler handler){
             if(jval == null) return;
             if(!handler.url[0].isEmpty()){
                 url = handler.getUrl(jval);
@@ -170,17 +184,20 @@ public class ProviderParser{
         }
 
         public Track getTrack(){
-            if(name.isEmpty() || artist.isEmpty()) return null;
+            if(name.isEmpty()) return null;
             Track t = new Track();
             t.url = url;
             t.pic = pic;
             t.artist = artist;
             t.name = name;
+            if(Core.settings.getBool("musicSquare-singleRequest", false)) t.cache = this;
             return t;
         }
     }
 
     public static class JvalHandler{
+        public String requestUrl;
+
         public String[] url;
         public String[] pic;
         public String[] artist;
@@ -195,7 +212,9 @@ public class ProviderParser{
 
         public String picUrl;
 
-        public JvalHandler(Jval init){
+        public JvalHandler(String requestUrl, Jval init){
+            this.requestUrl = requestUrl;
+
             this.url = init.getString("url").split("__");
             this.pic = init.getString("pic").split("__");
             this.artist = init.getString("artist").split("__");

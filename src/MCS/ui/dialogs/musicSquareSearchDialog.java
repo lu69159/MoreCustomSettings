@@ -17,13 +17,12 @@ import mindustry.graphics.*;
 import mindustry.ui.*;
 import mindustry.ui.dialogs.*;
 
-import static arc.Core.app;
 import static mindustry.Vars.*;
 import static MCS.main.*;
 
 public class musicSquareSearchDialog extends BaseDialog {
     ProviderHub resource = new ProviderHub();
-    String previewingUrl = "";
+    int previewingHash = -1;
     Image loadingSpinner;
     Drawable loading;
     private Table resultTable, sourceTable;
@@ -143,9 +142,9 @@ public class musicSquareSearchDialog extends BaseDialog {
                 }).growX().height(60f);
                 addRow.button("?", Styles.flatt, () -> {
                     String url = "https://github.com/lu69159/MoreCustomSettings/tree/main/docs";
-                    if(!app.openURI(url)){
+                    if(!Core.app.openURI(url)){
                         ui.showInfoFade("@linkfail");
-                        app.setClipboardText(url);
+                        Core.app.setClipboardText(url);
                     }
                 }).size(36f, 60f);
             }).growX().height(60f).row();
@@ -168,7 +167,7 @@ public class musicSquareSearchDialog extends BaseDialog {
             word = tmp;
             resourceChanged = false;
             sound.stopPreView();
-            previewingUrl = "";
+            previewingHash = -1;
             resource.search(word, Core.settings.getInt("musicSquare-limit", 10));
         }
     }
@@ -186,17 +185,19 @@ public class musicSquareSearchDialog extends BaseDialog {
 
     private void complete(){
         loadingSpinner = null;
-        isLoading = false;
-        resultTable.clear();
-        resultTable.top().left();
-        if(resource.allResults.size == 0){
-            resultTable.add(resource.enabled.isEmpty() ? "@musicSquare.noProvider" : "@musicList.empty").pad(20);
-        }else{
-            for(var t : resource.allResults){
-                trackShow(t);
+        if(isLoading){
+            isLoading = false;
+            resultTable.clear();
+            resultTable.top().left();
+            if(resource.allResults.size == 0){
+                resultTable.add(resource.enabled.isEmpty() ? "@musicSquare.noProvider" : "@musicList.empty").pad(20);
+            }else{
+                for(var t : resource.allResults){
+                    trackShow(t);
+                }
             }
+            if(Core.settings.getBool("musicSquare-test", false)) Log.info("Found " + resource.allResults.size + " result(s) at all\n");
         }
-        Log.info("Found " + resource.allResults.size + " result(s) at all\n");
     }
 
     private void clearCoverTextures(){
@@ -226,18 +227,18 @@ public class musicSquareSearchDialog extends BaseDialog {
                     .color(Color.lightGray).growX().wrap();
             }).width(300f).growX().padLeft(8f);
 
-            if(t.url != null && !t.url.isEmpty() && Provider.isSafeUrl(t.url)){
+            if(Provider.isSafeUrl(t.url) || (t.cache != null && Core.settings.getBool("musicSquare-singleRequest", false))){
                 row.button(Icon.play, new ImageButton.ImageButtonStyle(Styles.clearNonei){{
                     imageUp = Icon.play;
                     imageChecked = Icon.pause;
                     imageDisabled = loading;
                 }}, () -> {
-                    if(t.url.equals(previewingUrl)){
+                    if(previewingHash == t.hashCode()){
                         stopPreviewListening();
                     }else{
                         trackPreviewListening(t);
                     }
-                }).checked(b -> t.url.equals(previewingUrl) && sound.isPreview()).disabled(b -> t.url.equals(previewingUrl) && !sound.isPreview()).size(38f);
+                }).checked(b -> previewingHash == t.hashCode() && sound.isPreview()).disabled(b -> previewingHash == t.hashCode() && !sound.isPreview()).size(38f);
                 row.button(Icon.download, Styles.clearNonei, () -> {
                     trackDownload(t);
                 }).size(38f);
@@ -279,17 +280,17 @@ public class musicSquareSearchDialog extends BaseDialog {
     }
 
     private void trackPreviewListening(Track t){
-        if(!Provider.isSafeUrl(t.url)) return;
-        previewingUrl = t.url;
+        if(!Provider.isSafeUrl(t.url) && t.cache == null) return;
+        previewingHash = t.hashCode();
 
         var sound = (CustomSoundControl)control.sound;
 
         t.downloadToTmp(fi -> {
             Core.app.post(() -> {
-                if(!previewingUrl.equals(t.url)) return;
+                if(previewingHash != t.hashCode()) return;
                 if(fi == null){
                     ui.showInfo("@musicSquare.unusableExt");
-                    previewingUrl = "";
+                    previewingHash = -1;
                     return;
                 }
                 try{
@@ -304,15 +305,15 @@ public class musicSquareSearchDialog extends BaseDialog {
                 }
             });
         }, e -> {
-            if(!previewingUrl.equals(t.url)) return;
-            previewingUrl = "";
+            if(previewingHash != t.hashCode()) return;
+            previewingHash = -1;
             Core.app.post(() -> ui.showInfo("@musicSquare.timeOut"));
         }, true);
     }
 
     private void stopPreviewListening(){
         ((CustomSoundControl)control.sound).stopPreView();
-        previewingUrl = "";
+        previewingHash = -1;
     }
 
     private void trackDownload(Track t){
@@ -386,6 +387,16 @@ public class musicSquareSearchDialog extends BaseDialog {
 
                 pref(new MCS_SettingMenuDialog.TitleSetting("@settings.dev"));
 
+                checkPref("musicSquare-singleRequest", false, b -> {
+                    if(isLoading){
+                        resource.next();
+                        isLoading = false;
+                    }
+                    clearCoverTextures();
+                    resultTable.clear();
+                    resultTable.top().left();
+                    resource.allResults.clear();
+                });
                 checkPref("musicSquare-test", false);
             }});
             addCloseButton();

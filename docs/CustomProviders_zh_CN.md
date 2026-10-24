@@ -7,21 +7,25 @@
 
 ## 请求阶段
 
-一个音乐源可以配置连续的请求阶段：`url1`、`url2`、`url3`……每个 URL 都必须有同编号的 `handler`。例如 `url1` 对应 `handler1`，`url2` 对应 `handler2`。
+一个音乐源可以配置连续的请求阶段。搜索请求使用 `url` 和 `handler`；后续阶段从 `url1`/`handler1`、`url2`/`handler2` 开始。每个 URL 都必须有对应的 handler，阶段编号不能跳过。
 
-1. `url1` 是搜索请求。`{0}` 替换为 URL 编码后的关键词，`{1}` 替换为搜索数量上限。解析器使用 `handler1.array` 获取结果数组，按 `handler1.prerequisite` 过滤，并为每个保留结果创建一条曲目。
-2. 对每个后续 URL，解析器会按编号将当前曲目的 MID 值替换到对应占位符中：`mid0` 替换 `{0}`、`mid1` 替换 `{1}`，依此类推。对应的 `handler` 用于筛选和提取响应字段。只有 `url1` 中的 `{0}`、`{1}` 分别替换为关键词和结果上限。
+1. `url` 是搜索请求。`{0}` 替换为 URL 编码后的关键词，`{1}` 替换为搜索数量上限。解析器使用 `handler.array` 获取结果数组，按 `handler.prerequisite` 过滤，并为每个保留结果创建一条曲目。
+2. 对每个后续 URL，解析器会按编号将当前曲目的 MID 值替换到对应占位符中：`mid0` 替换 `{0}`、`mid1` 替换 `{1}`，依此类推。对应的 `handler` 用于筛选和提取响应字段。只有 `url` 中的 `{0}`、`{1}` 分别替换为关键词和结果上限。
 3. 每个 handler 中非空的 `name`、`artist`、`url`、`pic` 会更新曲目已有值；空值不会覆盖前面阶段得到的值。每个 handler 都会用本阶段提取到的 MID 列表替换曲目当前 MID 列表。若要把 ID 传给更后续的 URL 阶段，该阶段的 handler 也必须重新提取它。
-4. 搜索结束后，仅返回同时具有非空`name`和`artist`的曲目。
+4. 搜索结束后，仅返回 `name` 非空的曲目；`artist` 可以为空。
 
 如果首轮没有符合条件的结果，后续 URL 阶段不会请求。
+
+## 单次请求模式
+
+关闭**单次请求模式**时，搜索会在返回结果前执行所有已配置阶段。开启时，搜索只请求 `url`，并保留首阶段解析出的曲目信息和 MID 值；后续阶段会延迟到用户试听或下载该曲目时才请求。因此，尚未解析播放地址的曲目也可能出现在结果列表中；使用曲目时会在后台继续请求后续阶段。后续网络请求失败后，再次试听或下载可以重试。若封面只由后续阶段提供，搜索结果列表中可能不会显示封面。
 
 ## URL 与 handler 字段
 
 | 字段 | 说明 |
 |---|---|
-| `url1`、`url2`…… | 连续的请求 URL。不能跳过编号；每个 URL 都要有对应 handler。`url1` 中 `{0}` 替换为关键词、`{1}` 替换为结果上限；后续 URL 中的 `{0}`、`{1}` 等按顺序替换为当前曲目的 MID 值。 |
-| `handler1`、`handler2`…… | 描述对应阶段的响应字段。`handler1.name` 和 `handler1.artist` 必须配置。 |
+| `url`、`url1`、`url2`…… | 连续的请求 URL。未编号的 `url` 是搜索请求；后续阶段从 `url1` 开始。不能跳过编号；每个 URL 都要有对应 handler。`url` 中 `{0}` 替换为关键词、`{1}` 替换为结果上限；后续 URL 中的 `{0}`、`{1}` 等按顺序替换为当前曲目的 MID 值。 |
+| `handler`、`handler1`、`handler2`…… | 描述对应阶段的响应字段。必须配置 `handler.name`；`handler.artist` 可选。 |
 | `name` | 歌曲标题字段。可使用 `__` 分隔嵌套路径，例如 `track__title`。 |
 | `artist` | 艺术家字段。可使用 `__` 分隔嵌套路径。 |
 | `url` | 播放地址字段。可使用 `__` 分隔嵌套路径。设置为 `{0}` 时会直接将响应解析为纯文本URL|
@@ -41,8 +45,8 @@
 
 ```json
 {
-  "url1": "https://example.com/search?q={0}&limit={1}",
-  "handler1": {
+  "url": "https://example.com/search?q={0}&limit={1}",
+  "handler": {
     "array": "data__items",
     "name": "title",
     "artist": "artist",
@@ -56,83 +60,82 @@
 
 ```json
 {
-  "url1": "https://example.com/search?q={0}&limit={1}",
-  "handler1": {
+  "url": "https://example.com/search?q={0}&limit={1}",
+  "handler": {
     "array": "data__items",
     "prerequisite": "pay__free",
     "mid0": "song_id__alternate_id",
     "name": "title",
     "artist": "artist"
   },
-  "url2": "https://example.com/song/{0}",
-  "handler2": {
+  "url1": "https://example.com/song/{0}",
+  "handler1": {
     "url": "data__play_url",
     "pic": "data__cover"
   }
 }
 ```
 
-URL2 会为每条搜索结果分别请求。详情响应为可直接由 handler 解析的 JSON 对象。
+`url1` 会为每条搜索结果分别请求。详情响应为可直接由 handler 解析的 JSON 对象。
 
 ### 多阶段请求
 
 ```json
 {
-  "url1": "https://example.com/search?q={0}&limit={1}",
-  "handler1": {
+  "url": "https://example.com/search?q={0}&limit={1}",
+  "handler": {
     "array": "items",
     "mid0": "song_id",
     "name": "title",
     "artist": "artist"
   },
-  "url2": "https://example.com/song/{0}",
-  "handler2": {
+  "url1": "https://example.com/song/{0}",
+  "handler1": {
     "mid0": "stream_id"
   },
-  "url3": "https://example.com/stream/{0}",
-  "handler3": {
+  "url2": "https://example.com/stream/{0}",
+  "handler2": {
     "url": "play_url"
   }
 }
 ```
 
-URL2 的响应通过 `handler2.mid0` 将当前 MID 列表替换为 `stream_id`，随后 URL3 将其作为 `{0}` 请求播放地址。
+`url1` 的响应通过 `handler1.mid0` 将当前 MID 列表替换为 `stream_id`，随后 `url2` 将其作为 `{0}` 请求播放地址。
 
 ### 一次请求使用多个 ID
 
 ```json
 {
-  "url1": "https://example.com/search?q={0}&limit={1}",
-  "handler1": {
+  "url": "https://example.com/search?q={0}&limit={1}",
+  "handler": {
     "array": "items",
     "mid0": "song_id",
     "mid1": "source",
     "name": "title",
     "artist": "artist"
   },
-  "url2": "https://example.com/play?id={0}&source={1}",
-  "handler2": {
+  "url1": "https://example.com/play?id={0}&source={1}",
+  "handler1": {
     "url": "data__url"
   }
 }
 ```
 
-此例中，`url2` 的 `{0}` 替换为 `mid0` 提取的 `song_id`，`{1}` 替换为 `mid1` 提取的 `source`。
+此例中，`url1` 的 `{0}` 替换为 `mid0` 提取的 `song_id`，`{1}` 替换为 `mid1` 提取的 `source`。
 
 ## 当前音乐源示例
 
-- **网易云（Netease）**：URL1 直接返回数组，曲目字段包含标题、艺术家、图片和播放地址。
-- **QQ**：`handler1.mid0` 提供 `song_mid`；URL2 响应由 `handler2` 读取播放地址和图片。
-- **酷狗（Kugou）**：结果数组路径为 `data__lists`；`mid0` 依次尝试 `SQFileHash`、`HQFileHash`、`FileHash`；URL2 返回包含 `url` 字段的 JSON 对象。
-- **酷我（Kuwo）**：结果数组路径为 `abslist`；URL2 返回纯文本 URL。
+- **网易云（Netease）**：搜索 URL（`url`）直接返回数组，曲目字段包含标题、艺术家、图片和播放地址。
+- **酷狗（Kugou）**：结果数组路径为 `data__lists`；`mid0` 依次尝试 `SQFileHash`、`HQFileHash`、`FileHash`；`url1` 返回包含 `url` 字段的 JSON 对象。
+- **酷我（Kuwo）**：结果数组路径为 `abslist`；`url1` 返回纯文本 URL。
 
 ## 注意事项
 
 - 使用有效 JSON，字符串使用双引号，不要添加注释。
-- 必须提供 `url1`、`handler1`，且 `handler1.name`、`handler1.artist` 不能为空。
-- URL 阶段必须从 `url1` 开始连续编号；每个 URL 必须有相应 handler。
+- 必须提供 `url`、`handler`，且 `handler.name` 不能为空；`artist` 可选。
+- 请求阶段必须从 `url`/`handler` 开始，后续从 `url1`/`handler1` 开始连续编号；每个 URL 必须有相应 handler。
 - 每个阶段都会替换当前 MID 列表，不会自动沿用上一阶段的 MID。若后续 URL 要使用某个 ID，必须在紧邻它之前的 handler 中配置相应 `midN`。若响应中缺少已配置的 MID 字段，对应 URL 占位符会替换为空字符串。
 - `array` 只用于首轮搜索响应。响应根节点是对象时必须设置有效路径；路径不存在或结果不是数组时，搜索结果为空。
 - `prerequisite`、`replace` 使用 `__` 分隔的字段/值对，需确保值数量为偶数。
-- `url1` 中 `{0}` 是关键词、`{1}` 是结果上限；后续 URL 中的 `{0}`、`{1}` 等分别对应 `mid0`、`mid1` 等。handler 中的字段路径使用对象键名，不要把占位符当作普通 JSON 字段名。
+- `url` 中 `{0}` 是关键词、`{1}` 是结果上限；后续 URL 中的 `{0}`、`{1}` 等分别对应 `mid0`、`mid1` 等。handler 中的字段路径使用对象键名，不要把占位符当作普通 JSON 字段名。
 - 当前请求方式为 HTTP GET；解析器不支持配置请求方法或请求头。

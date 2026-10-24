@@ -19,6 +19,7 @@ public class ProviderHub {
 
     private final ExecutorService searchExecutor;//用于并发查询
     private int searchId;
+    private final Seq<Future<?>> searchTasks = new Seq<>();
 
     public Seq<Provider> enabled = Seq.with();
     public Seq<Track> allResults = new Seq<>();
@@ -52,6 +53,9 @@ public class ProviderHub {
     }
 
     public void search(String kw, int limit){
+        for(Future<?> task : searchTasks) task.cancel(true);
+        searchTasks.clear();
+
         boolean test = Core.settings.getBool("musicSquare-test", false);
         allResults.clear();
         this.keyword = kw;
@@ -76,7 +80,7 @@ public class ProviderHub {
         for(int i = 0; i < sources.size; i++){
             final int sourceIndex = i;
             final Provider source = sources.get(i);
-            searchExecutor.submit(() -> {
+            searchTasks.add(searchExecutor.submit(() -> {
                 try{
                     Seq<Track> results = source.search(kw, limit);
                     resultsBySource[sourceIndex] = results == null ? new Track[0] : results.toArray(Track.class);
@@ -96,8 +100,14 @@ public class ProviderHub {
                         });
                     }
                 }
-            });
+            }));
         }
+    }
+
+    public void next(){
+        searchId++;
+        for(Future<?> task : searchTasks) task.cancel(true);
+        searchTasks.clear();
     }
 
     public void importCustomProvider(Fi fi){
