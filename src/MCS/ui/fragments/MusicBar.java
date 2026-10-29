@@ -151,8 +151,8 @@ public class MusicBar{
                     openVol = !openVol;
                 }).checked(chk -> openVol).update(b -> {
                     float v = state.rules.musicVolume;
-                    b.getStyle().imageUp = v==0 ? Icon.volumeOff : v<1.5f ? Icon.volumeDown : Icon.volumeUp;
-                }).tooltip("@musicBar.ruleVol", true).left().padRight(10f);
+                    b.getStyle().imageUp = (v==0 || settings.getInt("musicvol") <= 0) ? Icon.volumeOff : v<1.5f ? Icon.volumeDown : Icon.volumeUp;
+                }).disabled(dis -> settings.getInt("musicvol") <= 0).tooltip("@musicBar.ruleVol", true).left().padRight(10f);
 
                 buttons.add(moveButton).tooltip("@musicBar.dragToMove", true).left();
             }).width(barScl * (7*60f + 6*10f)).fillY().center();
