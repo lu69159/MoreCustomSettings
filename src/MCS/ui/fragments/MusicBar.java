@@ -34,10 +34,6 @@ public class MusicBar{
         ImageButton moveButton = new ImageButton(Icon.move, Styles.clearNonei){{
             touchable = Touchable.enabled;
         }};
-        Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false){{
-            touchable = Touchable.disabled;
-            visible(() -> sound.getCurrent() == null);
-        }};
         Slider musicSlider = new Slider(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength(), 0.1f, false){{
             changed(() -> {
                 if(sound.getCurrent() != null && !isDragging()) sound.getCurrent().setPosition(getValue());
@@ -46,7 +42,11 @@ public class MusicBar{
                 setRange(0f, sound.getCurrent() == null ? 0f : sound.getCurrent().getLength());
                 if(!isDragging()) setValue(sound.getCurrent() == null ? 0f : sound.getCurrent().getPosition(), false);
             });
-            visible(() -> sound.getCurrent() != null);
+            visible(() -> sound.getCurrent() != null && settings.getInt("musicvol") > 0);
+        }};
+        Slider disabledMusicSlider = new Slider(0f, 0f, 1f, false){{
+            touchable = Touchable.disabled;
+            visible(() -> !musicSlider.visible);
         }};
         Label musicTimeLabel = new Label(() -> musicSlider.visible ? UI.formatTime(musicSlider.getValue() * 60f) : UI.formatTime(0)){{
             touchable = Touchable.disabled;
