@@ -72,8 +72,7 @@ public class MusicBar{
             x = barX < 0 ? settings.getFloat("MCS-musicBarX",graphics.getWidth() / 4f)  : barX;
             y = barY < 0 ? settings.getFloat("MCS-musicBarY",graphics.getHeight() * 7/8f) : barY;
             background(Styles.black3);
-            labelWrap(() -> sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ?
-                    "@empty" : sound.musicLoader.getMusicName(sound.getLastRandomPlayed().file) : sound.musicLoader.getMusicName(sound.getCurrent().file)).padLeft(10f).padRight(10f).growX().left().row();
+            labelWrap(() -> settings.getInt("musicvol") > 0 ? sound.getCurrent() == null ? sound.getLastRandomPlayed() == null ? "@empty" : sound.musicLoader.getMusicName(sound.getLastRandomPlayed().file) : sound.musicLoader.getMusicName(sound.getCurrent().file) : "@mute").padLeft(10f).padRight(10f).growX().left().row();
             stack(disabledMusicSlider, musicSlider, musicTimeLabel).touchable(() -> {
                 if(settings.getBool("instantChangeBossMusic", false) && state.boss() != null) return Touchable.disabled;
                 else return Touchable.childrenOnly;
