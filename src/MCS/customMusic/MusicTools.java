@@ -43,9 +43,9 @@ public class MusicTools {
     public static String encodeFileName(Fi file){
         if(file == null) return "";
         if(pattern.matcher(file.nameWithoutExtension()).find()){
-            return "encodeName_" + encodeName(file.nameWithoutExtension()) + "__" + file.length() + "." + file.extension();
+            return "encodeName_" + encodeName(file.nameWithoutExtension());
         }else{
-            return file.nameWithoutExtension() + "__" + file.length() + "." + file.extension();
+            return file.nameWithoutExtension();
         }
     }
     public static String getFileName(Fi file){
