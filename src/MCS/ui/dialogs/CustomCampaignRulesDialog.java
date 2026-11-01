@@ -130,19 +130,19 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
             current.table(Tex.button, t -> {
                 slider(t, "@rules.enemySpawnMultiplier", customRule.enemySpawnMultiplier, value -> {
                     customRule.enemySpawnMultiplier = value;
-                }, 10f, 1000f, 1.0f, true);
+                }, 10f, 1000f, 1, true);
                 slider(t, "@rules.wavetimemultiplier", customRule.waveTimeMultiplier, value -> {
                     customRule.waveTimeMultiplier = value;
-                }, 10f, 1000f, 1.0f, true);
+                }, 10f, 1000f, 1, true);
                 slider(t, "@rules.extendWaves", customRule.extendWaves, value -> {
                     customRule.extendWaves = (int)value;
-                }, 0, 50, 1, false);
+                }, 0, 50, 1, "", true);
                 slider(t, "@rules.unitfactoryactivation", customRule.unitFactoryActivationDelay, value -> {
                     customRule.unitFactoryActivationDelay = value * 60f;
-                }, 0, 60, 0.5f, StatUnit.minutes.localized());
+                }, 0, 60, 0.5f, StatUnit.minutes.localized(), false);
                 slider(t, "@rules.radius", customRule.dropZoneRadius, value -> {
                     customRule.dropZoneRadius = value;
-                }, 1, 100, 1, false);
+                }, 1, 100, 0.5f, false);
             }).left().growX().row();
 
             if(planet.allowSectorInvasion){
@@ -194,14 +194,14 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
 
     void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, boolean percent){
         if(percent) {
-            slider(t, text, def, listener, min, max, step, "%");
+            slider(t, text, def, listener, min, max, step, "%", true);
         }
         else{
-            slider(t, text, def, listener, min, max, step, "");
+            slider(t, text, def, listener, min, max, step, "", false);
         }
     }
 
-    void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, String tail){
+    void slider(Table t, String text, float def, Floatc listener, float min, float max, float step, String tail, boolean isInt){
         Table row = new Table();
 
         Label label = new Label(text);
@@ -210,7 +210,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
         Slider slider = new Slider(min, max, step, false);
         slider.setValue(def);
 
-        TextField field = Elem.newField(def + "", s -> {
+        TextField field = Elem.newField(String.format(isInt ? "%.0f" : "%.1f", def) , s -> {
             try {
                 float parsedValue = Strings.parseFloat(s);
                 slider.setValue(parsedValue);
@@ -222,7 +222,7 @@ public class CustomCampaignRulesDialog extends CampaignRulesDialog{
             if(customRule.customDiff != CustomDifficulty.custom){
                 customRule.customDiff = CustomDifficulty.custom;
             }
-            field.setText(String.format("%.1f", slider.getValue()));
+            field.setText(String.format(isInt ? "%.0f" : "%.1f", slider.getValue()));
         });
 
         row.add(slider).growX().padLeft(10f);
